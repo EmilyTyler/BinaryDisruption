@@ -28,4 +28,4 @@ def  relativeVelocity():
 #Initialise binary
 #Find mean anomaly
 M = random.uniform(0.0, 2.0*math.pi)
-print M
+
