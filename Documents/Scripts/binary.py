@@ -26,6 +26,11 @@ def  relativeVelocity():
 
 
 #Initialise binary
-#Find mean anomaly
+#Randomise mean anomaly
 M = random.uniform(0.0, 2.0*math.pi)
+#Find eccentric anomaly from Kepler's equation
+E = findEccentricAnomaly(e, M)
+#Find true anomaly
+f = 2.0*math.atan(((1.0+e)/(1.0-e))**0.5 * math.tan(0.5*E))
+
 
