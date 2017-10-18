@@ -18,8 +18,8 @@ def findEccentricAnomaly(e, M):
                 if (count==100):
                         print('findEccentricAnomaly failed to converge!')
                         break
-        print 'Mean anomaly = ', M
-        print 'Mean anomaly calculated from E = ', (E-e*math.sin(E))
+        #print 'Mean anomaly = ', M
+        #print 'Mean anomaly calculated from E = ', (E-e*math.sin(E))
         return E
         
         
