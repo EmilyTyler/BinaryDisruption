@@ -1,0 +1,1 @@
+#Functions to calculate encounter rates and to implement encounters

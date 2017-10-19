@@ -10,8 +10,8 @@ from evolve_binary import evolveBinary
 
 
 #Initialise variables
-#Semi-major axis, pc
-a = 0.1
+#Semi-major axis, m
+a = 0.1 * 3.086*10.0**16.0
 #Eccentricity
 e = 0.7
 #Mass of binary stars
@@ -19,23 +19,19 @@ m1 = 2.0*10.0**30.0
 m2 = 2.0*10.0**30.0
 #Density of dark matter halo solar masses/Mpc**3
 rho = 0.08
+#Convert to SI
+rho = rho * 2.0*10.0**30.0/((3.086*10.0**22.0)**3.0)
 #Number of time steps
 N_t = 10000
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0
-#RMS of Maxwellian velocity distribution, km/s
-v_rms = 100.0
+#RMS of Maxwellian velocity distribution, m/s
+v_rms = 100.0 * 1000.0
 
 
 #Global variables
 G = 6.67 * 10.0**(-11.0)
 
-
-
-#Convert to SI
-a = a * 3.086*10.0**16.0
-v_rms = v_rms * 1000.0
-rho = rho * 2.0*10.0**30.0/((3.086*10.0**22.0)**3.0)
 
 #Function to find perturber velocity
 def  relativeVelocity():
@@ -59,12 +55,13 @@ r = a*(1.0 - e**2.0)/(1.0 + e*math.cos(f))
 n = math.sqrt(G*M_b/(a**3.0))
 #Initial coordinates of first star (cartesian)
 x1 = np.array([0.0, 0.0, 0.0])
+#Initial velocity of first star
+v1 = np.array([0.0, 0.0, 0.0])
 #Initial coordinates of second star (cartesian)
 x2 = np.array([r*math.cos(f), r*math.sin(f), 0.0])
 #Initial velocity of second star
 v2 = np.array([- n*a/(math.sqrt(1.0-e**2.0)) * math.sin(f), n*a/(math.sqrt(1.0-e**2.0)) * (e + math.cos(f)), 0.0])
-#Initial velocity of first star
-v1 = -m2/m1 * v2
+
 
 
 #Randomly orient binary
@@ -77,14 +74,14 @@ x2 = np.transpose(np.dot(R_phi, np.transpose(x2)))
 v1 = np.transpose(np.dot(R_phi, np.transpose(v1)))
 v2 = np.transpose(np.dot(R_phi, np.transpose(v2)))
 #Rotation about x axis by angle i
-sini = random.uniform(0.0, 1.0)
-i = math.asin(sini)
-R_i = np.array([[1.0, 0.0, 0.0],
-               [0.0, math.cos(i), math.sin(i)],
-               [0.0, -math.sin(i), math.cos(i)]])
-x2 = np.transpose(np.dot(R_i, np.transpose(x2)))
-v1 = np.transpose(np.dot(R_i, np.transpose(v1)))
-v2 = np.transpose(np.dot(R_i, np.transpose(v2)))
+sinI = random.uniform(0.0, 1.0)
+I = math.asin(sinI)
+R_I = np.array([[1.0, 0.0, 0.0],
+               [0.0, math.cos(I), math.sin(I)],
+               [0.0, -math.sin(I), math.cos(I)]])
+x2 = np.transpose(np.dot(R_I, np.transpose(x2)))
+v1 = np.transpose(np.dot(R_I, np.transpose(v1)))
+v2 = np.transpose(np.dot(R_I, np.transpose(v2)))
 
 
 #Create array to store positions and velocities over time
@@ -95,7 +92,7 @@ t = np.zeros(N_t)
 
 
 #Temporary time step set up
-dt = 0.001 * 2.0*math.pi*math.sqrt(a**3.0/(G*M_b))
+dt = 0.0001 * 2.0*math.pi*math.sqrt(a**3.0/(G*M_b))
 
 
 #Integrand for collision rates
