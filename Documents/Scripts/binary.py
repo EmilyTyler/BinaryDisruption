@@ -3,10 +3,9 @@ import math
 import random
 
 from matplotlib import pyplot as plt
-from scipy.integrate import quad, dblquad
 
 from eccentric_anomaly import findEccentricAnomaly
-from evolve_binary import evolveBinary
+from encounters import noEncounters
 
 
 #Initialise variables
@@ -31,14 +30,6 @@ v_rms = 100.0 * 1000.0
 
 #Global variables
 G = 6.67 * 10.0**(-11.0)
-
-
-#Function to find perturber velocity
-def  relativeVelocity():
-        #Velocity is in z-direction
-        v_rel = np.array([0.0,0.0,v_rms])
-        return v_rel
-
 
 #Initialise binary
 #Total mass of binary
@@ -90,53 +81,19 @@ X[0] = [x1, x2, v1, v2]
 t = np.zeros(N_t)
 
 
-
-#Temporary time step set up
-dt = 0.0001 * 2.0*math.pi*math.sqrt(a**3.0/(G*M_b))
-
-
-#Integrand for collision rates
-def integrand(b, v, n_p, v_rms):
-        return ((2.0*(2.0*math.pi)**0.5*n_p*b*v**3.0)/(v_rms**3.0)*np.exp(-v**2.0/(2.0*v_rms**2.0)))
+#Maximum time step
+dt_max = 0.0005 * 2.0*math.pi*math.sqrt(a**3.0/(G*M_b))
 
 #Keep track of a over time
 A = np.zeros(N_t)
 A[0] = a
 
-for i in xrange(1, N_t):
-        
-        '''
-        #Calculate encounter rates
-        #Catastrophic
-        k_cat = 0.07
-        R_cat = G**0.5*rho*a**(3.0/2.0)/(M_b**(0.5)*k_cat)
-        #Diffusive
-        Lambda = v_rms**2.0*a/(G*M_p)
-        k_diff = 0.022/(math.log(Lambda))
-        R_diff = G*M_p*rho*a/(k_diff*v_rms*M_b)
-        
-        
-        #Calculate time step
-        dt = 0.1/(np.max([R_cat, R_diff]))
-        '''
-        #Add time step to time array
-        t[i] = t[i-1]+dt
-        '''
-        
-        #Check if there are any encounters
-        N_cat = np.random.poisson(R_cat * dt)
-        N_diff = np.random.poisson(R_diff * dt)
-        print 'N_cat = ', N_cat
-        print 'N_diff = ', N_diff
-        
-        #Implement diffusive encounters
-        '''
-        
-        
-        #Evolve orbit
-        X[i] = evolveBinary(X[i-1,0], X[i-1,1], X[i-1,2], X[i-1,3], m1, m2, dt)
-       
-        A[i] = G*M_b*np.linalg.norm(X[i,0]-X[i,1])/(2.0*G*M_b-np.linalg.norm(X[i,0]-X[i,1])*np.dot((X[i,2]-X[i,3]),(X[i,2]-X[i,3])))
+#Evolve orbit
+#No encounters
+(t, X, A) = noEncounters(dt_max, N_t, t, X, A, m1, m2)
+#Binning method
+
+#Monte Carlo method
 
 
 #Plot position against time
