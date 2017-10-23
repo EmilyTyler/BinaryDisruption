@@ -29,7 +29,7 @@ def noEncounters(dt, N_t, t, X, A, m1, m2):
         return(t, X, A)
 
 #Implements encounters with binning method
-def binning(a, v_rms, n, n_p, dt_max, N_t, t):
+def binning(a, v_rms, n, n_p, dt_max, N_t, t, X, A, m1, m2):
              
         #Set up b array
         b_min = a
@@ -51,7 +51,7 @@ def binning(a, v_rms, n, n_p, dt_max, N_t, t):
 
         #Matrix of encounter rates
         #R[i,j] is the encounter rate for objects with impact parameter b[i] and relative velocity v[j]
-        R = np.fromfunction(lambda i,j: encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv)), (N_b,N_v))
+        R = np.fromfunction(lambda i,j: encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv)), (N_b,N_v), dtype=int)
         
         #Calculate time step
         dt = np.min([0.1/np.amax(R),dt_max])
@@ -63,25 +63,27 @@ def binning(a, v_rms, n, n_p, dt_max, N_t, t):
                 
                 #Check if there are any encounters
                 #Number of encounters matrix:
-                N = np.fromfunction(lambda i,j: np.random.poisson(R[i,j]*dt), (N_b,N_v))
-                #Total number of encounters
-                N_enc = np.sum(R)
-                
-                
-                
+                N = np.fromfunction(lambda i,j: np.random.poisson(R[i,j]*dt), (N_b,N_v), dtype=int)
+                #Array of indices where encounters happen
+                i_enc = np.nonzero(N)
+        
                 #Implement encounters
-                
-                
+                for k in range(np.size(i_enc[0,:])):
+                        for l in range(N(i[k])):
+                                X = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], X)
+                                                
                 
                 #Evolve orbit
                 X[i] = evolveBinary(X[i-1,0], X[i-1,1], X[i-1,2], X[i-1,3], m1, m2, dt)
                 #Semi-major axis
                 A[i] = G*M_b*np.linalg.norm(X[i,0]-X[i,1])/(2.0*G*M_b-np.linalg.norm(X[i,0]-X[i,1])*np.dot((X[i,2]-X[i,3]),(X[i,2]-X[i,3])))
 
+        return (t, X, A)
 
-
-
-
+#Implement encounters with relative velocity v and impact parameter b using impulse approximation
+def encounter(m1, m2, v, b, X):
+        #IMPLEMENT ENCOUNTER
+        return X
 
 
 

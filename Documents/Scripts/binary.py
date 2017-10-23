@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 
 from eccentric_anomaly import findEccentricAnomaly
 from encounters import noEncounters
+from encounters import binning
 
 
 #Initialise variables
@@ -27,7 +28,8 @@ M_p = 3.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 100.0 * 1000.0
 
-
+#Number density of perturbers
+n_p = rho/M_p
 #Global variables
 G = 6.67 * 10.0**(-11.0)
 
@@ -90,9 +92,9 @@ A[0] = a
 
 #Evolve orbit
 #No encounters
-(t, X, A) = noEncounters(dt_max, N_t, t, X, A, m1, m2)
+#(t, X, A) = noEncounters(dt_max, N_t, t, X, A, m1, m2)
 #Binning method
-
+(t, X, A) = binning(a, v_rms, n, n_p, dt_max, N_t, t, X, A, m1, m2)
 #Monte Carlo method
 
 
