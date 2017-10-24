@@ -1,8 +1,9 @@
 #Functions to calculate encounter rates and to implement encounters
 
 import numpy as np
-from scipy.integrate import quad, dblquad
+from evolve_binary import integrateBinary
 from evolve_binary import evolveBinary
+from orbital_elements import semimajorAxis
 
 #Global variables
 G = 6.67 * 10.0**(-11.0)
@@ -14,22 +15,36 @@ def integrand(b, v, n_p, v_rms):
 
 #Encounter rate for impact parameters between b0 and b1 and for relative velocities between v0 and v1
 def encounterRate(n_p, v_rms, b0, b1, v0, v1):
-        return dblquad(lambda b,v: integrand(b,v,n_p,v_rms), b0, b1, lambda v: v0, lambda v: v1)
+        rate = np.sqrt(2.0*np.pi)*n_p/v_rms*(b1**2.0-b0**2.0)*((v0**2.0+2.0*v_rms**2.0)*np.exp(-v0**2.0/(2.0*v_rms**2.0))-(v1**2.0+2.0*v_rms**2.0)*np.exp(-v1**2.0/(2.0*v_rms**2.0)))
+        return rate
 
 
 #Evolve binary without encounters
-def noEncounters(dt, N_t, t, X, A, m1, m2):
-        for i in xrange(1, N_t):
+def noEncounters(N_t, t, X, A, m1, m2):
+        '''
+        for i in range(1, N_t//2):
+                #Time step
+                dt = 0.0005 * 2.0*np.pi*np.sqrt(A[i-1]**3.0/(G*(m1+m2)))
                 #Add time step to time array
                 t[i] = t[i-1]+dt
                 #Evolve orbit
-                X[i] = evolveBinary(X[i-1,0], X[i-1,1], X[i-1,2], X[i-1,3], m1, m2, dt)
+                X[i] = integrateBinary(X[i-1,0], X[i-1,1], X[i-1,2], X[i-1,3], m1, m2, dt)
                 #Semi-major axis
-                A[i] = G*(m1+m2)*np.linalg.norm(X[i,0]-X[i,1])/(2.0*G*(m1+m2)-np.linalg.norm(X[i,0]-X[i,1])*np.dot((X[i,2]-X[i,3]),(X[i,2]-X[i,3])))
+                A[i] = semimajorAxis(X[i], m1, m2)
+        '''
+        for i in range(1, N_t):
+                #Time step
+                dt = 0.00005 * 2.0*np.pi*np.sqrt(A[i-1]**3.0/(G*(m1+m2)))
+                #Add time step to time array
+                t[i] = t[i-1]+dt
+                #Evolve orbit
+                X[i] = evolveBinary(X[i-1], m1, m2, dt)
+                #Semi-major axis
+                A[i] = semimajorAxis(X[i], m1, m2)               
         return(t, X, A)
 
 #Implements encounters with binning method
-def binning(a, v_rms, n, n_p, dt_max, N_t, t, X, A, m1, m2):
+def binning(a, v_rms, n, n_p, N_t, t, X, A, m1, m2):
              
         #Set up b array
         b_min = a
@@ -52,32 +67,32 @@ def binning(a, v_rms, n, n_p, dt_max, N_t, t, X, A, m1, m2):
         #Matrix of encounter rates
         #R[i,j] is the encounter rate for objects with impact parameter b[i] and relative velocity v[j]
         R = np.fromfunction(lambda i,j: encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv)), (N_b,N_v), dtype=int)
-        
-        #Calculate time step
-        dt = np.min([0.1/np.amax(R),dt_max])
-                
-        #Add time steps to time array
-        t = np.fromfunction(lambda i: i*dt, (N_t,))
 
-        for i in xrange(1, N_t):
+
+        for i in range(1, N_t):
+                
+                #Maximum time step
+                dt_max = 0.0005 * 2.0*np.pi*np.sqrt(A[i-1]**3.0/(G*(m1+m2)))
+                #Calculate time step
+                dt = np.min([1.0/np.amax(R),dt_max])
+                #Add time step to time array
+                t[i] = t[i-1] + dt
                 
                 #Check if there are any encounters
                 #Number of encounters matrix:
                 N = np.fromfunction(lambda i,j: np.random.poisson(R[i,j]*dt), (N_b,N_v), dtype=int)
                 #Array of indices where encounters happen
                 i_enc = np.nonzero(N)
-        
                 #Implement encounters
-                for k in range(np.size(i_enc[0,:])):
+                for k in range(np.size(i_enc[0])):
+                        print(i_enc[:,k])
                         for l in range(N(i[k])):
-                                X = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], X)
-                                                
+                                X = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], X)                                                
                 
                 #Evolve orbit
-                X[i] = evolveBinary(X[i-1,0], X[i-1,1], X[i-1,2], X[i-1,3], m1, m2, dt)
+                X[i] = integrateBinary(X[i-1,0], X[i-1,1], X[i-1,2], X[i-1,3], m1, m2, dt)
                 #Semi-major axis
-                A[i] = G*M_b*np.linalg.norm(X[i,0]-X[i,1])/(2.0*G*M_b-np.linalg.norm(X[i,0]-X[i,1])*np.dot((X[i,2]-X[i,3]),(X[i,2]-X[i,3])))
-
+                A[i] = semimajorAxis(X[i], m1, m2)
         return (t, X, A)
 
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation

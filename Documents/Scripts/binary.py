@@ -83,33 +83,29 @@ X[0] = [x1, x2, v1, v2]
 t = np.zeros(N_t)
 
 
-#Maximum time step
-dt_max = 0.0005 * 2.0*math.pi*math.sqrt(a**3.0/(G*M_b))
-
 #Keep track of a over time
 A = np.zeros(N_t)
 A[0] = a
 
 #Evolve orbit
 #No encounters
-#(t, X, A) = noEncounters(dt_max, N_t, t, X, A, m1, m2)
+(t, X, A) = noEncounters(N_t, t, X, A, m1, m2)
 #Binning method
-(t, X, A) = binning(a, v_rms, n, n_p, dt_max, N_t, t, X, A, m1, m2)
+#(t, X, A) = binning(a, v_rms, n, n_p, N_t, t, X, A, m1, m2)
 #Monte Carlo method
 
 
-#Plot position against time
-#plt.plot(X[:,0,0],X[:,0,1])
-#plt.plot(X[:,1,0],X[:,1,1])
+
+#Plot semi-major axis against time
 plt.plot(t,A)
-print 'A[1]-A[0] = ', (A[1]-A[0])
-print 'A[2]-A[1] = ', (A[2]-A[1])
-print 'A[3]-A[2] = ', (A[3]-A[2])
+print('A[1]-A[0] = ', (A[1]-A[0]))
+print('A[2]-A[1] = ', (A[2]-A[1]))
+print('A[3]-A[2] = ', (A[3]-A[2]))
 plt.show()
-plt.plot(t, np.linalg.norm(X[:,2], axis=1))
-plt.plot(t, np.linalg.norm(X[:,3], axis=1))
+#Plot relative velocity against time
+plt.plot(t, np.linalg.norm((X[:,2]-X[:,3]), axis=1))
 plt.show()
-#plt.plot(t, np.linalg.norm(X[:,0]-X[:,1], axis=1))
+#Plot relative x position against relative y position
 plt.plot((X[:,0,1]-X[:,1,1]), (X[:,0,0]-X[:,1,0]))
 plt.show()
 
