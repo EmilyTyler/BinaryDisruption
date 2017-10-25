@@ -21,7 +21,7 @@ def encounterRate(n_p, v_rms, b0, b1, v0, v1):
 
 #Evolve binary without encounters
 def noEncounters(N_t, t, X, A, m1, m2):
-        '''
+        
         for i in range(1, N_t//2):
                 #Time step
                 dt = 0.0005 * 2.0*np.pi*np.sqrt(A[i-1]**3.0/(G*(m1+m2)))
@@ -31,10 +31,10 @@ def noEncounters(N_t, t, X, A, m1, m2):
                 X[i] = integrateBinary(X[i-1,0], X[i-1,1], X[i-1,2], X[i-1,3], m1, m2, dt)
                 #Semi-major axis
                 A[i] = semimajorAxis(X[i], m1, m2)
-        '''
-        for i in range(1, N_t):
+        
+        for i in range(N_t//2, N_t):
                 #Time step
-                dt = 0.00005 * 2.0*np.pi*np.sqrt(A[i-1]**3.0/(G*(m1+m2)))
+                dt = 0.0005 * 2.0*np.pi*np.sqrt(A[i-1]**3.0/(G*(m1+m2)))
                 #Add time step to time array
                 t[i] = t[i-1]+dt
                 #Evolve orbit
@@ -85,7 +85,6 @@ def binning(a, v_rms, n, n_p, N_t, t, X, A, m1, m2):
                 i_enc = np.nonzero(N)
                 #Implement encounters
                 for k in range(np.size(i_enc[0])):
-                        print(i_enc[:,k])
                         for l in range(N(i[k])):
                                 X = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], X)                                                
                 
@@ -97,6 +96,7 @@ def binning(a, v_rms, n, n_p, N_t, t, X, A, m1, m2):
 
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation
 def encounter(m1, m2, v, b, X):
+        print('ENCOUNTER!')
         #IMPLEMENT ENCOUNTER
         return X
 

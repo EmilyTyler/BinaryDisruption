@@ -28,7 +28,7 @@ def orbitalElements(X, m1, m2):
         I = np.arccos(h[2]/np.linalg.norm(h))
         #True anomaly
         f = np.arcsin(a*(1.0-e**2.0)*R_dot/(np.linalg.norm(h)*e))
-        if I!=0:
+        if I != 0.0:
                 #
                 Omega = np.arcsin(np.sign(h[2])*h[0]/(np.linalg.norm(h)*np.sin(I)))
                 omega_plus_f = np.arcsin((X[0,2]-X[1,2])/(R*np.sin(I)))

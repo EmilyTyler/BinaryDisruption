@@ -55,7 +55,7 @@ x2 = np.array([r*math.cos(f), r*math.sin(f), 0.0])
 #Initial velocity of second star
 v2 = np.array([- n*a/(math.sqrt(1.0-e**2.0)) * math.sin(f), n*a/(math.sqrt(1.0-e**2.0)) * (e + math.cos(f)), 0.0])
 
-
+'''
 
 #Randomly orient binary
 #Rotation about z axis by angle phi
@@ -75,7 +75,7 @@ R_I = np.array([[1.0, 0.0, 0.0],
 x2 = np.transpose(np.dot(R_I, np.transpose(x2)))
 v1 = np.transpose(np.dot(R_I, np.transpose(v1)))
 v2 = np.transpose(np.dot(R_I, np.transpose(v2)))
-
+'''
 
 #Create array to store positions and velocities over time
 X = np.zeros([N_t,4,3])
