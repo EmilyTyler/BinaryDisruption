@@ -29,9 +29,9 @@ def evolveBinary(X, m1, m2, t):
         X[3] = np.array([- n*a/(math.sqrt(1.0-e**2.0)) * math.sin(f_new), n*a/(math.sqrt(1.0-e**2.0)) * (e + math.cos(f_new)), 0.0])
         '''
         #Rotate into reference frame
-        R = [[np.cos(Omega)*np.cos(omega) - np.sin(Omega)*np.cos(I)*np.sin(omega), -np.cos(Omega)*np.sin(omega)-np.sin(Omega)*np.cos(I)*np.cos(omega), np.sin(I)*np.sin(Omega)],
+        R = np.array([[np.cos(Omega)*np.cos(omega) - np.sin(Omega)*np.cos(I)*np.sin(omega), -np.cos(Omega)*np.sin(omega)-np.sin(Omega)*np.cos(I)*np.cos(omega), np.sin(I)*np.sin(Omega)],
              [np.sin(Omega)*np.cos(omega) + np.cos(Omega)*np.cos(I)*np.sin(omega), -np.sin(Omega)*np.sin(omega)+np.cos(Omega)*np.cos(I)*np.cos(omega),-np.sin(I)*np.cos(Omega)],
-             [np.sin(I)*np.sin(omega), np.sin(I)*np.cos(omega), np.cos(I)]]
+             [np.sin(I)*np.sin(omega), np.sin(I)*np.cos(omega), np.cos(I)]])
         X[1] = np.transpose(np.dot(R, np.transpose(X[1])))
         X[3] = np.transpose(np.dot(R, np.transpose(X[3])))
         '''

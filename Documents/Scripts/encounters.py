@@ -8,10 +8,6 @@ from orbital_elements import semimajorAxis
 #Global variables
 G = 6.67 * 10.0**(-11.0)
 
-#Integrand for encounter rates
-def integrand(b, v, n_p, v_rms):
-        return ((2.0*(2.0*math.pi)**0.5*n_p*b*v**3.0)/(v_rms**3.0)*np.exp(-v**2.0/(2.0*v_rms**2.0)))
-
 
 #Encounter rate for impact parameters between b0 and b1 and for relative velocities between v0 and v1
 def encounterRate(n_p, v_rms, b0, b1, v0, v1):
