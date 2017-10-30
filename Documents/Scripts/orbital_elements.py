@@ -38,26 +38,26 @@ def orbitalElements(X, m1, m2):
                         print('f not found')
         #Longitude of ascending node
         if I != 0.0:            
-                Omega = np.arcsin(np.sign(h[2])*h[0]/(np.linalg.norm(h)*np.sin(I)))
-                print(abs(np.cos(Omega) + np.sign(h[2])*h[1]/(np.linalg.norm(h)*np.sin(I))))
-                if abs(np.cos(Omega) + np.sign(h[2])*h[1]/(np.linalg.norm(h)*np.sin(I))) > 10.0**(-10.0):
-                        print('here')
+                Omega = np.arcsin(-np.sign(h[2])*h[0]/(np.linalg.norm(h)*np.sin(I)))
+                #print(abs(-np.cos(Omega) + np.sign(h[2])*h[1]/(np.linalg.norm(h)*np.sin(I))))
+                if abs(-np.cos(Omega) + np.sign(h[2])*h[1]/(np.linalg.norm(h)*np.sin(I))) > 10.0**(-10.0):
+                        #print('here')
                         Omega = np.sign(Omega)*np.pi - Omega
-                        print(abs(np.cos(Omega) + np.sign(h[2])*h[1]/(np.linalg.norm(h)*np.sin(I))))
-                        print(abs(np.sin(Omega) - np.sign(h[2])*h[0]/(np.linalg.norm(h)*np.sin(I))))
-                        if abs(np.cos(Omega) + np.sign(h[2])*h[1]/(np.linalg.norm(h)*np.sin(I))) > 10.0**(-10.0):
+                        #print(abs(-np.cos(Omega) + np.sign(h[2])*h[1]/(np.linalg.norm(h)*np.sin(I))))
+                        #print(abs(-np.sin(Omega) - np.sign(h[2])*h[0]/(np.linalg.norm(h)*np.sin(I))))
+                        if abs(-np.cos(Omega) + np.sign(h[2])*h[1]/(np.linalg.norm(h)*np.sin(I))) > 10.0**(-10.0):
                                 print('Omega not found')            
         else:
                 Omega = 0.0
         #Argument of pericentre
         omega_plus_f = np.arcsin((X[0,2]-X[1,2])/R*np.sin(I))
-        print(abs(np.cos(omega_plus_f) - ((X[0,0]-X[1,0])/R + np.sin(Omega)*np.sin(omega_plus_f)*np.cos(I))/np.cos(Omega)))
-        if abs(np.cos(omega_plus_f) - ((X[0,0]-X[1,0])/R + np.sin(Omega)*np.sin(omega_plus_f)*np.cos(I))/np.cos(Omega)) > 10.0**(-10.0):
+        print(abs(-np.cos(omega_plus_f) - ((X[0,0]-X[1,0])/R + np.sin(Omega)*np.sin(omega_plus_f)*np.cos(I))/np.cos(Omega)))
+        if abs(-np.cos(omega_plus_f) - ((X[0,0]-X[1,0])/R + np.sin(Omega)*np.sin(omega_plus_f)*np.cos(I))/np.cos(Omega)) > 10.0**(-10.0):
                 print('here2')
                 omega_plus_f = np.sign(omega_plus_f)*np.pi - omega_plus_f
-                print(abs(np.cos(omega_plus_f) - ((X[0,0]-X[1,0])/R + np.sin(Omega)*np.sin(omega_plus_f)*np.cos(I))/np.cos(Omega)))
+                print(abs(-np.cos(omega_plus_f) - ((X[0,0]-X[1,0])/R + np.sin(Omega)*np.sin(omega_plus_f)*np.cos(I))/np.cos(Omega)))
                 print(abs(np.sin(omega_plus_f) - (X[0,2]-X[1,2])/R*np.sin(I)))
-                if abs(np.cos(omega_plus_f) - ((X[0,0]-X[1,0])/R + np.sin(Omega)*np.sin(omega_plus_f)*np.cos(I))/np.cos(Omega)) > 10.0**(-10.0):
+                if abs(-np.cos(omega_plus_f) - ((X[0,0]-X[1,0])/R + np.sin(Omega)*np.sin(omega_plus_f)*np.cos(I))/np.cos(Omega)) > 10.0**(-10.0):
                         print('omega_plus_f not found')
         omega = (omega_plus_f - f) % (2.0*np.pi)
         if omega > np.pi:

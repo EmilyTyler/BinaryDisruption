@@ -13,7 +13,7 @@ def orbitalElementsTest():
         f = 0.0
         I = 2.0
         Omega = 1.0
-        omega = -1.5
+        omega = 2.0
         m1 = 2.0*10.0**30.0
         m2 = 2.0*10.0**30.0
         
