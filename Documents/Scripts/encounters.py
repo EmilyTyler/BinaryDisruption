@@ -40,8 +40,11 @@ def noEncounters(N_t, t, X, A, m1, m2):
         return(t, X, A)
 
 #Implements encounters with binning method
-def binning(a, v_rms, n, n_p, N_t, t, X, A, m1, m2):
+def binning(a, v_rms, n_p, N_t, t, X, A, m1, m2, M_p):
              
+        #Mean motion
+        n = np.sqrt(G*(m1+m2)/(a**3.0))
+        
         #Set up b array
         b_min = a
         b_max = v_rms/n
@@ -82,7 +85,7 @@ def binning(a, v_rms, n, n_p, N_t, t, X, A, m1, m2):
                 #Implement encounters
                 for k in range(np.size(i_enc[0])):
                         for l in range(N(i[k])):
-                                X = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], X)                                                
+                                X = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], X, M_p)                                                
                 
                 #Evolve orbit
                 X[i] = integrateBinary(X[i-1,0], X[i-1,1], X[i-1,2], X[i-1,3], m1, m2, dt)
@@ -90,10 +93,23 @@ def binning(a, v_rms, n, n_p, N_t, t, X, A, m1, m2):
                 A[i] = semimajorAxis(X[i], m1, m2)
         return (t, X, A)
 
-#Implement encounters with relative velocity v and impact parameter b using impulse approximation
-def encounter(m1, m2, v, b, X):
+#Implement encounters with relative velocity v and impact parameter b using impulse approximation, M_p is perturber mass
+def encounter(m1, m2, v, b, X, M_p):
         print('ENCOUNTER!')
-        #IMPLEMENT ENCOUNTER
+        #90 degree deflection radius
+        b_90 = G*(m1+m2)/v**2.0
+        #Star masses
+        m = np.array([m1, m2])
+        #Find which star is closer
+        closest_star = np.random.randint(2)
+        #Calculate impact parameters
+        b[closest_star] = abs(m[closest_star]*(np.linalg.norm(X[0]-X[1])/(m1+m2) - b)
+        b[closest_star-1] = m[closest_star-1]*(np.linalg.norm(X[0]-X[1])/(m1+m2) + b
+        #Implement encounter for both stars  
+        for i in [0,1]:
+                v_perp = 2.0*M_p*v/(m[i]+M_p) * (b[i]/b_90)/(1.0 + b[i]**2.0/b_90**2.0)
+                v_parr = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b[i]**2.0/b_90**2.0)
+                #CHANGE VELOCITIES
         return X
 
 
