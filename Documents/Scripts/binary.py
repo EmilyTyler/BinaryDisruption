@@ -14,12 +14,12 @@ e = 0.7
 #Mass of binary stars
 m1 = 2.0*10.0**30.0
 m2 = 2.0*10.0**30.0
-#Density of dark matter halo solar masses/Mpc**3
-rho = 0.08
+#Density of dark matter halo solar masses/pc**3
+rho = 0.008
 #Convert to SI
-rho = rho * 2.0*10.0**30.0/((3.086*10.0**22.0)**3.0)
+rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number of time steps
-N_t = 10000
+N_t = 1000000
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s

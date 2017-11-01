@@ -24,7 +24,6 @@ def orbitalElements(X, m1, m2):
                 R_dot = 0.0
         else:
                 R_dot = np.sign(R_dot_Rdot)*np.sqrt(V**2.0 - np.dot(h,h)/(R**2.0))            
-        print(x)
         #Semi-major axis
         a = (2.0/R - V**2.0/(G*(m1+m2)))**(-1.0)
         #Eccentricity

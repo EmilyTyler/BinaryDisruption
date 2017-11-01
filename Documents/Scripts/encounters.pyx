@@ -46,8 +46,10 @@ def binning(a, v_rms, n_p, N_t, t, X, A, m1, m2, M_p):
         n = np.sqrt(G*(m1+m2)/(a**3.0))
         
         #Set up b array
-        b_min = a
-        b_max = v_rms/n
+        b_min = (np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+        #print('b_min = ', b_min)
+        b_max = np.max([v_rms/n, 1000.0*b_min])
+        #print('b_max = ', b_max)
         #Number of bins
         N_b = 10
         #Width of logarithmically spaced bins
@@ -80,12 +82,17 @@ def binning(a, v_rms, n_p, N_t, t, X, A, m1, m2, M_p):
                 #Check if there are any encounters
                 #Number of encounters matrix:
                 N = np.fromfunction(lambda i,j: np.random.poisson(R[i,j]*dt), (N_b,N_v), dtype=int)
+                #
+                #if i==50000:
+                #        N[9,0] = 1
                 #Array of indices where encounters happen
-                i_enc = np.nonzero(N)
+                i_enc = np.array(np.nonzero(N))
+                #if i==50000:
+                #        print('i_enc = ', i_enc)
                 #Implement encounters
                 for k in range(np.size(i_enc[0])):
-                        for l in range(N(i[k])):
-                                X = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], X, M_p)                                                
+                        for l in range(N[i_enc[0,k], i_enc[1,k]]):
+                                X[i-1] = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], X[i-1], M_p)                                                
                 
                 #Evolve orbit
                 X[i] = integrateBinary(X[i-1,0], X[i-1,1], X[i-1,2], X[i-1,3], m1, m2, dt)
@@ -95,21 +102,43 @@ def binning(a, v_rms, n_p, N_t, t, X, A, m1, m2, M_p):
 
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation, M_p is perturber mass
 def encounter(m1, m2, v, b, X, M_p):
-        print('ENCOUNTER!')
-        #90 degree deflection radius
-        b_90 = G*(m1+m2)/v**2.0
+        #print('ENCOUNTER!')      
+        #print('b = ', b)
+        #print('v = ', v)
+        #print('M_p = ', M_p)
+        #print('Before: X = ', X)
         #Star masses
         m = np.array([m1, m2])
+        #print('m = ', m)
+        #90 degree deflection radius
+        b_90 = G*(M_p+m)/v**2.0                                                                                                                                                                                                                     
+        #print('b_90 = ', b_90)
         #Find which star is closer
         closest_star = np.random.randint(2)
+        #print('Closest star = ', closest_star)
         #Calculate impact parameters
-        b[closest_star] = abs(m[closest_star]*(np.linalg.norm(X[0]-X[1])/(m1+m2) - b)
-        b[closest_star-1] = m[closest_star-1]*(np.linalg.norm(X[0]-X[1])/(m1+m2) + b
+        bs = np.zeros(2)
+        bs[closest_star] = abs(m[closest_star-1]*(np.linalg.norm(X[0]-X[1]))/(m1+m2) - b)
+        bs[closest_star-1] = m[closest_star]*(np.linalg.norm(X[0]-X[1]))/(m1+m2) + b
+        #print('bs = ', bs)
         #Implement encounter for both stars  
         for i in [0,1]:
-                v_perp = 2.0*M_p*v/(m[i]+M_p) * (b[i]/b_90)/(1.0 + b[i]**2.0/b_90**2.0)
-                v_parr = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b[i]**2.0/b_90**2.0)
-                #CHANGE VELOCITIES
+                if 10.0**(-5.0) < bs[i]/b_90[i] < 10.0**5.0:
+                        print('b is mid-range')
+                v_perp = 2.0*M_p*v/(m[i]+M_p) * (bs[i]/b_90[i])/(1.0 + bs[i]**2.0/b_90[i]**2.0)
+                #print('v_perp = ', v_perp)
+                v_parr = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + bs[i]**2.0/b_90[i]**2.0)
+                #print('v_parr = ', v_parr)
+                #Change perpendicular velocity
+                if (i == closest_star) and (m[i-1]*np.linalg.norm(X[0]-X[1])/(m1+m2) > b):
+                        #print('Perturber between stars')
+                        X[i+2] += (X[i]-X[i+1])/np.linalg.norm(X[i]-X[i+1])*v_perp
+                else: 
+                        X[i+2] += (X[closest_star-1]-X[closest_star])/np.linalg.norm(X[closest_star-1]-X[closest_star])*v_perp
+                #Change parallel velocity
+                #ASSUME VELOCITY IS IN X-Y PLANE FOR NOW
+                X[i+2] += np.cross([0.0, 0.0, 1.0], (X[closest_star-1]-X[closest_star]))/(np.linalg.norm(np.cross([0.0, 0.0, 1.0], (X[closest_star-1]-X[closest_star])))) * (-v_parr)               
+        #print('After: X = ', X)      
         return X
 
 
