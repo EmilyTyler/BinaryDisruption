@@ -1,10 +1,15 @@
 import numpy as np
+import os
+os.system("python setup.py build_ext --inplace")
 
 from matplotlib import pyplot as plt
 
 from encounters import noEncounters
 from encounters import binning
+from encounters import openCloseBinning
 from random_binary import setupRandomBinary
+
+
 
 #Initialise variables
 #Semi-major axis, m
@@ -41,27 +46,34 @@ X[0] = setupRandomBinary(a, e, m1, m2)
 A = np.zeros(N_t)
 A[0] = a
 
+#Keep track of e over time
+es = np.zeros(N_t)
+es[0] = e
+
 #Evolve orbit
 #No encounters
 #(t, X, A) = noEncounters(N_t, t, X, A, m1, m2)
 #Binning method
-(t, X, A) = binning(a, v_rms, n_p, N_t, t, X, A, m1, m2, M_p)
+#(t, X, A) = binning(v_rms, n_p, N_t, t, X, A, m1, m2, M_p)
+#Open close binning
+(t, A, es) = openCloseBinning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
+
 #Monte Carlo method
 
 
-
+#Plot relative x position against relative y position
+#plt.plot((X[:,0,1]-X[:,1,1]), (X[:,0,0]-X[:,1,0]))
+#plt.show()
 #Plot semi-major axis against time
 plt.plot(t,A)
-print('A[1]-A[0] = ', (A[1]-A[0]))
-print('A[2]-A[1] = ', (A[2]-A[1]))
-print('A[3]-A[2] = ', (A[3]-A[2]))
+#print('A[1]-A[0] = ', (A[1]-A[0]))
+#print('A[2]-A[1] = ', (A[2]-A[1]))
+#print('A[3]-A[2] = ', (A[3]-A[2]))
 plt.show()
 #Plot relative velocity against time
-plt.plot(t, np.linalg.norm((X[:,2]-X[:,3]), axis=1))
-plt.show()
-#Plot relative x position against relative y position
-plt.plot((X[:,0,1]-X[:,1,1]), (X[:,0,0]-X[:,1,0]))
-plt.show()
+#plt.plot(t, np.linalg.norm((X[:,2]-X[:,3]), axis=1))
+#plt.show()
+
 
 
 

@@ -1,41 +1,17 @@
 import math
 import numpy as np
 from orbital_elements import orbitalElements
-from eccentric_anomaly import findEccentricAnomaly
+from random_binary import setupRandomBinary
 
 G = 6.67 * 10.0**(-11.0)
 
 #Evolution of binary through analytics
-def evolveBinary(X, m1, m2, t):
+def analyticBinary(X, m1, m2):
         #Find orbital elements
-        (a, e, f, I, Omega, omega) = orbitalElements(X, m1, m2)
-        #Find eccentric anomaly
-        E = np.arccos((1.0 - (np.linalg.norm(X[0]-X[1]))/a)/e)
-        #Mean motion
-        n = np.sqrt(G*(m1+m2)/a**3.0)
-        #Find eccentric anomaly after time t
-        E_new = findEccentricAnomaly(e, (E-e*np.sin(E)+n*t))
-        #Find new true anomaly
-        f_new = 2.0*np.arctan(((1.0+e)/(1.0-e))**0.5 * np.tan(0.5*E_new))
-        #Find x and y positions in orbital plane
-        r_new = a*(1.0 - e**2.0)/(1.0 + e*np.cos(f_new))
-        #New coordinates of first star (cartesian)
-        X[0] = np.array([0.0, 0.0, 0.0])
-        #New velocity of first star
-        X[2] = np.array([0.0, 0.0, 0.0])
-        #New coordinates of second star (cartesian)
-        X[1] = np.array([r_new*math.cos(f_new), r_new*math.sin(f_new), 0.0])
-        #New velocity of second star
-        X[3] = np.array([- n*a/(math.sqrt(1.0-e**2.0)) * math.sin(f_new), n*a/(math.sqrt(1.0-e**2.0)) * (e + math.cos(f_new)), 0.0])
-        
-        #Rotate into reference frame
-        R = np.array([[np.cos(Omega)*np.cos(omega) - np.sin(Omega)*np.cos(I)*np.sin(omega), -np.cos(Omega)*np.sin(omega)-np.sin(Omega)*np.cos(I)*np.cos(omega), np.sin(I)*np.sin(Omega)],
-             [np.sin(Omega)*np.cos(omega) + np.cos(Omega)*np.cos(I)*np.sin(omega), -np.sin(Omega)*np.sin(omega)+np.cos(Omega)*np.cos(I)*np.cos(omega),-np.sin(I)*np.cos(Omega)],
-             [np.sin(I)*np.sin(omega), np.sin(I)*np.cos(omega), np.cos(I)]])
-        X[1] = np.transpose(np.dot(R, np.transpose(X[1])))
-        X[3] = np.transpose(np.dot(R, np.transpose(X[3])))
-        
-        return X
+        (a, e) = orbitalElements(X, m1, m2)
+        #Rebuild binary
+        return setupRandomBinary(a, e, m1, m2)
+
 
 
 #Evolution of binary through integration
