@@ -46,7 +46,7 @@ def binning(a, v_rms, n_p, N_t, t, X, A, m1, m2, M_p):
         n = np.sqrt(G*(m1+m2)/(a**3.0))
         
         #Set up b array
-        b_min = (np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+        b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
         #print('b_min = ', b_min)
         b_max = np.max([v_rms/n, 1000.0*b_min])
         #print('b_max = ', b_max)
