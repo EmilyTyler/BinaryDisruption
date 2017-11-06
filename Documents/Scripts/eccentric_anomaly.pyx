@@ -18,9 +18,9 @@ def findEccentricAnomaly(e, M):
                 d_3 = -f/(f_p + 0.5*d_2*f_pp + d_2**2.0*f_ppp/6.0)
         
                 E += d_3
-        
+                
                 if count > 100:
                         print ('findEccentricAnomaly did not converge')
                         break
-         
+                count += 1
         return E 
