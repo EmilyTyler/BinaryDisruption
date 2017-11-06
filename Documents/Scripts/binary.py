@@ -6,7 +6,6 @@ from matplotlib import pyplot as plt
 
 from encounters import noEncounters
 from encounters import binning
-from encounters import openCloseBinning
 from random_binary import setupRandomBinary
 
 
@@ -24,7 +23,7 @@ rho = 0.008
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number of time steps
-N_t = 1000000
+N_t = 5000000
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
@@ -54,9 +53,7 @@ es[0] = e
 #No encounters
 #(t, X, A) = noEncounters(N_t, t, X, A, m1, m2)
 #Binning method
-#(t, X, A) = binning(v_rms, n_p, N_t, t, X, A, m1, m2, M_p)
-#Open close binning
-(t, A, es) = openCloseBinning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
+(t, A, es) = binning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
 
 #Monte Carlo method
 
@@ -65,7 +62,9 @@ es[0] = e
 #plt.plot((X[:,0,1]-X[:,1,1]), (X[:,0,0]-X[:,1,0]))
 #plt.show()
 #Plot semi-major axis against time
-plt.plot(t,A)
+plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0),A/(3.086*10.0**16.0))
+plt.xlabel('Time/Myr')
+plt.ylabel('Semimajor axis/pc')
 #print('A[1]-A[0] = ', (A[1]-A[0]))
 #print('A[2]-A[1] = ', (A[2]-A[1]))
 #print('A[3]-A[2] = ', (A[3]-A[2]))
