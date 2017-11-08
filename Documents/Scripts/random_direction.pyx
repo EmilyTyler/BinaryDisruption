@@ -4,6 +4,8 @@ cimport numpy as np
 
 #To find a random 3D direction
 
+# cython profile=True
+
 def randomDirection():
         
         cdef double u, theta

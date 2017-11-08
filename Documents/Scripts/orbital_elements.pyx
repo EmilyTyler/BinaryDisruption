@@ -5,6 +5,8 @@ cimport numpy as np
 
 G = 6.67*10.0**(-11.0)
 
+# cython profile=True
+
 #To find the semi-major axis of a binary star
 def semimajorAxis(np.ndarray[double, ndim=2] X, double m1, double m2):
         cdef double R, V, E, a

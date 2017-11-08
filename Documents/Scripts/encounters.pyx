@@ -12,7 +12,7 @@ from random_binary import setupRandomBinary
 from orbital_elements import orbitalElements
 from random_direction import randomDirection
 
-# cython: profile=True
+# cython profile=True
 
 #Global variables
 cdef double G
