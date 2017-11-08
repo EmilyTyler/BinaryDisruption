@@ -1,11 +1,13 @@
 #Contains functions to find the orbital elements of a binary star given its position and velocity vectors
 
 import numpy as np
+cimport numpy as np
 
 G = 6.67*10.0**(-11.0)
 
 #To find the semi-major axis of a binary star
-def semimajorAxis(X, m1, m2):
+def semimajorAxis(np.ndarray[double, ndim=2] X, double m1, double m2):
+        cdef double R, V, E, a
         R = np.linalg.norm(X[0]-X[1])
         V = np.linalg.norm(X[2]-X[3])
         #Total energy
@@ -16,7 +18,12 @@ def semimajorAxis(X, m1, m2):
 
 
 
-def orbitalElements(X, m1, m2):
+def orbitalElements(np.ndarray[double, ndim=2] X, double m1, double m2):
+        cdef np.ndarray x = np.zeros(3, dtype=float)
+        cdef np.ndarray v = np.zeros(3, dtype=float)
+        cdef np.ndarray L = np.zeros(3, dtype=float)
+        cdef double R, V, E, a, e
+        
         x = X[0] - X[1]
         v = X[2] - X[3]
         R = np.linalg.norm(x)

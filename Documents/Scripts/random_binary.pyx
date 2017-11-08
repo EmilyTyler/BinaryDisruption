@@ -1,13 +1,20 @@
 import math
 import random
 import numpy as np
+cimport numpy as np
 
 from eccentric_anomaly import findEccentricAnomaly
 
 G = 6.67 * 10.0**(-11.0)
 
 #Function to initialise randomly oriented binary
-def setupRandomBinary(a, e, m1, m2):
+def setupRandomBinary(double a, double e, double m1, double m2):
+        
+        cdef double M, E, f, r, n
+        cdef np.ndarray x1 = np.zeros(3, dtype=float)
+        cdef np.ndarray v1 = np.zeros(3, dtype=float)
+        cdef np.ndarray x2 = np.zeros(3, dtype=float)
+        cdef np.ndarray v2 = np.zeros(3, dtype=float)
         
         #Randomise mean anomaly
         M = random.uniform(0.0, 2.0*math.pi)
@@ -28,4 +35,4 @@ def setupRandomBinary(a, e, m1, m2):
         #Initial velocity of second star
         v2 = np.array([- n*a/(math.sqrt(1.0-e**2.0)) * math.sin(f), n*a/(math.sqrt(1.0-e**2.0)) * (e + math.cos(f)), 0.0])
         
-        return([x1, x2, v1, v2])
+        return np.array([x1, x2, v1, v2])

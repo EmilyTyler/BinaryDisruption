@@ -1,12 +1,16 @@
 #Solve Kepler's equation for eccentric anomaly
 import numpy as np
 
-def findEccentricAnomaly(e, M):
+def findEccentricAnomaly(double e,double M):
 
         #Solves Kepler's equation E-esinE=M to find eccentric anomaly E given eccentricity e and mean anomaly M.
         #From page 36 of Solar System Dynamics, or Danby 1988
+        cdef double E, f, f_p, f_pp, f_ppp, d_1, d_2, d_3
+        cdef int count
+        
         E = M + np.sign(np.sin(M))*0.85*e
         count = 0
+        
         while abs(E - e*np.sin(E) - M) > 10.0**(-8.0):
                 f = E - e*np.sin(E) - M
                 f_p = 1.0 - e*np.cos(E)

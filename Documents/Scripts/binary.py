@@ -23,7 +23,7 @@ rho = 0.008
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number of time steps
-N_t = 5000000
+N_t = 50000
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
@@ -35,11 +35,8 @@ n_p = rho/M_p
 G = 6.67 * 10.0**(-11.0)
 
 
-#Create array to store positions and velocities over time
-X = np.zeros([N_t,4,3])
+#Create time array
 t = np.zeros(N_t)
-#Initialise binary
-X[0] = setupRandomBinary(a, e, m1, m2)
 
 #Keep track of a over time
 A = np.zeros(N_t)
