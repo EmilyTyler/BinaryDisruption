@@ -10,6 +10,7 @@ from evolve_binary import analyticBinary
 from orbital_elements import semimajorAxis
 from random_binary import setupRandomBinary
 from orbital_elements import orbitalElements
+from orbital_elements import notBound
 from random_direction import randomDirection
 
 # cython profile=True
@@ -36,10 +37,9 @@ def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, d
                 #Add time step to time array
                 t[i] = t[i-1]+dt
                 #Evolve orbit
-                X[i] = integrateBinary(X[i-1,0], X[i-1,1], X[i-1,2], X[i-1,3], m1, m2, dt)
+                X[i] = integrateBinary(2, X[i-1], np.array([m1,m2]), dt)
                 #Semi-major axis
                 A[i] = semimajorAxis(X[i], m1, m2)
-
         return(t, X, A)
 
 
@@ -99,11 +99,18 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
                 if np.size(i_enc[0]) > 0:
                         for k in range(np.size(i_enc[0])):
                                 for l in range(N[i_enc[0,k], i_enc[1,k]]):
-                                        (A[i], es[i]) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
+                                        (notBound, (A[i], es[i])) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
                 else:
                         A[i] = A[i-1]
                         es[i] = es[i-1]
-
+                        notBound = False
+                if notBound:
+                        print('Binary broken!')
+                        t[i:] = [t[i] + dt]*len(A[i:])
+                        A[i:] = [np.inf]*len(A[i:])
+                        es[i:] = [es[i]]*len(A[i:])
+                        break
+                
         return (t, A, es)
 
 cdef np.ndarray m = np.zeros(2, dtype=float)
@@ -147,7 +154,7 @@ def encounter(double m1, double m2, double v, double b, double a, double e, doub
                 #Change velocity
                 X[i+2] += v_perp + v_parr                     
         #Close binary
-        return orbitalElements(X, m1, m2)
+        return (notBound(X, m1, m2), orbitalElements(X, m1, m2))
 
 
 

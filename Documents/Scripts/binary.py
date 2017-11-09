@@ -23,9 +23,9 @@ rho = 0.008
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number of time steps
-N_t = 5000000
+N_t = 5000
 #Mass of perturbers
-M_p = 3.0 * 2.0*10.0**30.0
+M_p = 500.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 100.0 * 1000.0
 
@@ -48,6 +48,8 @@ es[0] = e
 
 #Evolve orbit
 #No encounters
+#X = np.zeros((N_t,4,3), dtype=float)
+#X[0] = setupRandomBinary(A[0], es[0], m1, m2)
 #(t, X, A) = noEncounters(N_t, t, X, A, m1, m2)
 #Binning method
 (t, A, es) = binning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
@@ -69,6 +71,11 @@ plt.show()
 #Plot relative velocity against time
 #plt.plot(t, np.linalg.norm((X[:,2]-X[:,3]), axis=1))
 #plt.show()
+
+plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0), es)
+plt.xlabel('Time/Myr')
+plt.ylabel('e')
+plt.show()
 
 
 
