@@ -14,7 +14,7 @@ G = 6.67 * 10.0**(-11.0)
 
 def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, double e, double M_p):
         
-        print('ENCOUNTER!')
+        #print('ENCOUNTER!')
         #Star masses
         m = np.array([m1, m2])                                                                                                                                                                                                                    
         #Find perturber velocity
@@ -41,10 +41,11 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Calculate velocity change in -v_vec direction
                 v_parr = 2.0*M_p*V_0/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/V_0)
                 #Change velocity
-                V_imp[i] = X[i+2] + v_perp + v_parr  
+                X[i+2] += v_perp + v_parr
                 
+        V_imp = np.linalg.norm(X[2] - X[3])           
         #Velocity difference
-        V_diff = np.zeros((2,3), dtype=float)
+        cdef double V_diff = 0.0;
         #Three body encounter:       
         if 10.0**3.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0:
                 #Time step
@@ -53,7 +54,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 w = np.sqrt(10.0**3.0*M_p*a**2.0/(np.min(m)) - b**2.0)/(dt*V_0)
                 #Number of timesteps
                 N_t = int(math.ceil(20*w))
-                print('N_t = ', N_t)
+                #print('N_t = ', N_t)
                 #Positions and velocities
                 x = np.zeros((N_t, 6, 3), dtype=float)
                 #Initial positions and velocities
@@ -63,17 +64,16 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 for i in range(1, N_t):
                         x[i] = integrateBinary(3, x[i-1], M, dt)
                 
-                V_thr = x[N_t-1,3:5]
+                V_thr = np.linalg.norm(x[N_t-1,3] - x[N_t-1,4])
         
                 #Velocity difference
                 V_diff = V_imp - V_thr
-                
-        else:
-                print('Impulse only')
+
+        #else:
+                #print('Impulse only')
 
         
         #Close binary
-        X[2:] = V_imp
         return (notBound(X, m1, m2), orbitalElements(X, m1, m2), V_diff)
         
         

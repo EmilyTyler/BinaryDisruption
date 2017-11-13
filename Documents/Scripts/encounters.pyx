@@ -90,7 +90,7 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         t = np.array([dt*i for i in range(N_t)])
         
         #
-        V_diff = np.zeros((N_t,2,3), dtype=float)
+        V_diff = np.zeros((N_t), dtype=float)
         
         for i in range(1, N_t):
                         
