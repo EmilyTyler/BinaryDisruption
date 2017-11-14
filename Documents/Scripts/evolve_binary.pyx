@@ -8,7 +8,7 @@ from random_binary import setupRandomBinary
 
 G = 6.67 * 10.0**(-11.0)
 
-# cython profile=True
+
 
 #Evolution of binary through analytics
 def analyticBinary(np.ndarray[double, ndim=2] X, double m1, double m2):

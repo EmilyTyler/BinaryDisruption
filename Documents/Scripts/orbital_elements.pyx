@@ -5,7 +5,7 @@ cimport numpy as np
 
 G = 6.67*10.0**(-11.0)
 
-# cython profile=True
+
 
 #To find the semi-major axis of a binary star
 def semimajorAxis(np.ndarray[double, ndim=2] X, double m1, double m2):
@@ -38,20 +38,12 @@ def orbitalElements(np.ndarray[double, ndim=2] X, double m1, double m2):
         #Semi-major axis
         a = G*m1*m2/(2.0*abs(E))      
         #Eccentricity
-        e = np.sqrt(1.0 + 2.0*(m1+m2)*np.dot(L,L)*E/(G**2.0*(m1*m2)**3.0))                               
-        return(a, e)
+        e = np.sqrt(1.0 + 2.0*(m1+m2)*np.dot(L,L)*E/(G**2.0*(m1*m2)**3.0))
         
+        return((E >= 0.0), a, e)
+       
 
 
-def notBound(np.ndarray[double, ndim=2] X, double m1, double m2):
-        
-        cdef double R, V, E
-        R = np.linalg.norm(X[0]-X[1])
-        V = np.linalg.norm(X[2]-X[3])
-        
-        #Total energy
-        E = m1*m2*(V**2.0/(2.0*(m1+m2)) - G/R)
-        
-        return (E >= 0.0)
+
         
         

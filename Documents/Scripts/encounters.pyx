@@ -10,11 +10,10 @@ from evolve_binary import analyticBinary
 from orbital_elements import semimajorAxis
 from random_binary import setupRandomBinary
 from orbital_elements import orbitalElements
-from orbital_elements import notBound
 from random_direction import randomDirection
 from impulse_test import impulseTestEncounter
 
-# cython profile=True
+
 
 #Global variables
 cdef double G
@@ -104,8 +103,8 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
                 if np.size(i_enc[0]) > 0:
                         for k in range(np.size(i_enc[0])):
                                 for l in range(N[i_enc[0,k], i_enc[1,k]]):
-                                        #(notBound, (A[i], es[i])) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
-                                        (notBound, (A[i], es[i]), V_diff[i]) = impulseTestEncounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
+                                        #((notBound, A[i], es[i])) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
+                                        ((notBound, A[i], es[i]), V_diff[i]) = impulseTestEncounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
                 else:
                         A[i] = A[i-1]
                         es[i] = es[i-1]
@@ -117,6 +116,7 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
                         es[i:] = [es[i]]*len(A[i:])
                         break
                 
+        #return (t, A, es)
         return (t, A, es, V_diff)
 
 cdef np.ndarray m = np.zeros(2, dtype=float)
@@ -159,7 +159,7 @@ def encounter(double m1, double m2, double v, double b, double a, double e, doub
                 #Change velocity
                 X[i+2] += v_perp + v_parr                     
         #Close binary
-        return (notBound(X, m1, m2), orbitalElements(X, m1, m2))
+        return orbitalElements(X, m1, m2)
 
 
         

@@ -7,7 +7,7 @@ from eccentric_anomaly import findEccentricAnomaly
 
 G = 6.67 * 10.0**(-11.0)
 
-# cython profile=True
+
 
 #Function to initialise randomly oriented binary
 def setupRandomBinary(double a, double e, double m1, double m2):
