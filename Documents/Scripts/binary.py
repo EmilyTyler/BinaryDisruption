@@ -23,7 +23,7 @@ rho = 0.008
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number of time steps
-N_t = 100
+N_t = 3
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s

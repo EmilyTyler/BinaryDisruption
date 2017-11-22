@@ -103,8 +103,8 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
                 if np.size(i_enc[0]) > 0:
                         for k in range(np.size(i_enc[0])):
                                 for l in range(N[i_enc[0,k], i_enc[1,k]]):
-                                        #((notBound, A[i], es[i])) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
-                                        ((notBound, A[i], es[i]), V_diff[i]) = impulseTestEncounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
+                                        #(notBound, A[i], es[i]) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
+                                        (notBound, A[i], es[i], V_diff[i]) = impulseTestEncounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
                 else:
                         A[i] = A[i-1]
                         es[i] = es[i-1]
