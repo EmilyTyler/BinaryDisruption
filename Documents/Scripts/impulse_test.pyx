@@ -16,7 +16,7 @@ G = 6.67 * 10.0**(-11.0)
 def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, double e, double M_p):
         
         print('ENCOUNTER!')
-        print('b = ', b)
+        print("b = ", b)
         print('V_0 = ', V_0)
         print('a = ', a)
         print('e = ', e)
@@ -31,7 +31,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 v_vec = V_0 * randomDirection()
                 #Open binary
                 X = setupRandomBinary(a, e, m1, m2)
-                print('X = ', X)
+                print('V_initial = ', np.linalg.norm(X[2]-X[3]))
                 #Centre of mass vector
                 R = (m1*X[0] + m2*X[1])/(m1 + m2)
                 #Find impact parameter vector
@@ -53,10 +53,10 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         v_parr = 2.0*M_p*V_0/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/V_0)
                         #Change velocity
                         V_imp[i] = X[i+2] + v_perp + v_parr
-                print('V_imp = ', V_imp)        
+                print('V_imp = ', np.linalg.norm(V_imp[0]-V_imp[1]))        
                 #Three body encounter:          
                 #Time step
-                dt = 0.005 * 2.0*np.pi*np.sqrt(a**3.0/(G*(m1+m2)))
+                dt = 0.0000005 * 2.0*np.pi*np.sqrt(a**3.0/(G*(m1+m2)))
                 #Perturber starting distance parameter
                 w = np.sqrt(10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0)/(dt*V_0)
                 #Number of timesteps
@@ -84,13 +84,13 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         v_2 = np.linalg.norm(x[i,4])
                         v_3 = np.linalg.norm(x[i,5])
                         #Total energy
-                        E[i] = 0.5*m1*v_1**2.0+0.5*m2*v_2**2.0+0.5*M_p*v_3**2.0 - G*m1*m2/r_12**2.0 - G*m1*M_p/r_13**2.0 - G*m2*M_p/r_23**2.0
+                        E[i] = 0.5*m1*v_1**2.0+0.5*m2*v_2**2.0+0.5*M_p*v_3**2.0 - G*m1*m2/r_12 - G*m1*M_p/r_13 - G*m2*M_p/r_23
                         #Fractional PBH force strength
                         delta[i] = M_p*m[:2]*r_12**2.0/(m1*m2*np.array([r_13**2.0, r_23**2.0]))
                 
-                print('x[N_t-1] = ', x[N_t-1])
+
                 t = [i*dt for i in range(N_t)]
-                print('t/P = ', t[N_t-1]/(2.0*np.pi*np.sqrt(a**3.0/(G*(m1+m2)))))
+                print("t/P = ", t[N_t-1]/(2.0*np.pi*np.sqrt(a**3.0/(G*(m1+m2)))))
                 print('P = ', (2.0*np.pi*np.sqrt(a**3.0/(G*(m1+m2)))))
                 plt.plot(t, E)
                 plt.show()
