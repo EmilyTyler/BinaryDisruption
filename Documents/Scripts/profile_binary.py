@@ -5,6 +5,8 @@ import pstats, cProfile
 import numpy as np
 import encounters
 
+from scipy.constants import G
+
 #Initialise variables
 #Semi-major axis, m
 a = 0.1 * 3.086*10.0**16.0
@@ -26,8 +28,6 @@ v_rms = 100.0 * 1000.0
 
 #Number density of perturbers
 n_p = rho/M_p
-#Global variables
-G = 6.67 * 10.0**(-11.0)
 
 #Create time array
 t = np.zeros(N_t)

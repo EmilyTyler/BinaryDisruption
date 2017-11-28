@@ -9,7 +9,7 @@ from orbital_elements import semimajorAxis, orbitalElements
 from random_binary import setupRandomBinary
 from evolve_binary import integrateBinary
 
-G = 6.67 * 10.0**(-11.0)
+from scipy.constants import G
 
 #Firstly test semimajorAxis and orbitalElements
 def orbitalElementsTest():
@@ -56,8 +56,8 @@ def integrateBinaryTest():
         plt.plot((X[:,0,0]-X[:,1,0]), (X[:,0,1]-X[:,1,1]))
         plt.show()
         
-        plt.plot(t, A)
-        plt.show()
+        #plt.plot(t, A)
+        #plt.show()
         
         plt.plot(t, (E-E[0])/E[0])
         plt.show()

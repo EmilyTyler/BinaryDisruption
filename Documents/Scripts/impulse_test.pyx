@@ -2,16 +2,17 @@
 import math
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import animation
 from mpl_toolkits.mplot3d import Axes3D
+import mpl_toolkits.mplot3d.axes3d as p3
 
 from orbital_elements import orbitalElements
+from orbital_elements import semimajorAxis
 from random_direction import randomDirection
 from random_binary import setupRandomBinary
 from evolve_binary import integrateBinary
 
-
-#Global variables
-G = 6.67 * 10.0**(-11.0)
+from scipy.constants import G
 
 def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, double e, double M_p):
         
@@ -55,26 +56,31 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         V_imp[i] = X[i+2] + v_perp + v_parr
                 print('V_imp = ', np.linalg.norm(V_imp[0]-V_imp[1]))        
                 #Three body encounter:          
-                #Time step
-                dt = 0.0000005 * 2.0*np.pi*np.sqrt(a**3.0/(G*(m1+m2)))
+                #Time array
+                t = np.array([0.0])
                 #Perturber starting distance parameter
-                w = np.sqrt(10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0)/(dt*V_0)
-                #Number of timesteps
-                N_t = int(math.ceil(2*w))
-                #print('N_t = ', N_t)
-                #Positions and velocities
-                x = np.zeros((N_t, 6, 3), dtype=float)
+                w = np.sqrt(10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0)/V_0
+                #End time
+                t_end = 2.0*w
                 #Initial positions and velocities
-                x[0] = np.array([X[0], X[1], b_vec - w*dt*v_vec, X[2], X[3], v_vec])
+                x = np.array([[X[0], X[1], b_vec - w*v_vec, X[2], X[3], v_vec]])
                 #Masses
                 M = np.array([m1, m2, M_p])
-                #Checks
-                E = np.zeros(N_t)
-                E[0] = -G*m1*m2/(2.0*a) + 0.5*M_p*V_0**2.0
-                delta = np.zeros((N_t,2))
-                delta[0] = M_p*m[:2]*np.linalg.norm(x[0,0]-x[0,1])**2.0/(m1*m2*np.array([np.linalg.norm(x[0,0]-x[0,2])**2.0, np.linalg.norm(x[0,1]-x[0,2])**2.0]))
-                for i in range(1, N_t):
-                        x[i] = integrateBinary(3, x[i-1], M, dt)
+                #Relative separations
+                r_12 = np.linalg.norm(x[0,0]-x[0,1])
+                r_13 = np.linalg.norm(x[0,0]-x[0,2])
+                r_23 = np.linalg.norm(x[0,1]-x[0,2])
+                v_1 = np.linalg.norm(x[0,3])
+                v_2 = np.linalg.norm(x[0,4])
+                v_3 = V_0
+                E = np.array([0.5*m1*v_1**2.0+0.5*m2*v_2**2.0+0.5*M_p*v_3**2.0 - G*m1*m2/r_12 - G*m1*M_p/r_13 - G*m2*M_p/r_23])
+                delta = np.array([M_p*m[:2]*r_12**2.0/(m1*m2*np.array([r_13**2.0, r_23**2.0]))])
+                #Initialise counter
+                i = 1
+                while t[i-1] < t_end:
+                        (x_new, dt) = integrateBinary(3, x[i-1], M)
+                        x = np.append(x, [x_new], axis=0)
+                        t = np.append(t, t[i-1]+dt)
                         #Some checks
                         #Relative separations
                         r_12 = np.linalg.norm(x[i,0]-x[i,1])
@@ -84,13 +90,12 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         v_2 = np.linalg.norm(x[i,4])
                         v_3 = np.linalg.norm(x[i,5])
                         #Total energy
-                        E[i] = 0.5*m1*v_1**2.0+0.5*m2*v_2**2.0+0.5*M_p*v_3**2.0 - G*m1*m2/r_12 - G*m1*M_p/r_13 - G*m2*M_p/r_23
+                        E = np.append(E, 0.5*m1*v_1**2.0+0.5*m2*v_2**2.0+0.5*M_p*v_3**2.0 - G*m1*m2/r_12 - G*m1*M_p/r_13 - G*m2*M_p/r_23)
                         #Fractional PBH force strength
-                        delta[i] = M_p*m[:2]*r_12**2.0/(m1*m2*np.array([r_13**2.0, r_23**2.0]))
-                
-
-                t = [i*dt for i in range(N_t)]
-                print("t/P = ", t[N_t-1]/(2.0*np.pi*np.sqrt(a**3.0/(G*(m1+m2)))))
+                        delta = np.append(delta, [M_p*m[:2]*r_12**2.0/(m1*m2*np.array([r_13**2.0, r_23**2.0]))], axis=0)
+                        #Increment counter
+                        i += 1
+                print("t/P = ", t[i-1]/(2.0*np.pi*np.sqrt(a**3.0/(G*(m1+m2)))))
                 print('P = ', (2.0*np.pi*np.sqrt(a**3.0/(G*(m1+m2)))))
                 plt.plot(t, E)
                 plt.show()
@@ -108,18 +113,45 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 ax = fig.gca(projection='3d')
                 ax.plot(x[:,0,0], x[:,0,1], x[:,0,2])
                 ax.plot(x[:,1,0], x[:,1,1], x[:,1,2])
+                #ax.plot(x[:,2,0], x[:,2,1], x[:,2,2])
                 plt.show()
                 
-                V_thr = np.linalg.norm(x[N_t-1,3] - x[N_t-1,4])
-                print('V_thr = ', V_thr)
-                #Velocity difference
-                V_diff = np.linalg.norm(V_imp[0] - V_imp[1]) - V_thr
-                print('V_diff = ', V_diff)
-                X[2:] = V_imp     
+                '''
+                #Generate animation
+                base_interval = 10
+                fig = plt.figure()
+                ax = p3.Axes3D(fig)
+                ax.set_xlim3d([-5.0*10.0**16.0, 5.0*10.0**16.0])
+                ax.set_ylim3d([-5.0*10.0**16.0, 5.0*10.0**16.0])
+                ax.set_zlim3d([-5.0*10.0**16.0, 5.0*10.0**16.0])
+                graph = ax.scatter(x[0,:,0], x[0,:,1], x[0,:,2])
+                def update(i):
+                        ax = p3.Axes3D(fig)
+                        ax.set_xlim3d([-5.0*10.0**16.0, 5.0*10.0**16.0])
+                        ax.set_ylim3d([-5.0*10.0**16.0, 5.0*10.0**16.0])
+                        ax.set_zlim3d([-5.0*10.0**16.0, 5.0*10.0**16.0])
+                        graph = ax.scatter(x[i,:,0], x[i,:,1], x[i,:,2])
+                        anim.event_source.interval = base_interval * (t[i+1]-t[i])/t[1]
+                        return(graph)        
+                anim = animation.FuncAnimation(fig, update, interval=base_interval, repeat=True)
+                plt.show()
+                '''
+                
+                #Set new velocity
+                X[2:] = V_imp 
+                #Semi-major axis difference
+                a_imp = semimajorAxis(X, m1, m2)
+                a_thr = semimajorAxis(np.array([x[i-1,0], x[i-1,1], x[i-1,3], x[i-1,4]]), m1, m2)
+                a_diff = a_imp - a_thr
+                a_frac = a_diff/a_imp
+                print('a_imp = ', a_imp)
+                print('a_thr = ', a_thr)
+                print('a_diff = ', a_diff)
+                print('a_frac = ', a_frac)
                 #Close binary
                 (notBound, a, e) = orbitalElements(X, m1, m2)
                 
-        return (notBound, a , e, V_diff)
+        return (notBound, a , e, a_frac)
         
         
         

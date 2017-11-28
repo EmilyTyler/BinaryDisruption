@@ -6,18 +6,13 @@ from matplotlib import pyplot as plt
 
 
 from evolve_binary import integrateBinary
-from evolve_binary import analyticBinary
 from orbital_elements import semimajorAxis
 from random_binary import setupRandomBinary
 from orbital_elements import orbitalElements
 from random_direction import randomDirection
 from impulse_test import impulseTestEncounter
 
-
-
-#Global variables
-cdef double G
-G = 6.67 * 10.0**(-11.0)
+from scipy.constants import G
 
 
 #Encounter rate for impact parameters between b0 and b1 and for relative velocities between v0 and v1
@@ -52,7 +47,7 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         #Set up b array
         cdef double b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
         #print('b_min = ', b_min)
-        cdef double b_max = np.max([v_rms/n, 1000.0*b_min])
+        cdef double b_max = np.max([v_rms/n/100.0, 100.0*b_min])
         #print('b_max = ', b_max)
         #Number of bins
         cdef int N_b = 10
@@ -89,7 +84,7 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         t = np.array([dt*i for i in range(N_t)])
         
         #
-        V_diff = np.zeros((N_t), dtype=float)
+        a_diff = np.zeros((N_t), dtype=float)
         
         for i in range(1, N_t):
                         
@@ -104,7 +99,7 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
                         for k in range(np.size(i_enc[0])):
                                 for l in range(N[i_enc[0,k], i_enc[1,k]]):
                                         #(notBound, A[i], es[i]) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
-                                        (notBound, A[i], es[i], V_diff[i]) = impulseTestEncounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
+                                        (notBound, A[i], es[i], a_diff[i]) = impulseTestEncounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
                 else:
                         A[i] = A[i-1]
                         es[i] = es[i-1]
@@ -117,7 +112,7 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
                         break
                 
         #return (t, A, es)
-        return (t, A, es, V_diff)
+        return (t, A, es, a_diff)
 
 cdef np.ndarray m = np.zeros(2, dtype=float)
 cdef np.ndarray b_90 = np.zeros(2, dtype=float)

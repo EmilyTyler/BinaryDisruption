@@ -7,7 +7,6 @@ from scipy.constants import G
 from orbital_elements import orbitalElements
 from random_binary import setupRandomBinary
 
-
 #Evolution of binary through integration
 def integrateBinary(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim=1] m):
         # dt is step size
@@ -138,12 +137,5 @@ def acc_and_jerk(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim=2]
         #Find jerk
         (jerk, v, J, alpha) = calc_jerk(N, x, V, m, A)
         return (acc, jerk)
-        
-        
-        
-        
-        
-        
-        
-        
+             
                 

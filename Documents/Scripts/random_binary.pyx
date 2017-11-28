@@ -5,9 +5,7 @@ cimport numpy as np
 
 from eccentric_anomaly import findEccentricAnomaly
 
-G = 6.67 * 10.0**(-11.0)
-
-
+from scipy.constants import G
 
 #Function to initialise randomly oriented binary
 def setupRandomBinary(double a, double e, double m1, double m2):

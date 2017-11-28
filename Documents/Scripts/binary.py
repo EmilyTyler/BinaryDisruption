@@ -8,7 +8,7 @@ from encounters import noEncounters
 from encounters import binning
 from random_binary import setupRandomBinary
 
-
+from scipy.constants import G
 
 #Initialise variables
 #Semi-major axis, m
@@ -31,8 +31,6 @@ v_rms = 100.0 * 1000.0
 
 #Number density of perturbers
 n_p = rho/M_p
-#Global variables
-G = 6.67 * 10.0**(-11.0)
 
 
 #Create time array
@@ -53,7 +51,7 @@ es[0] = e
 #(t, X, A) = noEncounters(N_t, t, X, A, m1, m2)
 #Binning method
 #(t, A, es) = binning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
-(t, A, es, V_diff) = binning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
+(t, A, es, a_diff) = binning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
 #Monte Carlo method
 
 
@@ -78,9 +76,9 @@ plt.ylabel('e')
 plt.show()
 
 #Plot V_diff
-plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0), V_diff)
+plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0), a_diff)
 plt.xlabel('Time/Myr')
-plt.ylabel('Velocity difference (impulse - three body), m/s')
+plt.ylabel('Fractional semi-major axis difference')
 plt.show()
 
 
