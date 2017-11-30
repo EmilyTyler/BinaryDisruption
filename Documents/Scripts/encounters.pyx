@@ -21,6 +21,9 @@ def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, dou
         rate = np.sqrt(2.0*np.pi)*n_p/v_rms*(b1**2.0-b0**2.0)*((v0**2.0+2.0*v_rms**2.0)*np.exp(-v0**2.0/(2.0*v_rms**2.0))-(v1**2.0+2.0*v_rms**2.0)*np.exp(-v1**2.0/(2.0*v_rms**2.0)))
         return rate
 
+#To find b_max
+def calc_b_max(M_p, v, a, m1, m2):
+        return (2.0*G*M_p/(v*10.0**(-3.0))*np.sqrt(a/(G*(m1+m2))))
 
 #Evolve binary without encounters
 def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, double m2):
@@ -47,10 +50,10 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         #Set up b array
         cdef double b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
         #print('b_min = ', b_min)
-        cdef double b_max = np.max([v_rms/n/100.0, 100.0*b_min])
-        #print('b_max = ', b_max)
+        cdef double b_max = calc_b_max(M_p, v_rms, A[0], m1, m2)
+        print('b_max = ', b_max)
         #Number of bins
-        cdef int N_b = 10
+        cdef int N_b = 100
         #Width of logarithmically spaced bins
         cdef double dlogb = (np.log(b_max)-np.log(b_min))/N_b
         cdef np.ndarray b = np.zeros([N_b], dtype=float)
@@ -60,7 +63,7 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         cdef double v_min = 0.001 * v_rms
         cdef double v_max = 1000.0 * v_rms
         #Number of bins
-        cdef int N_v = 10
+        cdef int N_v = 100
         #Width of logarithmically spaced bins
         cdef double dlogv = (np.log(v_max)-np.log(v_min))/N_v
         cdef np.ndarray v = np.zeros([N_v], dtype=float)
@@ -84,7 +87,8 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         t = np.array([dt*i for i in range(N_t)])
         
         #
-        a_diff = np.zeros((N_t), dtype=float)
+        a_frac = np.zeros((N_t), dtype=float)
+        e_diff = np.zeros((N_t), dtype=float)
         
         for i in range(1, N_t):
                         
@@ -98,8 +102,8 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
                 if np.size(i_enc[0]) > 0:
                         for k in range(np.size(i_enc[0])):
                                 for l in range(N[i_enc[0,k], i_enc[1,k]]):
-                                        #(notBound, A[i], es[i]) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
-                                        (notBound, A[i], es[i], a_diff[i]) = impulseTestEncounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
+                                        (notBound, A[i], es[i]) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
+                                        #(notBound, A[i], es[i], a_frac[i], e_diff[i]) = impulseTestEncounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
                 else:
                         A[i] = A[i-1]
                         es[i] = es[i-1]
@@ -111,8 +115,8 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
                         es[i:] = [es[i]]*len(A[i:])
                         break
                 
-        #return (t, A, es)
-        return (t, A, es, a_diff)
+        return (t, A, es)
+        #return (t, A, es, a_frac, e_diff)
 
 cdef np.ndarray m = np.zeros(2, dtype=float)
 cdef np.ndarray b_90 = np.zeros(2, dtype=float)

@@ -23,9 +23,9 @@ rho = 0.008
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number of time steps
-N_t = 3
+N_t = 1000
 #Mass of perturbers
-M_p = 3.0 * 2.0*10.0**30.0
+M_p = 50.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 100.0 * 1000.0
 
@@ -50,36 +50,57 @@ es[0] = e
 #X[0] = setupRandomBinary(A[0], es[0], m1, m2)
 #(t, X, A) = noEncounters(N_t, t, X, A, m1, m2)
 #Binning method
-#(t, A, es) = binning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
-(t, A, es, a_diff) = binning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
+(t, A, es) = binning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
+#(t, A, es, a_frac, e_diff) = binning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
 #Monte Carlo method
 
 
 #Plot relative x position against relative y position
 #plt.plot((X[:,0,1]-X[:,1,1]), (X[:,0,0]-X[:,1,0]))
 #plt.show()
+
 #Plot semi-major axis against time
 plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0),A/(3.086*10.0**16.0))
 plt.xlabel('Time/Myr')
 plt.ylabel('Semimajor axis/pc')
-#print('A[1]-A[0] = ', (A[1]-A[0]))
-#print('A[2]-A[1] = ', (A[2]-A[1]))
-#print('A[3]-A[2] = ', (A[3]-A[2]))
 plt.show()
+
 #Plot relative velocity against time
 #plt.plot(t, np.linalg.norm((X[:,2]-X[:,3]), axis=1))
 #plt.show()
 
+#Plot eccentricity over time
 plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0), es)
 plt.xlabel('Time/Myr')
 plt.ylabel('e')
 plt.show()
 
-#Plot V_diff
-plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0), a_diff)
+'''
+#Plot fractional semimajor axis difference
+plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0), a_frac)
 plt.xlabel('Time/Myr')
 plt.ylabel('Fractional semi-major axis difference')
 plt.show()
+
+#Plot eccentricity difference
+plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0), e_diff)
+plt.xlabel('Time/Myr')
+plt.ylabel('Eccentricity difference')
+plt.show()
+
+#Plot semimajor axis and fractional semimajor axis difference
+fig = plt.figure()
+ax1 = plt.gca()
+ax2 = ax1.twinx()
+ax1.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0),A/(3.086*10.0**16.0), color='green')
+ax1.set_xlabel('Time/Myr')
+ax1.set_ylabel('Semimajor axis/pc')
+ax1.tick_params(axis='y', colors='green')
+ax2.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0), a_frac, color='indigo')
+ax2.set_ylabel('Fractional semi-major axis difference between impulse and three-body integration')
+ax2.tick_params(axis='y', colors='indigo')
+plt.show()
+'''
 
 
 
