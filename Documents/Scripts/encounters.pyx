@@ -23,7 +23,7 @@ def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, dou
 
 #To find b_max
 def calc_b_max(M_p, v, a, m1, m2):
-        return (2.0*G*M_p/(v*10.0**(-3.0))*np.sqrt(a/(G*(m1+m2))))
+        return (2.0*G*M_p/(v*10.0**(-4.0))*np.sqrt(a/(G*(m1+m2))))
 
 #Evolve binary without encounters
 def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, double m2):
@@ -87,8 +87,8 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         t = np.array([dt*i for i in range(N_t)])
         
         #
-        a_frac = np.zeros((N_t), dtype=float)
-        e_diff = np.zeros((N_t), dtype=float)
+        #a_frac = np.zeros((N_t), dtype=float)
+        #e_diff = np.zeros((N_t), dtype=float)
         
         for i in range(1, N_t):
                         
@@ -102,7 +102,7 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
                 if np.size(i_enc[0]) > 0:
                         for k in range(np.size(i_enc[0])):
                                 for l in range(N[i_enc[0,k], i_enc[1,k]]):
-                                        (notBound, A[i], es[i]) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
+                                        (notBound, A[i], es[i]) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p, b_max)
                                         #(notBound, A[i], es[i], a_frac[i], e_diff[i]) = impulseTestEncounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
                 else:
                         A[i] = A[i-1]
@@ -131,7 +131,7 @@ cdef np.ndarray v_parr = np.zeros(3, dtype=float)
 cdef double v_vec_norm, b_star_norm
 
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation, M_p is perturber mass
-def encounter(double m1, double m2, double v, double b, double a, double e, double M_p):
+def encounter(double m1, double m2, double v, double b, double a, double e, double M_p, double b_max):
         #print('ENCOUNTER!')      
         #Star masses
         m = np.array([m1, m2])
@@ -146,6 +146,8 @@ def encounter(double m1, double m2, double v, double b, double a, double e, doub
         #Find impact parameter vector
         b_vec = np.dot(R,v_vec)/v**2.0*v_vec - R
         b_vec = b * b_vec/np.linalg.norm(b_vec)
+        #Test value of b_max
+        #print('b/b_max = ', b/b_max)
         #Implement encounter for both stars  
         for i in range(2):
                 #Calculate impact parameter for this star
@@ -153,10 +155,12 @@ def encounter(double m1, double m2, double v, double b, double a, double e, doub
                 b_star_norm = np.linalg.norm(b_star)
                 #Calculate velocity change in -b direction
                 v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-b_star/b_star_norm)
+                #print('v_perp = ', v_perp)
                 #Calculate velocity change in -v direction
                 v_parr = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/v)
+                #print('v_parr = ', v_parr)
                 #Change velocity
-                X[i+2] += v_perp + v_parr                     
+                X[i+2] += v_perp + v_parr                    
         #Close binary
         return orbitalElements(X, m1, m2)
 

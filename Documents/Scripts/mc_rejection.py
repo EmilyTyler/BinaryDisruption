@@ -5,6 +5,7 @@ import random
 import numpy as np
 from matplotlib import pyplot as plt
 
+
 def rejection(pdf, comparison, x_from_area, area, N):
         
         #Accepted points

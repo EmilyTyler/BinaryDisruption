@@ -23,9 +23,9 @@ rho = 0.008
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number of time steps
-N_t = 1000
+N_t = 10000
 #Mass of perturbers
-M_p = 50.0 * 2.0*10.0**30.0
+M_p = 10.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 100.0 * 1000.0
 
@@ -54,6 +54,15 @@ es[0] = e
 #(t, A, es, a_frac, e_diff) = binning(v_rms, n_p, N_t, t, A, es, m1, m2, M_p)
 #Monte Carlo method
 
+#Try Yoo, Chaname and Gould's equation 5
+b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+delta_v = np.sqrt(16.0*np.pi*G**2.0*rho*M_p*t*np.log(a/b_min)/v_rms)
+X = setupRandomBinary(a, e, m1, m2)
+R = np.linalg.norm(X[0]-X[1])
+V = np.linalg.norm(X[2]-X[3])
+delta_a = G*R**2.0*delta_v*(m1+m2)*(2.0*V+delta_v)/((R*V**2.0-2.0*G*(m1+m2))*(R*(V+delta_v)**2.0-2.0*G*(m1+m2)))
+delta_a += a
+
 
 #Plot relative x position against relative y position
 #plt.plot((X[:,0,1]-X[:,1,1]), (X[:,0,0]-X[:,1,0]))
@@ -61,6 +70,7 @@ es[0] = e
 
 #Plot semi-major axis against time
 plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0),A/(3.086*10.0**16.0))
+plt.plot(t/(10.0**6.0*365.25*24.0*60.0*60.0),delta_a/(3.086*10.0**16.0))
 plt.xlabel('Time/Myr')
 plt.ylabel('Semimajor axis/pc')
 plt.show()
