@@ -23,7 +23,7 @@ def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, dou
 
 #To find b_max
 def calc_b_max(M_p, v, a, m1, m2):
-        return (2.0*G*M_p/(v*10.0**(-4.0))*np.sqrt(a/(G*(m1+m2))))
+        return (2.0*G*M_p/(v*10.0**(-6.0))*np.sqrt(a/(G*(m1+m2))))
 
 #Evolve binary without encounters
 def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, double m2):
@@ -43,21 +43,17 @@ def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, d
 
 #Implements encounters with binning method
 def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.ndarray[double, ndim=1] A, np.ndarray[double, ndim=1] es, double m1, double m2, double M_p):
-        
-        #Mean motion
-        cdef double n = np.sqrt(G*(m1+m2)/(A[0]**3.0))
-        
+        cdef int i,j,k
         #Set up b array
         cdef double b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
         #print('b_min = ', b_min)
         cdef double b_max = calc_b_max(M_p, v_rms, A[0], m1, m2)
-        print('b_max = ', b_max)
+        #print('b_max = ', b_max)
         #Number of bins
         cdef int N_b = 100
         #Width of logarithmically spaced bins
         cdef double dlogb = (np.log(b_max)-np.log(b_min))/N_b
-        cdef np.ndarray b = np.zeros([N_b], dtype=float)
-        b = np.fromfunction(lambda i: b_min*np.exp(i*dlogb), (N_b,))
+        cdef np.ndarray b = np.array([b_min*np.exp(i*dlogb) for i in range(N_b)])
 
         #Set up v array
         cdef double v_min = 0.001 * v_rms
@@ -66,48 +62,49 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         cdef int N_v = 100
         #Width of logarithmically spaced bins
         cdef double dlogv = (np.log(v_max)-np.log(v_min))/N_v
-        cdef np.ndarray v = np.zeros([N_v], dtype=float)
-        v = np.fromfunction(lambda i: v_min*np.exp(i*dlogv), (N_v,))
+        cdef np.ndarray v = np.array([v_min*np.exp(i*dlogv) for i in range(N_v)])
 
         #Matrix of encounter rates
         #R[i,j] is the encounter rate for objects with impact parameter b[i] and relative velocity v[j]
         cdef np.ndarray R = np.zeros([N_b,N_v], dtype=float)
-        cdef int i,j
         #R = np.fromfunction(lambda i,j: encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv)), (N_b,N_v), dtype=int)
         for i in range(N_b):
                 for j in range(N_v):
                         R[i,j] = encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv))
-
-        
-        cdef double dt
-        cdef np.ndarray N = np.zeros([N_b,N_v], dtype=int)
-        
         #Calculate time step
-        dt = 1.0/np.amax(R)
+        cdef double dt = 1.0/np.amax(R)
         t = np.array([dt*i for i in range(N_t)])
+        #Number of encounters matrix:
+        cdef np.ndarray N = np.zeros([N_t,N_b,N_v], dtype=int)
+        #N = np.fromfunction(lambda k,j: np.random.poisson(R[k,j]*dt, size=N_t), (N_b,N_v), dtype=int)
+        for i in range(N_b):
+                for j in range(N_v):
+                        N[:,i,j] = np.random.poisson(R[i,j]*dt, size=N_t)
+        #Array of indices where encounters happen
+        cdef np.ndarray i_enc = np.transpose(np.array(np.nonzero(N)))
         
         #
         #a_frac = np.zeros((N_t), dtype=float)
         #e_diff = np.zeros((N_t), dtype=float)
         
-        for i in range(1, N_t):
-                        
-                            
-                #Check if there are any encounters
-                #Number of encounters matrix:
-                N = np.fromfunction(lambda i,j: np.random.poisson(R[i,j]*dt), (N_b,N_v), dtype=int)
-                #Array of indices where encounters happen
-                i_enc = np.array(np.nonzero(N))
-                #Implement encounters
-                if np.size(i_enc[0]) > 0:
-                        for k in range(np.size(i_enc[0])):
-                                for l in range(N[i_enc[0,k], i_enc[1,k]]):
-                                        (notBound, A[i], es[i]) = encounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p, b_max)
-                                        #(notBound, A[i], es[i], a_frac[i], e_diff[i]) = impulseTestEncounter(m1, m2, v[i_enc[1,k]], b[i_enc[0,k]], A[i-1], es[i-1], M_p)
-                else:
+        for (i,j,k) in i_enc:
+                if A[i] == 0.0:
                         A[i] = A[i-1]
+                if es[i] == 0.0:
                         es[i] = es[i-1]
-                        notBound = False
+                #Implement encounters
+                (notBound, A[i], es[i]) = encounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
+                #(notBound, A[i], es[i], a_frac[i], e_diff[i]) = impulseTestEncounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
+                '''
+                if (k == np.size(i_enc[0])-1) and (l == N[i_enc[0,k], i_enc[1,k]]-1):
+                        if abs(A[i]-A[i-1])/A[i-1] > 10.0**(-5.0):
+                                print('b_max too small')
+                                print('b/b_max = ', b[i_enc[0,k]]/b_max)
+                                print('a_frac = ', abs(A[i]-A[i-1])/A[i-1])
+                        elif abs(A[i]-A[i-1])/A[i-1] < 10.0**(-15.0):
+                                print('b_max too big')
+                                print('b/b_max = ', b[i_enc[0,k]]/b_max)
+                                print('a_frac = ', abs(A[i]-A[i-1])/A[i-1])                                        '''
                 if notBound:
                         print('Binary broken!')
                         t[i:] = [t[i] + dt]*len(A[i:])
@@ -122,6 +119,7 @@ cdef np.ndarray m = np.zeros(2, dtype=float)
 cdef np.ndarray b_90 = np.zeros(2, dtype=float)
 cdef np.ndarray v_vec = np.zeros(3, dtype=float)
 cdef np.ndarray X = np.zeros((4,3), dtype=float)
+cdef np.ndarray X_0 = np.zeros((4,3), dtype=float)
 cdef np.ndarray R = np.zeros(3, dtype=float)
 cdef np.ndarray b_vec = np.zeros(3, dtype=float)
 cdef int i
@@ -131,7 +129,7 @@ cdef np.ndarray v_parr = np.zeros(3, dtype=float)
 cdef double v_vec_norm, b_star_norm
 
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation, M_p is perturber mass
-def encounter(double m1, double m2, double v, double b, double a, double e, double M_p, double b_max):
+def encounter(double m1, double m2, double v, double b, double a, double e, double M_p):
         #print('ENCOUNTER!')      
         #Star masses
         m = np.array([m1, m2])
@@ -145,14 +143,13 @@ def encounter(double m1, double m2, double v, double b, double a, double e, doub
         R = (m1*X[0] + m2*X[1])/(m1 + m2)
         #Find impact parameter vector
         b_vec = np.dot(R,v_vec)/v**2.0*v_vec - R
-        b_vec = b * b_vec/np.linalg.norm(b_vec)
-        #Test value of b_max
-        #print('b/b_max = ', b/b_max)
+        b_vec_norm = np.sqrt(b_vec[0]**2.0 + b_vec[1]**2.0 + b_vec[2]**2.0)
+        b_vec = b * b_vec/b_vec_norm
         #Implement encounter for both stars  
         for i in range(2):
                 #Calculate impact parameter for this star
                 b_star = (np.dot(X[i],v_vec) - np.dot(b_vec,v_vec))/v**2.0 * v_vec + b_vec - X[i]
-                b_star_norm = np.linalg.norm(b_star)
+                b_star_norm = np.sqrt(b_star[0]**2.0 + b_star[1]**2.0 + b_star[2]**2.0)
                 #Calculate velocity change in -b direction
                 v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-b_star/b_star_norm)
                 #print('v_perp = ', v_perp)
