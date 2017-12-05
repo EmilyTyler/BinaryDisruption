@@ -23,7 +23,7 @@ def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, dou
 
 #To find b_max
 def calc_b_max(M_p, v, a, m1, m2):
-        return (2.0*G*M_p/(v*10.0**(-6.0))*np.sqrt(a/(G*(m1+m2))))
+        return (2.0*G*M_p/(v*10.0**(-4.0))*np.sqrt(a/(G*(m1+m2))))
 
 #Evolve binary without encounters
 def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, double m2):
@@ -75,43 +75,48 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         cdef double dt = 1.0/np.amax(R)
         t = np.array([dt*i for i in range(N_t)])
         #Number of encounters matrix:
-        cdef np.ndarray N = np.zeros([N_t,N_b,N_v], dtype=int)
-        #N = np.fromfunction(lambda k,j: np.random.poisson(R[k,j]*dt, size=N_t), (N_b,N_v), dtype=int)
-        for i in range(N_b):
-                for j in range(N_v):
-                        N[:,i,j] = np.random.poisson(R[i,j]*dt, size=N_t)
+        cdef np.ndarray N = np.rollaxis(np.array([[np.random.poisson(R[i,j]*dt, size=N_t) for j in range(N_v)] for i in range(N_b)]), 2)
         #Array of indices where encounters happen
         cdef np.ndarray i_enc = np.transpose(np.array(np.nonzero(N)))
         
         #
         #a_frac = np.zeros((N_t), dtype=float)
         #e_diff = np.zeros((N_t), dtype=float)
-        
+        cdef int i_old = 0
         for (i,j,k) in i_enc:
-                if A[i] == 0.0:
-                        A[i] = A[i-1]
-                if es[i] == 0.0:
-                        es[i] = es[i-1]
+                if i != i_old:
+                        A[i] = A[i_old]
+                        es[i] = es[i_old]
                 #Implement encounters
                 (notBound, A[i], es[i]) = encounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
                 #(notBound, A[i], es[i], a_frac[i], e_diff[i]) = impulseTestEncounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
                 '''
-                if (k == np.size(i_enc[0])-1) and (l == N[i_enc[0,k], i_enc[1,k]]-1):
-                        if abs(A[i]-A[i-1])/A[i-1] > 10.0**(-5.0):
+                #Test b_max
+                if i != i_old:
+                        if abs(A[i]-A[i_old])/A[i_old] > 10.0**(-3.0):
                                 print('b_max too small')
-                                print('b/b_max = ', b[i_enc[0,k]]/b_max)
-                                print('a_frac = ', abs(A[i]-A[i-1])/A[i-1])
-                        elif abs(A[i]-A[i-1])/A[i-1] < 10.0**(-15.0):
+                                print('b/b_max = ', b_old/b_max)
+                                print('a_frac = ', abs(A[i]-A[i_old])/A[i_old])
+                        elif abs(A[i]-A[i_old])/A[i_old] < 10.0**(-13.0):
                                 print('b_max too big')
-                                print('b/b_max = ', b[i_enc[0,k]]/b_max)
-                                print('a_frac = ', abs(A[i]-A[i-1])/A[i-1])                                        '''
+                                print('b/b_max = ', b_old/b_max)
+                                print('a_frac = ', abs(A[i]-A[i_old])/A[i_old])
+                '''                
                 if notBound:
                         print('Binary broken!')
                         t[i:] = [t[i] + dt]*len(A[i:])
                         A[i:] = [np.inf]*len(A[i:])
                         es[i:] = [es[i]]*len(A[i:])
                         break
-                
+                i_old = i
+                b_old = b[j]
+        #Fill in zeros
+        while np.array(np.where(A == 0.0)).size > 0:
+                for i in np.transpose(np.array(np.where(A == 0.0))):
+                        A[i] = A[i-1]
+        while np.array(np.where(es == 0.0)).size > 0:
+                for i in np.transpose(np.array(np.where(es == 0.0))):
+                        es[i] = es[i-1]
         return (t, A, es)
         #return (t, A, es, a_frac, e_diff)
 
