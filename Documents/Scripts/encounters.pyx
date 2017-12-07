@@ -23,7 +23,7 @@ def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, dou
 
 #To find b_max
 def calc_b_max(M_p, v, a, m1, m2):
-        return (2.0*G*M_p/(v*10.0**(-4.0))*np.sqrt(a/(G*(m1+m2))))
+        return (2.0*G*M_p/(v*10.0**(-3.0))*np.sqrt(a/(G*(m1+m2))))
 
 #Evolve binary without encounters
 def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, double m2):
