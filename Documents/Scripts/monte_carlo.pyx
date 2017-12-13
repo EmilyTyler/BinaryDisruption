@@ -37,7 +37,7 @@ def maxwellianComparison(double x, double v_rms, double v_min, double v_max):
                 answer = 0.0
         return answer
 
-def maxwellianX_from_area(double A, double v_rms, v_min):      
+def maxwellianX_from_area(double A, double v_rms, double v_min):      
         return (2.0*np.pi)**0.5*v_rms*np.exp(1.0)*A/4.0 + v_min
 
 def draw_b(double b_max, int N):

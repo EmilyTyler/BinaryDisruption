@@ -28,7 +28,7 @@ rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 n_p = rho/M_p
 
 #Minimum impact parameter
-b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+b_min = (np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
 #Maximum impact parameter
 b_max = calc_b_max(M_p, v_rms, a, m1, m2)
 

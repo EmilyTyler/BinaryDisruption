@@ -1,4 +1,4 @@
-#Evolves an ensemble of binaries
+#Evolves a population of binaries
 import numpy as np
 from monte_carlo import MCEncounters
 
