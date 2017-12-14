@@ -2,8 +2,7 @@
 #Evolution of the semi-major axis of a binary star due encounters with primordial balck holes (PBHs) which are assumed to have a constant uniform number density
 
 import numpy as np
-import os
-os.system("python setup.py build_ext --inplace")
+import pyximport; pyximport.install()
 
 from monte_carlo import MCEncounters
 import matplotlib.pyplot as plt
