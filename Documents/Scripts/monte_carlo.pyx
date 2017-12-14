@@ -1,5 +1,5 @@
 #Draw random numbers from a distribution using a Monte Carlo method
-#Uses rejection method from Numerical Recipes, Press et al. section 7.3.6
+
 
 import random
 import numpy as np
@@ -10,6 +10,8 @@ from encounters import calc_b_max
 from encounters import encounterRate
 from encounters import encounter
 
+#Draw velocities from a Maxwellian distribution
+#Uses rejection method from Numerical Recipes, Press et al. section 7.3.6
 def draw_maxwellian(double v_rms, double v_min, double v_max, int N):      
         #Accepted points
         cdef np.ndarray accepted = np.array([])
@@ -40,8 +42,9 @@ def maxwellianComparison(double x, double v_rms, double v_min, double v_max):
 def maxwellianX_from_area(double A, double v_rms, double v_min):      
         return (2.0*np.pi)**0.5*v_rms*np.exp(1.0)*A/4.0 + v_min
 
+#Draw impact parameter from a distribution linear in b
 def draw_b(double b_max, int N):
-        return b_max*np.sqrt(random.uniform(0.0, 1.0, size=N))
+        return b_max*np.sqrt(np.random.uniform(0.0, 1.0, size=N))
 
 #Monte Carlo simulation of encounters of N_bin binaries over time T
 def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, double M_p, np.ndarray[double, ndim=1] a, np.ndarray[double, ndim=1] e, int N_bin):

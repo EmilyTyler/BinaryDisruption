@@ -18,13 +18,16 @@ max_dist = draw_maxwellian(v_rms, v_min, v_max, N)
 
 #Create velocity bins
 N_v = 1000
-dlogv = (np.log(v_max) - np.log(v_min))/N_v
-v_bins = np.array([v_min*np.exp(dlogv*i) for i in range(N_v)])
+#dlogv = (np.log(v_max) - np.log(v_min))/N_v
+#v_bins = np.array([v_min*np.exp(dlogv*i) for i in range(N_v)])
+dv = (v_max - v_min)/N_v
+v_bins = np.array([v_min + i*dv for i in range(N_v)])
 
 #Number of points in each bin
 p = np.zeros(N_v, dtype = int)
 for x in max_dist:
-        i = int(np.floor(np.log(x/v_min)/dlogv))
+        #i = int(np.floor(np.log(x/v_min)/dlogv))
+        i = int(np.floor((x-v_min)/dv))
         p[i] += 1
 
 #Normalise

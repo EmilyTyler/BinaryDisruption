@@ -1,5 +1,7 @@
 #Evolves a population of binaries
 import numpy as np
+import os
+os.system("python setup.py build_ext --inplace")
 from monte_carlo import MCEncounters
 
 #Mass of binary stars

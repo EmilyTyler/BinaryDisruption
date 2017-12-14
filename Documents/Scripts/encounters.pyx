@@ -134,6 +134,7 @@ cdef np.ndarray v_parr = np.zeros(3, dtype=float)
 cdef double v_vec_norm, b_star_norm
 
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation, M_p is perturber mass
+#From Binney and Tremaine hyperbolic encounters
 def encounter(double m1, double m2, double v, double b, double a, double e, double M_p):
         #print('ENCOUNTER!')      
         #Star masses

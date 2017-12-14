@@ -28,9 +28,9 @@ N_enc = 1000
 #Minimum a
 a_min = 1000.0 * 1.5*10.0**11.0
 a_max = 1000000.0 * 1.5*10.0**11.0
-#Number of masses to test
+#Number of a's to test
 N_a = 100
-#Set up logarithmic mass bins
+#Set up logarithmic a bins
 dloga = (np.log(a_max)-np.log(a_min))/N_a
 a_bins = np.array([a_min*np.exp(dloga*i) for i in range(N_a)])
 
