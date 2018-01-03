@@ -49,7 +49,8 @@ def draw_b(double b_max, int N):
 #Monte Carlo simulation of encounters of N_bin binaries over time T
 def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, double M_p, np.ndarray[double, ndim=1] a, np.ndarray[double, ndim=1] e, int N_bin):
         #Minimum impact parameter
-        cdef double b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+        #cdef double b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+        cdef double b_min = 0.0
         #Maximum impact parameter
         cdef double b_max = calc_b_max(M_p, v_rms, a, m1, m2)
         #Minimum velocity

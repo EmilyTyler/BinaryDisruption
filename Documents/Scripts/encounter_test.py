@@ -24,11 +24,13 @@ v_rms = 100.0 * 1000.0
 rho = 0.009
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
+print(rho)
 #Number density of perturbers
 n_p = rho/M_p
 
 #Minimum impact parameter
 b_min = (np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+#b_min = 0.0
 #Maximum impact parameter
 b_max = calc_b_max(M_p, v_rms, a, m1, m2)
 
@@ -57,5 +59,6 @@ print('Binary broken?', notBound)
 
 #Check value for number of encounters
 T = 10.0**10.0*365.25*24.0*60.0*60.0
+print(T)
 N = T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max)
 print('N = ', N)

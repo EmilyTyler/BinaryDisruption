@@ -1,0 +1,114 @@
+#To test the impulse approximation
+
+import numpy as np
+import os
+os.system("python setup.py build_ext --inplace")
+
+from matplotlib import pyplot as plt
+from matplotlib import ticker
+import matplotlib.colors as colors
+
+from impulse_test_encounter import encounterGrid
+from encounters import calc_b_max
+
+#Initialise variables
+#Eccentricity
+e = 0.7
+#Mass of binary stars
+m1 = 2.0*10.0**30.0
+m2 = 2.0*10.0**30.0
+#Density of dark matter halo solar masses/pc**3
+rho = 0.009
+#Convert to SI
+rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
+#Mass of perturbers
+M_p = 3.0 * 2.0*10.0**30.0
+#RMS of Maxwellian velocity distribution, m/s
+v_rms = 100.0 * 1000.0
+#Number density of perturbers
+n_p = rho/M_p
+
+#Semi-major axes
+a_min = 10.0**3.0 * 1.5*10.0**11.0
+a_max = 10.0**12.0 * 1.5*10.0**11.0
+#Number of a's to test
+N_a = 50
+#Impact parameters
+b_min = (np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
+#Number of b's to test
+N_b = 5
+
+#Number of encounters per each pair of values
+N_enc = 10
+
+a_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
+
+
+#Contour plot
+
+#Linear
+plt.title('Average fractional error in semi-major axis due to impulse approximation')
+plt.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(a_frac_avg))
+plt.ylabel('Impact parameter, pc')
+plt.xlabel('Semi-major axis, au')
+plt.xscale('log')
+plt.yscale('log')
+plt.colorbar()
+plt.show()
+
+
+
+#Symlog
+plt.title('Average fractional error in semi-major axis due to impulse approximation')
+ax = plt.gca()
+lt = np.min(np.absolute(a_frac_avg[np.nonzero(a_frac_avg)]))
+pcm = ax.pcolormesh(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(a_frac_avg), norm=colors.SymLogNorm(linthresh=lt))
+plt.colorbar(pcm)
+plt.ylabel('Impact parameter, pc')
+plt.xlabel('Semi-major axis, au')
+plt.xscale('log')
+plt.yscale('log')
+plt.show()
+
+
+
+#Log absolute value
+plt.title('Average fractional error in semi-major axis due to impulse approximation')
+ax = plt.gca()
+cs = ax.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(a_frac_avg), locator=ticker.LogLocator())
+plt.colorbar(cs)
+plt.ylabel('Impact parameter, pc')
+plt.xlabel('Semi-major axis, au')
+plt.xscale('log')
+plt.yscale('log')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -80,16 +80,16 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         cdef np.ndarray i_enc = np.transpose(np.array(np.nonzero(N)))
         
         #
-        #a_frac = np.zeros((N_t), dtype=float)
-        #e_diff = np.zeros((N_t), dtype=float)
+        a_frac = np.zeros((N_t), dtype=float)
+        e_diff = np.zeros((N_t), dtype=float)
         cdef int i_old = 0
         for (i,j,k) in i_enc:
                 if i != i_old:
                         A[i] = A[i_old]
                         es[i] = es[i_old]
                 #Implement encounters
-                (notBound, A[i], es[i]) = encounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
-                #(notBound, A[i], es[i], a_frac[i], e_diff[i]) = impulseTestEncounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
+                #(notBound, A[i], es[i]) = encounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
+                (notBound, A[i], es[i], a_frac[i], e_diff[i]) = impulseTestEncounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
                 '''
                 #Test b_max
                 if i != i_old:
@@ -117,8 +117,8 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         while np.array(np.where(es == 0.0)).size > 0:
                 for i in np.transpose(np.array(np.where(es == 0.0))):
                         es[i] = es[i-1]
-        return (t, A, es)
-        #return (t, A, es, a_frac, e_diff)
+        #return (t, A, es)
+        return (t, A, es, a_frac, e_diff)
 
 cdef np.ndarray m = np.zeros(2, dtype=float)
 cdef np.ndarray b_90 = np.zeros(2, dtype=float)

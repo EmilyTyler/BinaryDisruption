@@ -1,6 +1,7 @@
 #To test the impulse approximation
 import math
 import numpy as np
+cimport numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
 from mpl_toolkits.mplot3d import Axes3D
@@ -22,12 +23,16 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         #print('a = ', a)
         #print('e = ', e)
         #Star masses
-        m = np.array([m1, m2])                                                                                                                                                                                                                                             
+        cdef np.ndarray m = np.array([m1, m2])                                                                                                                                                                                                                                             
         notBound_imp = False
-        a_imp = a
-        e_imp = e
-        a_frac = 0.0
-        e_diff = 0.0
+        cdef double a_imp = a
+        cdef double e_imp = e
+        cdef double a_frac = 0.0
+        cdef double e_diff = 0.0
+
+        cdef np.ndarray v_vec, X, R, b_vec, V_imp, b_90, b_star, v_perp, v_parr, t, x, M, x_new
+        cdef double b_vec_norm, b_star_norm, w, t_end, dt
+        cdef int i
         #If the encounter is not negligible
         if 10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0:             
                 #Find perturber velocity
@@ -38,7 +43,8 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 R = (m1*X[0] + m2*X[1])/(m1 + m2)
                 #Find impact parameter vector
                 b_vec = np.dot(R,v_vec)/V_0**2.0*v_vec - R
-                b_vec = b * b_vec/np.linalg.norm(b_vec)
+                b_vec_norm = np.sqrt(b_vec[0]**2.0+b_vec[1]**2.0+b_vec[2]**2.0)
+                b_vec = b * b_vec/b_vec_norm
                 
                 #Impulse approximation:
                 #New star velocities for impulse approximation
@@ -48,7 +54,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 for i in range(2):
                         #Calculate impact parameter for this star
                         b_star = (np.dot(X[i],v_vec) - np.dot(b_vec,v_vec))/V_0**2.0 * v_vec + b_vec - X[i]
-                        b_star_norm = np.linalg.norm(b_star)
+                        b_star_norm = np.sqrt(b_star[0]**2.0+b_star[1]**2.0+b_star[2]**2.0)
                         #Calculate velocity change in -b direction
                         v_perp = 2.0*M_p*V_0/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-b_star/b_star_norm)
                         #Calculate velocity change in -v_vec direction
@@ -67,6 +73,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 x = np.array([[X[0], X[1], b_vec - w*v_vec, X[2], X[3], v_vec]])
                 #Masses
                 M = np.array([m1, m2, M_p])
+                '''
                 #Relative separations
                 r_12 = np.linalg.norm(x[0,0]-x[0,1])
                 r_13 = np.linalg.norm(x[0,0]-x[0,2])
@@ -76,6 +83,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 v_3 = V_0
                 E = np.array([0.5*m1*v_1**2.0+0.5*m2*v_2**2.0+0.5*M_p*v_3**2.0 - G*m1*m2/r_12 - G*m1*M_p/r_13 - G*m2*M_p/r_23])
                 delta = np.array([M_p*m[:2]*r_12**2.0/(m1*m2*np.array([r_13**2.0, r_23**2.0]))])
+                '''
                 #Initialise counter
                 i = 1
                 while t[i-1] < t_end:
@@ -154,8 +162,28 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         return (notBound_imp, a_imp, e_imp, a_frac, e_diff)
         
         
-        
-        
+def encounterGrid(double m1, double m2, double v_rms, double e, double M_p, double a_min, double a_max, int N_a, double b_min, double b_max, int N_b, int N_enc):
+        #Set up logarithmic a bins
+        cdef double dloga = (np.log(a_max)-np.log(a_min))/N_a
+        cdef np.ndarray a_bins = np.array([a_min*np.exp(dloga*i) for i in range(N_a)])
+        #Set up logarithmic b bins
+        cdef double dlogb = (np.log(b_max)-np.log(b_min))/N_b
+        cdef np.ndarray b_bins = np.array([b_min*np.exp(dlogb*i) for i in range(N_b)])
+        #Average fractional difference in a
+        cdef np.ndarray a_frac_avg = np.zeros((N_a, N_b), dtype=float)
+
+        cdef double a_imp, e_imp, a_frac, e_diff
+        for i in range(N_a):
+                #print('a: ', i+1, ' out of ', N_a)
+                for j in range(N_b):
+                        #print('b: ',j+1,' out of ',N_b)
+                        for k in range(N_enc):
+                                #print('Enc: ', k+1, ' out of ', N_enc)
+                                (notBound_imp, a_imp, e_imp, a_frac, e_diff) = impulseTestEncounter(m1, m2, v_rms, b_bins[j], a_bins[i], e, M_p)
+                                a_frac_avg[i,j] += a_frac
+        #Normalise a_frac_avg
+        a_frac_avg /= N_enc
+        return a_frac_avg, a_bins, b_bins
         
         
         
