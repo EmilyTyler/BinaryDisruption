@@ -2,7 +2,8 @@
 #Evolution of the semi-major axis of a binary star due encounters with primordial balck holes (PBHs) which are assumed to have a constant uniform number density
 
 import numpy as np
-import pyximport; pyximport.install()
+import os
+os.system("python setup.py build_ext --inplace")
 
 from monte_carlo import MCEncounters
 import matplotlib.pyplot as plt
@@ -23,7 +24,7 @@ n_p = rho/M_p
 #Time to run simulation for
 T = 10.0**10.0*365.25*24.0*60.0*60.0
 #Number of timesteps
-N_t = 100
+N_t = 10
 #Time array
 t = np.linspace(0.0, T, N_t)
 dt = t[1] - t[0]

@@ -10,7 +10,7 @@ from orbital_elements import semimajorAxis
 from random_binary import setupRandomBinary
 from orbital_elements import orbitalElements
 from random_direction import randomDirection
-from impulse_test import impulseTestEncounter
+from impulse_test_encounter import impulseTestEncounter
 
 from scipy.constants import G
 
@@ -42,12 +42,12 @@ def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, d
 
 
 #Implements encounters with binning method
-def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.ndarray[double, ndim=1] A, np.ndarray[double, ndim=1] es, double m1, double m2, double M_p):
+def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, double m1, double m2, double M_p):
         cdef int i,j,k
         #Set up b array
         cdef double b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
         #print('b_min = ', b_min)
-        cdef double b_max = calc_b_max(M_p, v_rms, A[0], m1, m2)
+        cdef double b_max = calc_b_max(M_p, v_rms, a_0, m1, m2)
         #print('b_max = ', b_max)
         #Number of bins
         cdef int N_b = 100
@@ -73,23 +73,31 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
                         R[i,j] = encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv))
         #Calculate time step
         cdef double dt = 1.0/np.amax(R)
-        t = np.array([dt*i for i in range(N_t)])
+        #Setup time array
+        cdef int N_t = int(np.ceil(t_end/dt + 1))
+        cdef np.ndarray t = np.array([dt*i for i in range(N_t)])
+        #Array of semi-major axes
+        cdef np.ndarray A = np.zeros(N_t, dtype=float)
+        A[0] = a_0
+        #Array of eccentricities
+        cdef np.ndarray es = np.zeros(N_t, dtype=float)
+        es[0] = e_0
         #Number of encounters matrix:
         cdef np.ndarray N = np.rollaxis(np.array([[np.random.poisson(R[i,j]*dt, size=N_t) for j in range(N_v)] for i in range(N_b)]), 2)
         #Array of indices where encounters happen
         cdef np.ndarray i_enc = np.transpose(np.array(np.nonzero(N)))
         
         #
-        a_frac = np.zeros((N_t), dtype=float)
-        e_diff = np.zeros((N_t), dtype=float)
+        #a_frac = np.zeros((N_t), dtype=float)
+        #e_diff = np.zeros((N_t), dtype=float)
         cdef int i_old = 0
         for (i,j,k) in i_enc:
                 if i != i_old:
                         A[i] = A[i_old]
                         es[i] = es[i_old]
                 #Implement encounters
-                #(notBound, A[i], es[i]) = encounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
-                (notBound, A[i], es[i], a_frac[i], e_diff[i]) = impulseTestEncounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
+                (notBound, A[i], es[i]) = encounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
+                #(notBound, A[i], es[i], a_frac[i], e_diff[i]) = impulseTestEncounter(m1, m2, v[k], b[j], A[i], es[i], M_p)
                 '''
                 #Test b_max
                 if i != i_old:
@@ -117,8 +125,8 @@ def binning(double v_rms, double n_p, int N_t, np.ndarray[double, ndim=1] t, np.
         while np.array(np.where(es == 0.0)).size > 0:
                 for i in np.transpose(np.array(np.where(es == 0.0))):
                         es[i] = es[i-1]
-        #return (t, A, es)
-        return (t, A, es, a_frac, e_diff)
+        return (t, A, es)
+        #return (t, A, es, a_frac, e_diff)
 
 cdef np.ndarray m = np.zeros(2, dtype=float)
 cdef np.ndarray b_90 = np.zeros(2, dtype=float)

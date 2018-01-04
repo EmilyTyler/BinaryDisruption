@@ -32,7 +32,7 @@ n_p = rho/M_p
 a_min = 10.0**3.0 * 1.5*10.0**11.0
 a_max = 10.0**12.0 * 1.5*10.0**11.0
 #Number of a's to test
-N_a = 50
+N_a = 5
 #Impact parameters
 b_min = (np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
 b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
@@ -40,13 +40,14 @@ b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
 N_b = 5
 
 #Number of encounters per each pair of values
-N_enc = 10
+N_enc = 2
 
 a_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
 
+print(a_frac_avg)
 
 #Contour plot
-
+'''
 #Linear
 plt.title('Average fractional error in semi-major axis due to impulse approximation')
 plt.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(a_frac_avg))
@@ -56,9 +57,9 @@ plt.xscale('log')
 plt.yscale('log')
 plt.colorbar()
 plt.show()
+'''
 
-
-
+'''
 #Symlog
 plt.title('Average fractional error in semi-major axis due to impulse approximation')
 ax = plt.gca()
@@ -70,18 +71,27 @@ plt.xlabel('Semi-major axis, au')
 plt.xscale('log')
 plt.yscale('log')
 plt.show()
-
+'''
 
 
 #Log absolute value
-plt.title('Average fractional error in semi-major axis due to impulse approximation')
+plt.title('Absolute average fractional error in semi-major axis due to impulse approximation')
 ax = plt.gca()
-cs = ax.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(a_frac_avg), locator=ticker.LogLocator())
+cs = ax.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(np.absolute(a_frac_avg)), locator=ticker.LogLocator())
 plt.colorbar(cs)
 plt.ylabel('Impact parameter, pc')
 plt.xlabel('Semi-major axis, au')
 plt.xscale('log')
 plt.yscale('log')
+plt.show()
+
+plt.title('Sign of average fractional error in semi-major axis due to impulse approximation')
+plt.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(np.sign(a_frac_avg)))
+plt.ylabel('Impact parameter, pc')
+plt.xlabel('Semi-major axis, au')
+plt.xscale('log')
+plt.yscale('log')
+plt.colorbar()
 plt.show()
 
 
