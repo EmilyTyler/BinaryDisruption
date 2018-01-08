@@ -72,7 +72,7 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
                 for j in range(N_v):
                         R[i,j] = encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv))
         #Calculate time step
-        cdef double dt = 1.0/np.amax(R)
+        cdef double dt = 10.0/np.amax(R)
         #Setup time array
         cdef int N_t = int(np.ceil(t_end/dt + 1))
         cdef np.ndarray t = np.array([dt*i for i in range(N_t)])
@@ -113,8 +113,8 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
                 if notBound:
                         print('Binary broken!')
                         t[i:] = [t[i] + dt]*len(A[i:])
-                        A[i:] = [np.inf]*len(A[i:])
-                        es[i:] = [es[i]]*len(A[i:])
+                        A[i:] = [0.0]*len(A[i:])
+                        es[i:] = [0.0]*len(A[i:])
                         break
                 i_old = i
                 b_old = b[j]

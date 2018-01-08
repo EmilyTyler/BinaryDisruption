@@ -32,15 +32,15 @@ n_p = rho/M_p
 a_min = 10.0**3.0 * 1.5*10.0**11.0
 a_max = 10.0**12.0 * 1.5*10.0**11.0
 #Number of a's to test
-N_a = 5
+N_a = 20
 #Impact parameters
 b_min = (np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
 b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
 #Number of b's to test
-N_b = 5
+N_b = 20
 
 #Number of encounters per each pair of values
-N_enc = 2
+N_enc = 100
 
 a_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
 
@@ -59,7 +59,7 @@ plt.colorbar()
 plt.show()
 '''
 
-'''
+
 #Symlog
 plt.title('Average fractional error in semi-major axis due to impulse approximation')
 ax = plt.gca()
@@ -71,7 +71,7 @@ plt.xlabel('Semi-major axis, au')
 plt.xscale('log')
 plt.yscale('log')
 plt.show()
-'''
+
 
 
 #Log absolute value

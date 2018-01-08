@@ -30,7 +30,7 @@ n_p = rho/M_p
 #Time to run simulation for
 t_end = 10.0**10.0*365.25*24.0*60.0*60.0
 #Number of systems to run
-N_bin = 10
+N_bin = 100
 
 #Binning
 t_B, A_B_new, es_B_new = binning(v_rms, n_p, t_end, a_0, e_0, m1, m2, M_p)
@@ -42,7 +42,9 @@ es_B[0] = es_B_new
 for i in range(1, N_bin):
         t_B, A_B[i], es_B[i] = binning(v_rms, n_p, t_end, a_0, e_0, m1, m2, M_p)        
 #Average
-A_B_avg = np.sum(A_B, axis=0)/N_bin
+A_B_avg = np.zeros(N_t, dtype=float)
+for i in range(N_t):
+        A_B_avg[i] = np.sum(A_B[i])/np.size(np.nonzero(A_B[i]))
 
 #Monte Carlo
 #Number of timesteps
@@ -57,12 +59,12 @@ A_MC[0] = np.array([a_0]*N_bin)
 es_MC = np.zeros((N_t, N_bin), dtype=float)
 es_MC[0] = np.array([e_0]*N_bin)
 for i in range(1, N_t):
-        print(i)
         A_MC[i], es_MC[i] = MCEncounters(v_rms, n_p, dt, m1, m2, M_p, A_MC[i-1], es_MC[i-1], N_bin)
-        print(A_MC[0])
-        print(A_MC[i])
 #Average
-A_MC_avg = np.sum(A_MC, axis=1)/N_bin  
+A_MC_avg = np.zeros(N_t, dtype=float)
+for i in range(N_t):
+        A_MC_avg[i] = np.sum(A_MC[i])/np.size(np.nonzero(A_MC[i]))
+                
 
 #Plots
 
