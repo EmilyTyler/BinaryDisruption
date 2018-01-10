@@ -8,7 +8,7 @@ from monte_carlo import MCEncounters
 from encounters import binning
 from random_binary import setupRandomBinary
 import matplotlib.pyplot as plt
-from scipy.constants import G
+from scipy.constants import G, year, mega, giga
 
 #Initial semi-major axis
 a_0 = 0.1 * 3.086*10.0**16.0
@@ -28,9 +28,9 @@ rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number density of perturbers
 n_p = rho/M_p
 #Time to run simulation for
-t_end = 10.0**10.0*365.25*24.0*60.0*60.0
+t_end = 1.0 * giga * year
 #Number of systems to run
-N_bin = 100
+N_bin = 10000
 
 #Binning
 t_B, A_B_new, es_B_new = binning(v_rms, n_p, t_end, a_0, e_0, m1, m2, M_p)
@@ -48,7 +48,7 @@ for i in range(N_t):
 
 #Monte Carlo
 #Number of timesteps
-N_t = 10
+N_t = 50
 #Time array
 t_MC = np.linspace(0.0, t_end, N_t)
 dt = t_MC[1] - t_MC[0]
@@ -96,7 +96,19 @@ for i in range(1,N_t):
         delta_v = np.sqrt(16.0*np.pi*G**2.0*rho*M_p*(t_MC[i]-t_MC[i-1])*np.log(A_YCG[i-1]/b_min)/v_rms)
         delta_a = 2.0*A_YCG[i-1]**2.0*V*delta_v/(G*m1)
         A_YCG[i] = A_YCG[i-1] + delta_a
+
+#Original YCG calc        
+delta_v = np.sqrt(16.0*np.pi*G**2.0*rho*M_p*t_MC*np.log(a_0/b_min)/v_rms)
+X = setupRandomBinary(a_0, e_0, m1, m2)
+R = np.linalg.norm(X[0]-X[1])
+V = np.linalg.norm(X[2]-X[3])
+delta_a = 2.0*a_0**2.0*V*delta_v/(G*m1)
+delta_a += a_0
+A_YCG2 = delta_a
+
+
 plt.plot(t_MC/(10.0**6.0*365.25*24.0*60.0*60.0), A_YCG/(3.086*10.0**16.0), label='YCG')
+plt.plot(t_MC/(10.0**6.0*365.25*24.0*60.0*60.0), A_YCG2/(3.086*10.0**16.0), label='Original YCG')
 plt.plot(t_B/(10.0**6.0*365.25*24.0*60.0*60.0), A_B_avg/(3.086*10.0**16.0), label='Binning')
 plt.plot(t_MC/(10.0**6.0*365.25*24.0*60.0*60.0), A_MC_avg/(3.086*10.0**16.0), label='MC')
 plt.xlabel('Time/Myr')

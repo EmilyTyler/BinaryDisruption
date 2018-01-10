@@ -1,5 +1,6 @@
 #Functions to calculate encounter rates and to implement encounters
 
+cimport cython
 import numpy as np
 cimport numpy as np 
 from matplotlib import pyplot as plt
@@ -14,16 +15,17 @@ from impulse_test_encounter import impulseTestEncounter
 
 from scipy.constants import G
 
-
 #Encounter rate for impact parameters between b0 and b1 and for relative velocities between v0 and v1
 def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, double v1):
-        cdef double rate
-        rate = np.sqrt(2.0*np.pi)*n_p/v_rms*(b1**2.0-b0**2.0)*((v0**2.0+2.0*v_rms**2.0)*np.exp(-v0**2.0/(2.0*v_rms**2.0))-(v1**2.0+2.0*v_rms**2.0)*np.exp(-v1**2.0/(2.0*v_rms**2.0)))
+        cdef double rate = np.sqrt(2.0*np.pi)*n_p/v_rms*(b1**2.0-b0**2.0)*((v0**2.0+2.0*v_rms**2.0)*np.exp(-v0**2.0/(2.0*v_rms**2.0))-(v1**2.0+2.0*v_rms**2.0)*np.exp(-v1**2.0/(2.0*v_rms**2.0)))
         return rate
 
 #To find b_max
-def calc_b_max(M_p, v, a, m1, m2):
-        return (2.0*G*M_p/(v*10.0**(-3.0))*np.sqrt(a/(G*(m1+m2))))
+def calc_b_max(double M_p, double v, double a, double m1, double m2):
+        return calc_b_max_cdef(M_p, v, a, m1, m2)
+
+cdef double calc_b_max_cdef(double M_p, double v, double a, double m1, double m2):
+        return (2.0*G*M_p/(v*10.0**(-3.0))*(a/(G*(m1+m2)))**0.5)
 
 #Evolve binary without encounters
 def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, double m2):
@@ -128,41 +130,34 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
         return (t, A, es)
         #return (t, A, es, a_frac, e_diff)
 
-cdef np.ndarray m = np.zeros(2, dtype=float)
-cdef np.ndarray b_90 = np.zeros(2, dtype=float)
-cdef np.ndarray v_vec = np.zeros(3, dtype=float)
-cdef np.ndarray X = np.zeros((4,3), dtype=float)
-cdef np.ndarray X_0 = np.zeros((4,3), dtype=float)
-cdef np.ndarray R = np.zeros(3, dtype=float)
-cdef np.ndarray b_vec = np.zeros(3, dtype=float)
-cdef int i
-cdef np.ndarray b_star = np.zeros(3, dtype=float)
-cdef np.ndarray v_perp = np.zeros(3, dtype=float)
-cdef np.ndarray v_parr = np.zeros(3, dtype=float)
-cdef double v_vec_norm, b_star_norm
+
+def dot_3d(np.ndarray[double, ndim=1] a, np.ndarray[double, ndim=1] b):
+        return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
 
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation, M_p is perturber mass
 #From Binney and Tremaine hyperbolic encounters
-def encounter(double m1, double m2, double v, double b, double a, double e, double M_p):
-        #print('ENCOUNTER!')      
+def encounter(double m1, double m2, double v, double b, double a, double e, double M_p):  
         #Star masses
-        m = np.array([m1, m2])
+        cdef np.ndarray m = np.array([m1, m2])
         #90 degree deflection radius
-        b_90 = G*(M_p+m)/v**2.0                                                                                                                                                                                                                     
+        cdef np.ndarray b_90 = G*(M_p+m)/v**2.0                                                                                                                                                                                                                     
         #Find perturber velocity
-        v_vec = v * randomDirection()
+        cdef np.ndarray v_vec = v * randomDirection()
         #Open binary
-        X = setupRandomBinary(a, e, m1, m2)
+        cdef np.ndarray X = setupRandomBinary(a, e, m1, m2)
         #Centre of mass vector
-        R = (m1*X[0] + m2*X[1])/(m1 + m2)
+        cdef np.ndarray R = (m1*X[0] + m2*X[1])/(m1 + m2)
         #Find impact parameter vector
-        b_vec = np.dot(R,v_vec)/v**2.0*v_vec - R
-        b_vec_norm = np.sqrt(b_vec[0]**2.0 + b_vec[1]**2.0 + b_vec[2]**2.0)
+        cdef np.ndarray b_vec = dot_3d(R,v_vec)/v**2.0*v_vec - R
+        cdef double b_vec_norm = np.sqrt(b_vec[0]**2.0 + b_vec[1]**2.0 + b_vec[2]**2.0)
         b_vec = b * b_vec/b_vec_norm
         #Implement encounter for both stars  
+        cdef int i
+        cdef np.ndarray b_star, v_perp, v_parr
+        cdef double b_star_norm
         for i in range(2):
                 #Calculate impact parameter for this star
-                b_star = (np.dot(X[i],v_vec) - np.dot(b_vec,v_vec))/v**2.0 * v_vec + b_vec - X[i]
+                b_star = (dot_3d(X[i],v_vec) - dot_3d(b_vec,v_vec))/v**2.0 * v_vec + b_vec - X[i]
                 b_star_norm = np.sqrt(b_star[0]**2.0 + b_star[1]**2.0 + b_star[2]**2.0)
                 #Calculate velocity change in -b direction
                 v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-b_star/b_star_norm)

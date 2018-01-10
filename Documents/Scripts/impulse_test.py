@@ -40,11 +40,10 @@ b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
 N_b = 20
 
 #Number of encounters per each pair of values
+#TAKES 5.5 HOURS TO RUN CURRENTLY
 N_enc = 100
 
 a_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
-
-print(a_frac_avg)
 
 #Contour plot
 '''

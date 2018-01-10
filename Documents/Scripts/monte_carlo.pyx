@@ -1,6 +1,6 @@
 #Draw random numbers from a distribution using a Monte Carlo method
 
-
+import cython
 import random
 import numpy as np
 cimport numpy as np
@@ -9,6 +9,7 @@ from cpython cimport bool
 from encounters import calc_b_max
 from encounters import encounterRate
 from encounters import encounter
+from scipy.stats import maxwell
 
 #Draw velocities from a Maxwellian distribution
 #Uses rejection method from Numerical Recipes, Press et al. section 7.3.6
@@ -54,7 +55,7 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
         cdef double v_max = 10.0**2.0*v_rms
         #Implement encounters
         cdef bool notBound = False
-        cdef int N_enc
+        cdef int N_enc, i
         cdef double a_new, e_new, b_max
         cdef np.ndarray b, v
         cdef np.ndarray a = np.array([a_0[i] for i in range(N_bin)])
@@ -67,16 +68,15 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
                 #Impact parameters of encounters
                 b = draw_b(b_max, N_enc)
                 #Relative velocities of encounters
-                v = draw_maxwellian(v_rms, v_min, v_max, N_enc)
+                #v = draw_maxwellian(v_rms, v_min, v_max, N_enc)
+                v = maxwell.rvs(scale=v_rms, size=N_enc)
                 for j in range(N_enc):
-                        (notBound, a_new, e_new) = encounter(m1, m2, v[j], b[j], a[i], e[i], M_p)
+                        (notBound, a[i], e[i]) = encounter(m1, m2, v[j], b[j], a[i], e[i], M_p)
                         if notBound:
                                 print('Binary broken!')
                                 a[i] = 0.0
                                 e[i] = 0.0
                                 break
-                        a[i] = a_new
-                        e[i] = e_new
         return (a, e)
 
 
