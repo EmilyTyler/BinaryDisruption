@@ -1,6 +1,5 @@
 #To evolve a distribution of binaries using MC method
 
-
 import numpy as np
 import os
 os.system("python setup.py build_ext --inplace")

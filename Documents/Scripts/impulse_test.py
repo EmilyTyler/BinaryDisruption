@@ -22,7 +22,7 @@ rho = 0.009
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Mass of perturbers
-M_p = 3.0 * 2.0*10.0**30.0
+M_p = 100.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 100.0 * 1000.0
 #Number density of perturbers
@@ -40,8 +40,8 @@ b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
 N_b = 20
 
 #Number of encounters per each pair of values
-#TAKES 5.5 HOURS TO RUN CURRENTLY
-N_enc = 100
+#TAKES 5.5 HOURS TO RUN for 20, 20, 100
+N_enc = 10
 
 a_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
 
@@ -58,7 +58,7 @@ plt.colorbar()
 plt.show()
 '''
 
-
+'''
 #Symlog
 plt.title('Average fractional error in semi-major axis due to impulse approximation')
 ax = plt.gca()
@@ -70,7 +70,7 @@ plt.xlabel('Semi-major axis, au')
 plt.xscale('log')
 plt.yscale('log')
 plt.show()
-
+'''
 
 
 #Log absolute value
@@ -84,6 +84,7 @@ plt.xscale('log')
 plt.yscale('log')
 plt.show()
 
+'''
 plt.title('Sign of average fractional error in semi-major axis due to impulse approximation')
 plt.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(np.sign(a_frac_avg)))
 plt.ylabel('Impact parameter, pc')
@@ -92,7 +93,7 @@ plt.xscale('log')
 plt.yscale('log')
 plt.colorbar()
 plt.show()
-
+'''
 
 
 

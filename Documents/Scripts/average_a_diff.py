@@ -28,23 +28,37 @@ rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number density of perturbers
 n_p = rho/M_p
 #Time to run simulation for
-t_end = 1.0 * giga * year
+t_end = 10.0 * giga * year
 #Number of systems to run
-N_bin = 10000
+N_bin = 100
 
 #Binning
-t_B, A_B_new, es_B_new = binning(v_rms, n_p, t_end, a_0, e_0, m1, m2, M_p)
+t_B, A_B_new, es_B_new, N_broken_new = binning(v_rms, n_p, t_end, a_0, e_0, m1, m2, M_p)
 N_t = np.size(t_B)
+#
 A_B = np.zeros((N_bin, N_t), dtype=float)
+A_B[:,0] = np.array([a_0]*N_bin)
+A_B[1] = A_B_new
+#
 es_B = np.zeros((N_bin, N_t), dtype=float)
-A_B[0] = A_B_new
-es_B[0] = es_B_new
-for i in range(1, N_bin):
-        t_B, A_B[i], es_B[i] = binning(v_rms, n_p, t_end, a_0, e_0, m1, m2, M_p)        
+es_B[:,0] = np.array([e_0]*N_bin)
+es_B[1] = es_B_new
+#
+N_broken_B_ind = np.zeros((N_bin, N_t), dtype=int)
+N_broken_B_ind[:,0] = np.array([0]*N_bin)
+N_broken_B_ind[1] = N_broken_new
+
+for i in range(2, N_bin):
+        t_B, A_B[i], es_B[i], N_broken_B_ind[i] = binning(v_rms, n_p, t_end, a_0, e_0, m1, m2, M_p)        
+#Number of binaries broken
+N_broken_B = np.sum(N_broken_B_ind, axis=0)
+#Make cumulative
+for i in range(1, N_t):
+        N_broken_B[i] += N_broken_B[i-1]
 #Average
 A_B_avg = np.zeros(N_t, dtype=float)
 for i in range(N_t):
-        A_B_avg[i] = np.sum(A_B[i])/np.size(np.nonzero(A_B[i]))
+        A_B_avg[i] = np.sum(A_B[:,i])/np.size(np.nonzero(A_B[:,i]))
 
 #Monte Carlo
 #Number of timesteps
@@ -58,8 +72,9 @@ A_MC[0] = np.array([a_0]*N_bin)
 #Eccentricity array
 es_MC = np.zeros((N_t, N_bin), dtype=float)
 es_MC[0] = np.array([e_0]*N_bin)
+N_broken_MC = np.zeros(N_t, dtype=int)
 for i in range(1, N_t):
-        A_MC[i], es_MC[i] = MCEncounters(v_rms, n_p, dt, m1, m2, M_p, A_MC[i-1], es_MC[i-1], N_bin)
+        A_MC[i], es_MC[i], N_broken_MC[i] = MCEncounters(v_rms, n_p, dt, m1, m2, M_p, A_MC[i-1], es_MC[i-1], N_bin)
 #Average
 A_MC_avg = np.zeros(N_t, dtype=float)
 for i in range(N_t):
@@ -106,7 +121,6 @@ delta_a = 2.0*a_0**2.0*V*delta_v/(G*m1)
 delta_a += a_0
 A_YCG2 = delta_a
 
-
 plt.plot(t_MC/(10.0**6.0*365.25*24.0*60.0*60.0), A_YCG/(3.086*10.0**16.0), label='YCG')
 plt.plot(t_MC/(10.0**6.0*365.25*24.0*60.0*60.0), A_YCG2/(3.086*10.0**16.0), label='Original YCG')
 plt.plot(t_B/(10.0**6.0*365.25*24.0*60.0*60.0), A_B_avg/(3.086*10.0**16.0), label='Binning')
@@ -117,6 +131,13 @@ plt.ylim(np.min([np.min(A_MC_avg), np.min(A_B_avg)])/(3.086*10.0**16.0), np.max(
 plt.legend()
 plt.show()
 
+#Plot number of binaries broken against time
+plt.plot(t_B/(mega*year), N_broken_B, label='Binning')
+plt.plot(t_MC/(mega*year), N_broken_MC, label='Monte Carlo')
+plt.xlabel('Time/Myr')
+plt.ylabel('Number of binaries broken')
+plt.legend()
+plt.show()
 
 
 

@@ -41,7 +41,7 @@ def orbitalElements(np.ndarray[double, ndim=2] X, double m1, double m2):
         #Eccentricity
         e = np.sqrt(1.0 + 2.0*(m1+m2)*L_squared*E/(G**2.0*(m1*m2)**3.0))
         
-        return((E >= 0.0), a, e)
+        return((E >= -10.0**(-4.0)), a, e)
        
 
 

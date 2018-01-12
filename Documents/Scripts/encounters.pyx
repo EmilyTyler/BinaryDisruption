@@ -74,7 +74,7 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
                 for j in range(N_v):
                         R[i,j] = encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv))
         #Calculate time step
-        cdef double dt = 10.0/np.amax(R)
+        cdef double dt = 1.0/np.amax(R)
         #Setup time array
         cdef int N_t = int(np.ceil(t_end/dt + 1))
         cdef np.ndarray t = np.array([dt*i for i in range(N_t)])
@@ -88,6 +88,8 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
         cdef np.ndarray N = np.rollaxis(np.array([[np.random.poisson(R[i,j]*dt, size=N_t) for j in range(N_v)] for i in range(N_b)]), 2)
         #Array of indices where encounters happen
         cdef np.ndarray i_enc = np.transpose(np.array(np.nonzero(N)))
+        #Number of binaries broken
+        cdef np.ndarray N_broken = np.zeros(N_t, dtype=int)
         
         #
         #a_frac = np.zeros((N_t), dtype=float)
@@ -114,6 +116,7 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
                 '''                
                 if notBound:
                         print('Binary broken!')
+                        N_broken[i] += 1
                         t[i:] = [t[i] + dt]*len(A[i:])
                         A[i:] = [0.0]*len(A[i:])
                         es[i:] = [0.0]*len(A[i:])
@@ -127,16 +130,23 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
         while np.array(np.where(es == 0.0)).size > 0:
                 for i in np.transpose(np.array(np.where(es == 0.0))):
                         es[i] = es[i-1]
-        return (t, A, es)
+        return (t, A, es, N_broken)
         #return (t, A, es, a_frac, e_diff)
 
 
 def dot_3d(np.ndarray[double, ndim=1] a, np.ndarray[double, ndim=1] b):
         return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
 
+#Implement encounters with relative velocity v and impact parameter b
+def encounter(double m1, double m2, double v, double b, double a, double e, double M_p):  
+        if impulseValid():
+                return impulseEncounter(m1, m2, v, b, a, e, M_p)
+        else:
+                return integrateEncounter(m1, m2, v, b, a, e, M_p)
+
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation, M_p is perturber mass
 #From Binney and Tremaine hyperbolic encounters
-def encounter(double m1, double m2, double v, double b, double a, double e, double M_p):  
+def impulseEncounter(double m1, double m2, double v, double b, double a, double e, double M_p):
         #Star masses
         cdef np.ndarray m = np.array([m1, m2])
         #90 degree deflection radius
@@ -169,6 +179,43 @@ def encounter(double m1, double m2, double v, double b, double a, double e, doub
                 X[i+2] += v_perp + v_parr                    
         #Close binary
         return orbitalElements(X, m1, m2)
+
+#Implements encounter with full 3 body simulation
+def integrateEncounter(double m1, double m2, double v, double b, double a, double e, double M_p):
+        #Masses
+        cdef np.ndarray M = np.array([m1, m2, M_p])
+        #Time array
+        cdef np.ndarray t = np.array([0.0])     
+        #Find perturber velocity
+        cdef np.ndarray v_vec = v * randomDirection()
+        #Open binary
+        cdef np.ndarray X = setupRandomBinary(a, e, m1, m2)
+        #Centre of mass vector
+        cdef np.ndarray R = (m1*X[0] + m2*X[1])/(m1 + m2)
+        #Find impact parameter vector
+        cdef np.ndarray b_vec = dot_3d(R,v_vec)/v**2.0*v_vec - R
+        cdef double b_vec_norm = np.sqrt(b_vec[0]**2.0 + b_vec[1]**2.0 + b_vec[2]**2.0)
+        b_vec = b * b_vec/b_vec_norm
+        #Perturber starting distance parameter
+        cdef double w = np.sqrt(10.0**6.0*M_p*a**2.0/(np.min([m1, m2])) - b**2.0)/v
+        #End time
+        cdef double t_end = 2.0*w
+        #Initial positions and velocities
+        cdef np.ndarray x = np.array([[X[0], X[1], b_vec - w*v_vec, X[2], X[3], v_vec]])    
+        #Initialise counter
+        cdef int i = 1
+        while t[i-1] < t_end:
+                (x_new, dt) = integrateBinary(3, x[i-1], M)
+                x = np.append(x, [x_new], axis=0)
+                t = np.append(t, t[i-1]+dt)
+                #Increment counter
+                i += 1
+        #Close binary       
+        return orbitalElements(np.array([x[i-1,0], x[i-1,1], x[i-1,3], x[i-1,4]]), m1, m2)
+        
+#Checks if the impulse approximation is valid
+def impulseValid():
+        return True
 
 
         

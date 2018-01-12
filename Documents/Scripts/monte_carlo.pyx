@@ -60,6 +60,7 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
         cdef np.ndarray b, v
         cdef np.ndarray a = np.array([a_0[i] for i in range(N_bin)])
         cdef np.ndarray e = np.array([e_0[i] for i in range(N_bin)])
+        cdef int N_broken
         for i in range(N_bin):
                 #Maximum impact parameter
                 b_max = calc_b_max(M_p, v_rms, a[i], m1, m2)
@@ -73,11 +74,12 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
                 for j in range(N_enc):
                         (notBound, a[i], e[i]) = encounter(m1, m2, v[j], b[j], a[i], e[i], M_p)
                         if notBound:
+                                N_broken += 1
                                 print('Binary broken!')
                                 a[i] = 0.0
                                 e[i] = 0.0
                                 break
-        return (a, e)
+        return (a, e, N_broken)
 
 
 
