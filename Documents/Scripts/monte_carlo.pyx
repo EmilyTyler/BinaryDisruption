@@ -50,9 +50,9 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
         #Minimum impact parameter
         cdef double b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
         #Minimum velocity
-        cdef double v_min = 10.0**(-2.0)*v_rms
+        cdef double v_min = 10.0**(-3.0)*v_rms
         #Maximum velocity
-        cdef double v_max = 10.0**2.0*v_rms
+        cdef double v_max = 10.0**3.0*v_rms
         #Implement encounters
         cdef bool notBound = False
         cdef int N_enc, i

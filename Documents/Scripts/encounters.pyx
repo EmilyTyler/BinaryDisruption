@@ -11,7 +11,6 @@ from orbital_elements import semimajorAxis
 from random_binary import setupRandomBinary
 from orbital_elements import orbitalElements
 from random_direction import randomDirection
-from impulse_test_encounter import impulseTestEncounter
 
 from scipy.constants import G
 
@@ -58,8 +57,8 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
         cdef np.ndarray b = np.array([b_min*np.exp(i*dlogb) for i in range(N_b)])
 
         #Set up v array
-        cdef double v_min = 0.001 * v_rms
-        cdef double v_max = 1000.0 * v_rms
+        cdef double v_min = 0.01 * v_rms
+        cdef double v_max = 100.0 * v_rms
         #Number of bins
         cdef int N_v = 100
         #Width of logarithmically spaced bins

@@ -19,7 +19,7 @@ m2 = 1.0*10.0**30.0
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
-v_rms = 100.0 * 1000.0
+v_rms = 220.0 * 1000.0
 #Density of dark matter halo solar masses/pc**3
 rho = 0.009
 #Convert to SI

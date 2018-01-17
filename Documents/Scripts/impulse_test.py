@@ -24,7 +24,7 @@ rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Mass of perturbers
 M_p = 100.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
-v_rms = 100.0 * 1000.0
+v_rms = 220.0 * 1000.0
 #Number density of perturbers
 n_p = rho/M_p
 
@@ -41,7 +41,7 @@ N_b = 20
 
 #Number of encounters per each pair of values
 #TAKES 5.5 HOURS TO RUN for 20, 20, 100
-N_enc = 10
+N_enc = 100
 
 a_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
 

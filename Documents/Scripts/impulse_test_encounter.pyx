@@ -12,8 +12,28 @@ from orbital_elements import semimajorAxis
 from random_direction import randomDirection
 from random_binary import setupRandomBinary
 from evolve_binary import integrateBinary
+from encounters import calc_b_max
 
-from scipy.constants import G
+from scipy.constants import G, parsec, au, giga, year
+
+#Function to give the value of b for borderline impulse validity
+def bImpulseValid(double a, double n_p, double v_rms, double M_p, double m1, double m2):
+        cdef double m = 1.0
+        cdef double c = 2.0 - 3.0*m
+        cdef double b = parsec * 10.0**(m*np.log10(a/au) + c)
+        cdef double b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
+        cdef double b_max = calc_b_max(M_p, v_rms, a, m1, m2)
+        cdef double answer = b
+        if b < b_min:
+                answer = b_min
+        elif b > b_max:
+                answer = b_max
+        return answer
+
+def MImpulseValid(a):
+        m = 1.0
+        c = 1.0 - 9.0*m
+        return 2.0*10.0**30.0 * 10.0**(m*np.log10(a/au) + c)
 
 def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, double e, double M_p):
         
@@ -185,6 +205,27 @@ def encounterGrid(double m1, double m2, double v_rms, double e, double M_p, doub
         a_frac_avg /= N_enc
         return a_frac_avg, a_bins, b_bins
         
+        
+def encounterGrid_M(double m1, double m2, double v_rms, double rho, double e, double M_p_min, double M_p_max, double a_min, double a_max, int N_M, int N_a, int N_enc):
+        #Set up logarithmic a bins
+        cdef double dloga = (np.log(a_max)-np.log(a_min))/N_a
+        cdef np.ndarray a_bins = np.array([a_min*np.exp(dloga*i) for i in range(N_a)])
+        #Set up logarithmic M_p bins
+        cdef double dlogM = (np.log(M_p_max)-np.log(M_p_min))/N_M
+        cdef np.ndarray M_p_bins = np.array([M_p_min*np.exp(dlogM*i) for i in range(N_M)])
+        #Average fractional difference in a
+        cdef np.ndarray a_frac_avg = np.zeros((N_a, N_M), dtype=float)
+
+        cdef double a_imp, e_imp, a_frac, e_diff
+        for j in range(N_M):
+                n_p = rho/M_p_bins[j]
+                for i in range(N_a):
+                        for k in range(N_enc):
+                                (notBound_imp, a_imp, e_imp, a_frac, e_diff) = impulseTestEncounter(m1, m2, v_rms, bImpulseValid( a_bins[i], n_p, v_rms, M_p_bins[j], m1, m2), a_bins[i], e, M_p_bins[j])
+                                a_frac_avg[i,j] += a_frac
+        #Normalise a_frac_avg
+        a_frac_avg /= N_enc
+        return a_frac_avg, a_bins, M_p_bins
         
         
         

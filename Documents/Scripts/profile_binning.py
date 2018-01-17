@@ -25,7 +25,7 @@ rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
-v_rms = 100.0 * 1000.0
+v_rms = 220.0 * 1000.0
 #Time to run simulation for
 t_end = 10.0**10.0*365.25*24.0*60.0*60.0
 #Number density of perturbers
