@@ -20,11 +20,11 @@ def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, dou
         return rate
 
 #To find b_max
-def calc_b_max(double M_p, double v, double a, double m1, double m2):
-        return calc_b_max_cdef(M_p, v, a, m1, m2)
+def calc_b_max(double M_p, double v, double a, double m1, double m2, double delta = 10.0**(-3.0)):
+        return calc_b_max_cdef(M_p, v, a, m1, m2, delta)
 
-cdef double calc_b_max_cdef(double M_p, double v, double a, double m1, double m2):
-        return (2.0*G*M_p/(v*10.0**(-3.0))*(a/(G*(m1+m2)))**0.5)
+cdef double calc_b_max_cdef(double M_p, double v, double a, double m1, double m2, double delta):
+        return (2.0*G*M_p/(v*delta)*(a/(G*(m1+m2)))**0.5)
 
 #Evolve binary without encounters
 def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, double m2):
@@ -44,7 +44,7 @@ def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, d
 
 #Implements encounters with binning method
 def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, double m1, double m2, double M_p):
-        cdef int i,j,k
+        cdef int i, j
         #Set up b array
         cdef double b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
         #print('b_min = ', b_min)
@@ -94,6 +94,7 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
         #a_frac = np.zeros((N_t), dtype=float)
         #e_diff = np.zeros((N_t), dtype=float)
         cdef int i_old = 0
+        cdef int k
         for (i,j,k) in i_enc:
                 if i != i_old:
                         A[i] = A[i_old]

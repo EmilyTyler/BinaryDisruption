@@ -7,6 +7,7 @@ def calcFrequency(x, N_bins, normalise=False, log=False):
         #x bins
         if log:
                 dlogx = (np.log(x_max)-np.log(x_min))/(N_bins-1)
+                dx = dlogx
                 x_bins = np.array([x_min * np.exp(i*dlogx) for i in range(N_bins)])
         else:
                 dx = (x_max - x_min)/(N_bins-1)
@@ -27,6 +28,6 @@ def calcFrequency(x, N_bins, normalise=False, log=False):
         if normalise:
                 N /= np.size(x)
                 
-        return(x_bins, N)
+        return(x_bins, N, dx)
         
         
