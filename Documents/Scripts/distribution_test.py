@@ -23,7 +23,7 @@ rho = 0.008
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 #Simulation time
-T = 1000.0*giga*year
+T = 10000.0*giga*year
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
@@ -40,12 +40,12 @@ v_min = 10.0**(-2.0) * v_rms
 #Maximum velocity
 v_max = 10.0**2.0 * v_rms
 
-N_v = 1000
-N_b = 1000
+N_v = 100
+N_b = 100
 
 #Monte Carlo
 #Number of encounters
-N_enc_MC = np.random.poisson(T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max))
+N_enc_MC = np.random.poisson(T*encounterRate(n_p, v_rms, 0.0, b_max, v_min, v_max))
 #b values
 b_MC = draw_b(b_max, N_enc_MC)
 #v values
@@ -57,21 +57,26 @@ v_bins_MC, N_v_MC, dv_MC = calcFrequency(v_MC, N_v)
 
 #Binning
 #b bins for encounter rate
-#dlogb = (np.log(b_max)-np.log(b_min))/N_b
-#b = np.array([b_min*np.exp(i*dlogb) for i in range(N_b)])
-db_B = (b_max - b_min)/(N_b)
-b = np.array([b_min + i*db_B for i in range(N_b)])
+dlogb = (np.log(b_max)-np.log(b_min))/N_b
+b = np.array([b_min*np.exp(i*dlogb) for i in range(N_b)])
+db_B = b * (np.exp(dlogb) - 1.0)
+
+#db_B = (b_max - b_min)/(N_b)
+#b = np.array([b_min + i*db_B for i in range(N_b)])
+
 #v bins for encounter rate
-#dlogv = (np.log(v_max)-np.log(v_min))/N_v
-#v = np.array([v_min*np.exp(i*dlogv) for i in range(N_v)])
-dv_B = (v_max - v_min)/(N_v)
-v = np.array([v_min + i*dv_B for i in range(N_v)])
+dlogv = (np.log(v_max)-np.log(v_min))/N_v
+v = np.array([v_min*np.exp(i*dlogv) for i in range(N_v)])
+dv_B = v * (np.exp(dlogv) - 1.0)
+
+#dv_B = (v_max - v_min)/(N_v)
+#v = np.array([v_min + i*dv_B for i in range(N_v)])
+
 #R[i,j] is the encounter rate for objects with impact parameter b[i] and relative velocity v[j]
 R = np.zeros([N_b,N_v], dtype=float)
 for i in range(N_b):
         for j in range(N_v):
-                #R[i,j] = encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv))
-                R[i,j] = encounterRate(n_p, v_rms, b[i], b[i]+db_B, v[j], v[j]+dv_B)
+                R[i,j] = encounterRate(n_p, v_rms, b[i], b[i]+db_B[i], v[j], v[j]+dv_B[j])
 #Time step
 dt = 1.0/np.amax(R)
 #Number of timesteps
@@ -84,18 +89,6 @@ N = np.rollaxis(np.array([[np.random.poisson(R[i,j]*dt, size=N_t) for j in range
 N_enc_B = np.sum(N)
 #Array of indices where encounters happen
 i_enc = np.transpose(np.array(np.nonzero(N)))
-'''
-#b values
-b_B = np.array([])
-#v values
-v_B = np.array([])
-for (i,j,k) in i_enc:
-        b_B = np.append(b_B, b[j])
-        v_B = np.append(v_B, v[k])
-#Re-bin b and v in linear bins
-b_bins_B, N_b_B = calcFrequency(b_B, 100)
-v_bins_B, N_v_B = calcFrequency(v_B, 100)
-'''
 #b distribution
 N_b_B = np.zeros(N_b, dtype=int)
 #v distribution
@@ -112,22 +105,22 @@ print('N_enc_B = ', N_enc_B)
 
 #Plot distributions
 #Plot b distributions
-plt.plot(b_bins_MC/parsec, N_b_MC/N_enc_MC, label='Monte Carlo')
-plt.plot(b_bins_B/parsec, N_b_B/N_enc_B, label='Binning')
-plt.xlabel('Impact parameter, pc')
-plt.ylabel('Fraction of encounters at impact parameter b')
+plt.plot(b_bins_MC/parsec, N_b_MC/N_enc_MC/(db_MC/parsec), label='Monte Carlo')
+plt.plot(b_bins_B/parsec, N_b_B/N_enc_B/(db_B/parsec), label='Binning')
+plt.xlabel('Impact parameter $b$, pc')
+plt.ylabel(r'Probability density of encounters at impact parameter $b$, pc$^{-1}$')
 plt.legend()
 plt.show()
 
 #Plot v distributions
-plt.plot(v_bins_MC/1000.0, N_v_MC/N_enc_MC/dv_MC, label='Monte Carlo')
-plt.plot(v_bins_B/1000.0, N_v_B/N_enc_B/dv_B, label='Binning')
+plt.plot(v_bins_MC/1000.0, N_v_MC/N_enc_MC/(dv_MC/1000.0), label='Monte Carlo')
+plt.plot(v_bins_B/1000.0, N_v_B/N_enc_B/(dv_B/1000.0), label='Binning')
 pdf = np.array([maxwellianPdf(x, v_rms) for x in v_bins_MC])
-plt.plot(v_bins_MC/1000.0, pdf, label='PDF MC')
+plt.plot(v_bins_MC/1000.0, pdf*1000.0, label='PDF MC')
 pdf = np.array([maxwellianPdf(x, v_rms) for x in v_bins_B])
-plt.plot(v_bins_B/1000.0, pdf, label='PDF Binning')
-plt.xlabel('v, km/s')
-plt.ylabel('Fraction of encounters at relative velocity v')
+plt.plot(v_bins_B/1000.0, pdf*1000.0, label='PDF Binning')
+plt.xlabel(r'Relative velocity $v$, kms$^{-1}$')
+plt.ylabel(r'Probability density of encounters at relative velocity $v$, km$^{-1}$s')
 plt.legend()
 plt.show()
 
