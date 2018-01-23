@@ -7,6 +7,7 @@ os.system("python setup.py build_ext --inplace")
 from matplotlib import pyplot as plt
 from matplotlib import ticker
 import matplotlib.colors as colors
+from scipy.constants import G
 
 from impulse_test_encounter import encounterGrid
 from encounters import calc_b_max
@@ -58,7 +59,7 @@ plt.colorbar()
 plt.show()
 '''
 
-'''
+
 #Symlog
 plt.title('Average fractional error in semi-major axis due to impulse approximation')
 ax = plt.gca()
@@ -70,7 +71,7 @@ plt.xlabel('Semi-major axis, au')
 plt.xscale('log')
 plt.yscale('log')
 plt.show()
-'''
+
 
 
 #Log absolute value
@@ -84,7 +85,7 @@ plt.xscale('log')
 plt.yscale('log')
 plt.show()
 
-'''
+
 plt.title('Sign of average fractional error in semi-major axis due to impulse approximation')
 plt.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(np.sign(a_frac_avg)))
 plt.ylabel('Impact parameter, pc')
@@ -93,14 +94,37 @@ plt.xscale('log')
 plt.yscale('log')
 plt.colorbar()
 plt.show()
-'''
 
 
 
+#Plot time ratio test for impulse approximation
+t_T = np.zeros((N_a, N_b))
+for i in range(N_a):
+        t_T[i] = np.array([(1.0 + e)/(2.0*np.pi*v_rms)*np.sqrt(G*(m1 + m2)/a_bins[i])]*N_b)               
+plt.title('Time taken for PBH to travel between points of closest approach divided by orbital period')
+ax = plt.gca()
+cs = ax.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(t_T), locator=ticker.LogLocator())
+plt.colorbar(cs)
+plt.ylabel('Impact parameter, pc')
+plt.xlabel('Semi-major axis, au')
+plt.xscale('log')
+plt.yscale('log')
+plt.show()
 
 
-
-
+#Plot deltaV/V for PBH velocity
+V_frac = np.zeros((N_b, N_a))
+for i in range(N_b):
+        V_frac[i] = np.array([2.0*m1*G/(b_bins[i]*v_rms**2.0)]*N_a)
+plt.title('PBH fractional velocity difference after an encounter with one star')
+ax = plt.gca()
+cs = ax.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), V_frac, locator=ticker.LogLocator())
+plt.colorbar(cs)
+plt.ylabel('Impact parameter, pc')
+plt.xlabel('Semi-major axis, au')
+plt.xscale('log')
+plt.yscale('log')
+plt.show()
 
 
 
