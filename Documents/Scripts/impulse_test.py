@@ -42,7 +42,7 @@ N_b = 20
 
 #Number of encounters per each pair of values
 #TAKES 5.5 HOURS TO RUN for 20, 20, 100
-N_enc = 100
+N_enc = 20
 
 a_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
 
@@ -110,6 +110,25 @@ plt.xlabel('Semi-major axis, au')
 plt.xscale('log')
 plt.yscale('log')
 plt.show()
+
+#Plot better time ratio test 
+t_T2 = np.zeros((N_a, N_b))
+for i in range(N_a):
+        for j in range(N_b):
+                if M_p*a_bins[i]**2.0/(10.0**(-6.0)*np.min([m1,m2])) - b_bins[j]**2.0 < 0.0:
+                        t_T2[i,j] = 0.0
+                else:
+                        t_T2[i,j] = 2.0/v_rms*np.sqrt(M_p*a_bins[i]**2.0/(10.0**(-6.0)*np.min([m1,m2])) - b_bins[j]**2.0)/(2.0*np.pi*np.sqrt(a_bins[i]**3.0/(G*(m1+m2))))
+plt.title('Duration of PBH encounter with binary divided by orbital period')
+ax = plt.gca()
+cs = ax.contourf(a_bins/(1.5*10.0**11.0), b_bins/(3.086*10.0**16.0), np.transpose(t_T2), locator=ticker.LogLocator())
+plt.colorbar(cs)
+plt.ylabel('Impact parameter, pc')
+plt.xlabel('Semi-major axis, au')
+plt.xscale('log')
+plt.yscale('log')
+plt.show()
+
 
 
 #Plot deltaV/V for PBH velocity

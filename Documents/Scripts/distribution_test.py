@@ -38,9 +38,9 @@ b_max = calc_b_max(M_p, v_rms, a, m1, m2)
 #Minimum velocity
 v_min = 10.0**(-2.0) * v_rms
 #Maximum velocity
-v_max = 10.0**2.0 * v_rms
+v_max = 10.0**1.0 * v_rms
 
-N_v = 100
+N_v = 1000
 N_b = 100
 
 #Monte Carlo
@@ -57,26 +57,26 @@ v_bins_MC, N_v_MC, dv_MC = calcFrequency(v_MC, N_v)
 
 #Binning
 #b bins for encounter rate
-dlogb = (np.log(b_max)-np.log(b_min))/N_b
-b = np.array([b_min*np.exp(i*dlogb) for i in range(N_b)])
-db_B = b * (np.exp(dlogb) - 1.0)
+#dlogb = (np.log(b_max)-np.log(b_min))/N_b
+#b = np.array([b_min*np.exp(i*dlogb) for i in range(N_b)])
+#db_B = b * (np.exp(dlogb) - 1.0)
 
-#db_B = (b_max - b_min)/(N_b)
-#b = np.array([b_min + i*db_B for i in range(N_b)])
+db_B = (b_max - b_min)/(N_b)
+b = np.array([b_min + i*db_B for i in range(N_b)])
 
 #v bins for encounter rate
-dlogv = (np.log(v_max)-np.log(v_min))/N_v
-v = np.array([v_min*np.exp(i*dlogv) for i in range(N_v)])
-dv_B = v * (np.exp(dlogv) - 1.0)
+#dlogv = (np.log(v_max)-np.log(v_min))/N_v
+#v = np.array([v_min*np.exp(i*dlogv) for i in range(N_v)])
+#dv_B = v * (np.exp(dlogv) - 1.0)
 
-#dv_B = (v_max - v_min)/(N_v)
-#v = np.array([v_min + i*dv_B for i in range(N_v)])
+dv_B = (v_max - v_min)/(N_v)
+v = np.array([v_min + i*dv_B for i in range(N_v)])
 
 #R[i,j] is the encounter rate for objects with impact parameter b[i] and relative velocity v[j]
 R = np.zeros([N_b,N_v], dtype=float)
 for i in range(N_b):
         for j in range(N_v):
-                R[i,j] = encounterRate(n_p, v_rms, b[i], b[i]+db_B[i], v[j], v[j]+dv_B[j])
+                R[i,j] = encounterRate(n_p, v_rms, b[i], b[i]+db_B, v[j], v[j]+dv_B)
 #Time step
 dt = 1.0/np.amax(R)
 #Number of timesteps
