@@ -8,29 +8,35 @@ from orbital_elements import orbitalElements
 from random_binary import setupRandomBinary
 
 #Evolution of binary through integration
-def integrateBinary(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim=1] m):
+def integrateBinary(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim=1] m, int n=1):
         # dt is step size
         # X = [x1, x2, x3,..., v1, v2, v3,...]
         # N is number of objects
         # m = [m1, m2, m3,...]
-        X_0 = X[:N]
-        V_0 = X[N:]      
-        #Hermite scheme (Dehnen and Read 2011) with Aarseth criterion timesteps
+        # n is number of iterations of estimate and correct
+        cdef np.ndarray X_0 = X[:N]
+        cdef np.ndarray V_0 = X[N:]  
+        cdef np.ndarray A_0, J_0, X_1, V_1, A_1, J_1
+        cdef double dt
+        cdef int i
+        #Hermite scheme (Dehnen and Read 2011) with Aarseth criterion timesteps  
         #Find initial acceleration and jerk and timestep
-        (A_0, J_0, dt) = acc_jerk_and_timestep(N, X_0, V_0, m)
+        (A_0, J_0, dt) = acc_jerk_and_timestep(N, X_0, V_0, m) 
         #Predict positions and velocities
-        X_p = X_0 + V_0*dt + A_0*dt**2.0/2.0 + J_0*dt**3.0/6.0
-        V_p = V_0 + A_0*dt + J_0*dt**2.0/2.0                   
-        #Estimate acceleration and jerk
-        (A_1, J_1) = acc_and_jerk(N, X_p, V_p, m)     
-        #Obtain corrected positions and velocities
-        X_1 = X_0 + (V_p+V_0)*dt/2.0 + (A_0-A_1)*dt**2.0/12.0
-        V_1 = V_0 + (A_1+A_0)*dt/2.0 + (J_0-J_1)*dt**2.0/12.0      
+        X_1 = X_0 + V_0*dt + A_0*dt**2.0/2.0 + J_0*dt**3.0/6.0
+        V_1 = V_0 + A_0*dt + J_0*dt**2.0/2.0
+        for i in range(n):                  
+                #Estimate acceleration and jerk
+                (A_1, J_1) = acc_and_jerk(N, X_1, V_1, m)     
+                #Obtain corrected positions and velocities
+                X_1 = X_0 + (V_1+V_0)*dt/2.0 + (A_0-A_1)*dt**2.0/12.0
+                V_1 = V_0 + (A_1+A_0)*dt/2.0 + (J_0-J_1)*dt**2.0/12.0   
         return (np.concatenate([X_1, V_1]), dt)
 
 #See Nitadori and Makino 2008 for higher derivatives of acceleration
 def calc_alpha(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3] v):
         cdef np.ndarray alpha = np.zeros((N, N), dtype=float)
+        cdef int i, j
         for i in range(N):
                 for j in range(N):
                         alpha[i,j] = np.dot(x[i,j], v[i,j])/np.dot(x[i,j], x[i,j])
@@ -38,6 +44,7 @@ def calc_alpha(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3] v
 
 def calc_beta(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3] v, np.ndarray[double, ndim=3] a, np.ndarray[double, ndim=2] alpha):
         cdef np.ndarray beta = np.zeros((N, N), dtype=float)
+        cdef int i, j
         for i in range(N):
                 for j in range(N):
                         beta[i,j] = (np.dot(v[i,j], v[i,j]) + np.dot(x[i,j], a[i,j]))/np.dot(x[i,j], x[i,j]) + alpha[i,j]**2.0
@@ -45,6 +52,7 @@ def calc_beta(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3] v,
 
 def calc_gamma(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3] v, np.ndarray[double, ndim=3] a, np.ndarray[double, ndim=3] j, np.ndarray[double, ndim=2] alpha, np.ndarray[double, ndim=2] beta):
         cdef np.ndarray gamma = np.zeros((N,N), dtype=float)
+        cdef int i, k
         for i in range(N):
                 for k in range(N):
                         gamma[i,k] = (3.0*np.dot(v[i,k], a[i,k]) + np.dot(x[i,k], j[i,k]))/np.dot(x[i,k], x[i,k]) + alpha[i,k]*(3.0*beta[i,k] - 4.0*alpha[i,k]**2.0)
@@ -54,6 +62,7 @@ def calc_acc(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim=1] m):
         cdef np.ndarray acc = np.zeros((N,3), dtype=float)
         cdef np.ndarray x = np.zeros((N,N,3), dtype=float)
         cdef np.ndarray A = np.zeros((N,N,3), dtype=float)
+        cdef int i, j
         for i in range(N):
                 for j in range(N):
                         x[i,j] = X[j] - X[i]
@@ -67,6 +76,7 @@ def calc_jerk(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=2] V,
         cdef np.ndarray jerk = np.zeros((N,3), dtype=float)
         cdef np.ndarray v = np.zeros((N,N,3), dtype=float)
         cdef np.ndarray J = np.zeros((N,N,3), dtype=float)
+        cdef int i, j
         for i in range(N):
                 for j in range(N):
                         v[i,j] = V[j] - V[i]
@@ -83,6 +93,7 @@ def calc_snap(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3] v,
         cdef np.ndarray snap = np.zeros((N,3), dtype=float)
         cdef np.ndarray a = np.zeros((N,N,3), dtype=float)
         cdef np.ndarray S = np.zeros((N,N,3), dtype=float)
+        cdef int i, j
         for i in range(N):
                 for j in range(N):
                         a[i,j] = acc[j] - acc[i]
@@ -99,6 +110,7 @@ def calc_crackle(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3]
         cdef np.ndarray crackle = np.zeros((N,3), dtype=float)
         cdef np.ndarray j = np.zeros((N,N,3), dtype=float)
         cdef np.ndarray C = np.zeros((N,N,3), dtype=float)
+        cdef int i, k
         for i in range(N):
                 for k in range(N):
                         j[i,k] = jerk[k] - jerk[i]
@@ -112,7 +124,7 @@ def calc_crackle(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3]
         return (G*crackle)
         
 #Aarseth criterion
-def timestep(eta, int N, acc, jerk, snap, crackle):
+def timestep(int N, acc, jerk, snap, crackle, double eta=0.02):
         cdef np.ndarray timesteps = np.zeros(N, dtype=float)
         for i in range(N):
                 timesteps[i] = np.sqrt(eta*(np.linalg.norm(acc[i])*np.linalg.norm(snap[i]) + np.linalg.norm(jerk[i])**2.0)/(np.linalg.norm(jerk[i])*np.linalg.norm(crackle[i]) + np.linalg.norm(snap[i])**2.0))
@@ -128,7 +140,7 @@ def acc_jerk_and_timestep(int N, np.ndarray[double, ndim=2] X, np.ndarray[double
         #Find crackle
         crackle = calc_crackle(N, x, v, a, m, A, J, S, alpha, beta, jerk)
         #Find timestep
-        dt = timestep(0.02, N, acc, jerk, snap, crackle)       
+        dt = timestep(N, acc, jerk, snap, crackle)       
         return (acc, jerk, dt)
 
 def acc_and_jerk(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim=2] V, np.ndarray[double, ndim=1] m):

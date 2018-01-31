@@ -39,12 +39,12 @@ b_max = calc_b_max(M_p, v_rms, a, m1, m2)
 #Minimum velocity
 v_min = 10.0**(-2.0) * v_rms
 #Maximum velocity
-v_max = 10.0**2.0 * v_rms
+v_max = 10.0**1.0 * v_rms
 
 N_v = 1000
 N_b = 100
 #Number of numbers of encounters to generate
-N_N_enc = 1000000
+N_N_enc = 10000
 
 #Monte Carlo
 #Number of encounters

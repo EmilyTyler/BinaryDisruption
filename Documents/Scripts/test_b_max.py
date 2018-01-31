@@ -6,6 +6,7 @@ from encounters import calc_b_max, integrateEncounter
 from matplotlib import pyplot as plt
 from matplotlib import ticker
 import matplotlib.colors as colors
+from scipy.constants import giga, year, au, parsec
 
 #Initialise variables
 #Eccentricity
@@ -16,15 +17,15 @@ m2 = 2.0*10.0**30.0
 #Density of dark matter halo solar masses/pc**3
 rho = 0.009
 #Convert to SI
-rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
+rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 220.0 * 1000.0
 
 #Semi-major axes
-a_min = 10.0**3.0 * 1.5*10.0**11.0
-a_max = 10.0**12.0 * 1.5*10.0**11.0
+a_min = 10.0**3.0 * au
+a_max = 10.0**6.0 * au
 #Number of a's to test
-N_a = 20
+N_a = 10
 #PBH masses to test
 M_p_min = 10.0**1.0 * 2.0*10.0**30.0
 M_p_max = 10.0**3.0 * 2.0*10.0**30.0
@@ -32,7 +33,7 @@ M_p_max = 10.0**3.0 * 2.0*10.0**30.0
 N_M = 10
 
 #Number of encounters per each pair of values
-N_enc = 20
+N_enc = 1
 
 #Set up logarithmic a bins
 dloga = (np.log(a_max)-np.log(a_min))/N_a
@@ -56,7 +57,7 @@ a_frac_avg /= N_enc
 #Plot
 plt.title(r'Absolute average fractional change in semi-major axis due to single encounter at $b=b_{\mathrm{max}}$')
 ax = plt.gca()
-cs = ax.contourf(a_bins/(1.5*10.0**11.0), M_p_bins/(2.0*10.0**30.0), np.transpose(np.absolute(a_frac_avg)), locator=ticker.LogLocator())
+cs = ax.contourf(a_bins/au, M_p_bins/(2.0*10.0**30.0), np.transpose(np.absolute(a_frac_avg)), locator=ticker.LogLocator())
 plt.colorbar(cs)
 plt.ylabel(r'Perturber mass, $M_\odot$')
 plt.xlabel('Initial semi-major axis, au')
