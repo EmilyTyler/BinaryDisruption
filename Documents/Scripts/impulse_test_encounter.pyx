@@ -141,13 +141,13 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 plt.show()
                 #Plot perturber speed against time
                 plt.plot(t, np.linalg.norm(x[:,5], axis=1))
-                plt.show()
+                plt.show()  
                 #Plot paths of stars
                 fig = plt.figure()
                 ax = fig.gca(projection='3d')
                 ax.plot(x[:,0,0], x[:,0,1], x[:,0,2])
                 ax.plot(x[:,1,0], x[:,1,1], x[:,1,2])
-                #ax.plot(x[:,2,0], x[:,2,1], x[:,2,2])
+                ax.plot(x[:,2,0], x[:,2,1], x[:,2,2])
                 plt.show()
                 '''
                 '''
@@ -173,6 +173,18 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 
                 #Set new velocity
                 X[2:] = V_imp 
+                
+                #Move into centre of mass rest frame:
+                #Impulse
+                #Centre of mass velocity
+                V_cm = (m1*X[2] + m2*X[3])/(m1 + m2)
+                X[2] -= V_cm
+                X[3] -= V_cm
+                #Integration
+                V_cm = (m1*x[i-1,3] + m2*x[i-1,4])/(m1 + m2)
+                x[i-1,3] -= V_cm
+                x[i-1,4] -= V_cm
+                
                 #Semi-major axis and eccentricity differences
                 (notBound_imp, a_imp, e_imp) = orbitalElements(X, m1, m2)
                 (notBound_thr, a_thr, e_thr) = orbitalElements(np.array([x[i-1,0], x[i-1,1], x[i-1,3], x[i-1,4]]), m1, m2)
@@ -186,6 +198,30 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 e_diff = e_imp - e_thr
                 #print('a_frac = ', a_frac)
                 #print('e_diff = ', e_diff)
+                
+                '''
+                #Manual energy calculation checks
+                #Impulse
+                r = np.linalg.norm(X[0]-X[1])
+                v1 = np.linalg.norm(X[2])
+                v2 = np.linalg.norm(X[3])
+                E_imp = 0.5*m1*v1**2.0 + 0.5*m2*v2**2.0 - G*m1*m2/r
+                print('E_imp = ', E_imp)
+                a_imp_calc = - G*m1*m2/(2.0*E_imp)
+                print('a_imp_calc = ', a_imp_calc)
+                #Three body
+                r = np.linalg.norm(x[i-1,0]-x[i-1,1])
+                v1 = np.linalg.norm(x[i-1,3])
+                v2 = np.linalg.norm(x[i-1,4])
+                E_thr = 0.5*m1*v1**2.0 + 0.5*m2*v2**2.0 - G*m1*m2/r
+                print('E_thr = ', E_thr)
+                a_thr_calc = - G*m1*m2/(2.0*E_thr)
+                print('a_thr_calc = ', a_thr_calc)
+                '''
+                
+                
+                
+                
                 #Close binary
         return (notBound_thr, a_thr, e_thr, a_frac, e_diff)
         
