@@ -90,7 +90,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Time array
                 t = np.array([0.0])
                 #Perturber starting distance parameter
-                w = np.sqrt(10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0)/V_0
+                w = np.sqrt(10.0**8.0*M_p*a**2.0/(np.min(m)) - b**2.0)/V_0
                 #End time
                 t_end = 2.0*w
                 #Initial positions and velocities

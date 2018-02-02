@@ -25,12 +25,17 @@ def integrateBinary(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim
         #Predict positions and velocities
         X_1 = X_0 + V_0*dt + A_0*dt**2.0/2.0 + J_0*dt**3.0/6.0
         V_1 = V_0 + A_0*dt + J_0*dt**2.0/2.0
-        for i in range(n):                  
+        for i in range(n):   
                 #Estimate acceleration and jerk
                 (A_1, J_1) = acc_and_jerk(N, X_1, V_1, m)     
                 #Obtain corrected positions and velocities
                 X_1 = X_0 + (V_1+V_0)*dt/2.0 + (A_0-A_1)*dt**2.0/12.0
-                V_1 = V_0 + (A_1+A_0)*dt/2.0 + (J_0-J_1)*dt**2.0/12.0   
+                V_1 = V_0 + (A_1+A_0)*dt/2.0 + (J_0-J_1)*dt**2.0/12.0
+        '''
+        for i in range(N):
+                print('i = ', i)
+                print('delta_v - F delta_t/m = ', V_1[i]-V_0[i] - A_1[i]*dt)
+        '''
         return (np.concatenate([X_1, V_1]), dt)
 
 #See Nitadori and Makino 2008 for higher derivatives of acceleration
