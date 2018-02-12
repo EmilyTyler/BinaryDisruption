@@ -44,9 +44,9 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         #print('e = ', e)
         #Star masses
         cdef np.ndarray m = np.array([m1, m2])                                                                                                                                                                                                                                             
-        notBound_imp = False
-        cdef double a_imp = a
-        cdef double e_imp = e
+        notBound_thr = False
+        cdef double a_thr = a
+        cdef double e_thr = e
         cdef double a_frac = 0.0
         cdef double e_diff = 0.0
 
@@ -54,20 +54,22 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         cdef double b_vec_norm, b_star_norm, w, t_end, dt
         cdef int i
         #If the encounter is not negligible
-        if 10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0:             
+        if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0) and (b < calc_b_max(M_p, V_0, a, m1, m2)):             
                 #Find perturber velocity
                 v_vec = V_0 * randomDirection()
-                print('v_vec = ', v_vec)
+                #print('v_vec = ', v_vec)
                 #Open binary
                 X = setupRandomBinary(a, e, m1, m2)
-                print('X = ', X)
+                #print('X = ', X)
                 #Centre of mass vector
                 R = (m1*X[0] + m2*X[1])/(m1 + m2)
                 #Find impact parameter vector
                 b_vec = np.dot(R,v_vec)/V_0**2.0*v_vec - R
+                #print('b_vec = ', b_vec)
                 b_vec_norm = np.sqrt(b_vec[0]**2.0+b_vec[1]**2.0+b_vec[2]**2.0)
-                b_vec = b * b_vec/b_vec_norm
-                print('b_vec = ', b_vec)
+                if b_vec_norm > 0.0:              
+                        b_vec = b * b_vec/b_vec_norm
+                #print('b_vec = ', b_vec)
                 #Impulse approximation:
                 #New star velocities for impulse approximation
                 V_imp = np.zeros((2,3), dtype=float)               
@@ -76,26 +78,27 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 for i in range(2):
                         #Calculate impact parameter for this star
                         b_star = (np.dot(X[i],v_vec) - np.dot(b_vec,v_vec))/V_0**2.0 * v_vec + b_vec - X[i]
-                        print('b_star = ', b_star)
+                        #print('b_star = ', b_star)
                         b_star_norm = np.sqrt(b_star[0]**2.0+b_star[1]**2.0+b_star[2]**2.0)
-                        print('b_star_norm = ', b_star_norm)
+                        #print('b_star_norm = ', b_star_norm)
                         #Calculate velocity change in b direction
                         v_perp = 2.0*M_p*V_0/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star/b_star_norm)
                         #Calculate velocity change in -v_vec direction
                         v_parr = 2.0*M_p*V_0/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/V_0)
                         #New velocity
                         V_imp[i] = X[i+2] + v_perp + v_parr
-                print('V_imp = ', V_imp)
+                #print('V_imp = ', V_imp)
                 #Three body encounter:          
                 #Time array
                 t = np.array([0.0])
                 #Perturber starting distance parameter
-                w = np.sqrt(10.0**8.0*M_p*a**2.0/(np.min(m)) - b**2.0)/V_0
+                w = np.sqrt(10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0)/V_0
+                #print('w = ', w)
                 #End time
                 t_end = 2.0*w
                 #Initial positions and velocities
                 x = np.array([[X[0], X[1], b_vec - w*v_vec, X[2], X[3], v_vec]])
-                print('x[0] = ', x)
+                #print('x[0] = ', x)
                 #Masses
                 M = np.array([m1, m2, M_p])
                 '''
@@ -112,6 +115,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Initialise counter
                 i = 1
                 while t[i-1] < t_end:
+                        #print(x[i-1])
                         (x_new, dt) = integrateBinary(3, x[i-1], M, n=1)
                         x = np.append(x, [x_new], axis=0)
                         t = np.append(t, t[i-1]+dt)
@@ -188,9 +192,9 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Semi-major axis and eccentricity differences
                 (notBound_imp, a_imp, e_imp) = orbitalElements(X, m1, m2)
                 (notBound_thr, a_thr, e_thr) = orbitalElements(np.array([x[i-1,0], x[i-1,1], x[i-1,3], x[i-1,4]]), m1, m2)
-                print('x[i-1] = ', x[i-1])
-                print('a_imp = ', a_imp)
-                print('a_thr = ', a_thr)
+                #print('x[i-1] = ', x[i-1])
+                #print('a_imp = ', a_imp)
+                #print('a_thr = ', a_thr)
                 #Semimajor axis difference
                 a_diff = a_imp - a_thr
                 a_frac = a_diff/a_thr
@@ -219,11 +223,13 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 print('a_thr_calc = ', a_thr_calc)
                 '''
                 
+                E_imp = -G*m1*m2/(2.0*a_imp)
+                E_thr = -G*m1*m2/(2.0*a_thr)
+                E_frac = (E_imp - E_thr)/E_thr
                 
                 
-                
-                #Close binary
-        return (notBound_thr, a_thr, e_thr, a_frac, e_diff)
+
+        return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac)
         
         
 def encounterGrid(double m1, double m2, double v_rms, double e, double M_p, double a_min, double a_max, int N_a, double b_min, double b_max, int N_b, int N_enc):
@@ -235,19 +241,24 @@ def encounterGrid(double m1, double m2, double v_rms, double e, double M_p, doub
         cdef np.ndarray b_bins = np.array([b_min*np.exp(dlogb*i) for i in range(N_b)])
         #Average fractional difference in a
         cdef np.ndarray a_frac_avg = np.zeros((N_a, N_b), dtype=float)
-
-        cdef double a_imp, e_imp, a_frac, e_diff
+        #Average fractional difference in energy
+        cdef np.ndarray E_frac_avg = np.zeros((N_a, N_b), dtype=float)
+        
+        cdef double a_imp, e_imp, a_frac, e_diff, E_frac
         for i in range(N_a):
                 #print('a: ', i+1, ' out of ', N_a)
                 for j in range(N_b):
                         #print('b: ',j+1,' out of ',N_b)
                         for k in range(N_enc):
                                 #print('Enc: ', k+1, ' out of ', N_enc)
-                                (notBound_imp, a_imp, e_imp, a_frac, e_diff) = impulseTestEncounter(m1, m2, v_rms, b_bins[j], a_bins[i], e, M_p)
+                                (notBound_imp, a_imp, e_imp, a_frac, e_diff, E_frac) = impulseTestEncounter(m1, m2, v_rms, b_bins[j], a_bins[i], e, M_p)
                                 a_frac_avg[i,j] += a_frac
+                                E_frac_avg[i,j] += E_frac
         #Normalise a_frac_avg
         a_frac_avg /= N_enc
-        return a_frac_avg, a_bins, b_bins
+        #Normalise E_frac_avg
+        E_frac_avg /= N_enc
+        return a_frac_avg, E_frac_avg, a_bins, b_bins
         
         
 def encounterGrid_M(double m1, double m2, double v_rms, double rho, double e, double M_p_min, double M_p_max, double a_min, double a_max, int N_M, int N_a, int N_enc):

@@ -12,7 +12,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 #Initialise variables
 #Semi-major axis, m
-a = 10.0**6.0 * au
+a = 10.0**3.0 * au
 print('a = ', a)
 #Eccentricity
 e = 0.7
@@ -35,7 +35,7 @@ b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
 #Maximum impact parameter
 b_max = calc_b_max(M_p, v_rms, a, m1, m2)
 
-b = b_min
+b = b_max
 print('b = ', b)
 
 #Impulse encounter

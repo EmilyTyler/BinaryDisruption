@@ -15,6 +15,8 @@ def setupRandomBinary(double a, double e, double m1, double m2):
         cdef np.ndarray v1 = np.zeros(3, dtype=float)
         cdef np.ndarray x2 = np.zeros(3, dtype=float)
         cdef np.ndarray v2 = np.zeros(3, dtype=float)
+        cdef np.ndarray R = np.zeros(3, dtype=float)
+        cdef np.ndarray V = np.zeros(3, dtype=float)
         
         #Randomise mean anomaly
         M = random.uniform(0.0, 2.0*math.pi)
@@ -34,5 +36,15 @@ def setupRandomBinary(double a, double e, double m1, double m2):
         x2 = np.array([r*math.cos(f), r*math.sin(f), 0.0])
         #Initial velocity of second star
         v2 = np.array([- n*a/(math.sqrt(1.0-e**2.0)) * math.sin(f), n*a/(math.sqrt(1.0-e**2.0)) * (e + math.cos(f)), 0.0])
+        
+        #Centre of mass position vector
+        R = (m1*x1 + m2*x2)/(m1 + m2)
+        #Centre of mass velocity vector
+        V = (m1*v1 + m2*v2)/(m1 + m2)
+        #Move into centre of mass rest frame
+        x1 -= R
+        x2 -= R
+        v1 -= V
+        v2 -= V
         
         return np.array([x1, x2, v1, v2])

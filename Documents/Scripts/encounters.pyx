@@ -151,41 +151,42 @@ def impulseEncounter(double m1, double m2, double v, double b, double a, double 
         cdef np.ndarray m = np.array([m1, m2])
         #90 degree deflection radius
         cdef np.ndarray b_90 = G*(M_p+m)/v**2.0   
-        print('b_90 = ', b_90)
+        #print('b_90 = ', b_90)
         #Find perturber velocity
         cdef np.ndarray v_vec = v * randomDirection()
-        print('v_vec = ', v_vec)
+        #print('v_vec = ', v_vec)
         #Open binary
         cdef np.ndarray X = setupRandomBinary(a, e, m1, m2)
-        print('X = ', X)
+        #print('X = ', X)
         #Centre of mass vector
         cdef np.ndarray R = (m1*X[0] + m2*X[1])/(m1 + m2)
-        print('R = ', R)
+        #print('R = ', R)
         #Find impact parameter vector
         cdef np.ndarray b_vec = dot_3d(R,v_vec)/v**2.0*v_vec - R
         cdef double b_vec_norm = np.sqrt(b_vec[0]**2.0 + b_vec[1]**2.0 + b_vec[2]**2.0)
-        b_vec = b * b_vec/b_vec_norm
-        print('b_vec = ', b_vec)
+        if b_vec_norm > 0.0:
+                b_vec = b * b_vec/b_vec_norm
+        #print('b_vec = ', b_vec)
         #Implement encounter for both stars  
         cdef int i
         cdef np.ndarray b_star, v_perp, v_parr
         cdef double b_star_norm
         for i in range(2):
-                print('i = ', i)
+                #print('i = ', i)
                 #Calculate impact parameter for this star
                 b_star = (dot_3d(X[i],v_vec) - dot_3d(b_vec,v_vec))/v**2.0 * v_vec + b_vec - X[i]
-                print('b_star = ', b_star)
+                #print('b_star = ', b_star)
                 b_star_norm = np.sqrt(b_star[0]**2.0 + b_star[1]**2.0 + b_star[2]**2.0)
-                print('b_star_norm = ', b_star_norm)
+                #print('b_star_norm = ', b_star_norm)
                 #Calculate velocity change in b direction
                 v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star/b_star_norm)
-                print('v_perp = ', v_perp)
+                #print('v_perp = ', v_perp)
                 #Calculate velocity change in -v direction
                 v_parr = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/v)
-                print('v_parr = ', v_parr)
+                #print('v_parr = ', v_parr)
                 #Change velocity
                 X[i+2] += v_perp + v_parr
-                print('X_new = ', X)
+                #print('X_new = ', X)
         #Close binary
         return orbitalElements(X, m1, m2)
 
@@ -204,7 +205,8 @@ def integrateEncounter(double m1, double m2, double v, double b, double a, doubl
         #Find impact parameter vector
         cdef np.ndarray b_vec = dot_3d(R,v_vec)/v**2.0*v_vec - R
         cdef double b_vec_norm = np.sqrt(b_vec[0]**2.0 + b_vec[1]**2.0 + b_vec[2]**2.0)
-        b_vec = b * b_vec/b_vec_norm
+        if b_vec_norm > 0.0:
+                b_vec = b * b_vec/b_vec_norm
         #Perturber starting distance parameter
         cdef double w = np.sqrt(10.0**6.0*M_p*a**2.0/(np.min([m1, m2])) - b**2.0)/v
         #End time
@@ -219,7 +221,7 @@ def integrateEncounter(double m1, double m2, double v, double b, double a, doubl
                 t = np.append(t, t[i-1]+dt)
                 #Increment counter
                 i += 1
-                
+        '''        
         #Check conserved quantities
         N_t = np.size(t)
         #Total energy
@@ -255,7 +257,7 @@ def integrateEncounter(double m1, double m2, double v, double b, double a, doubl
         plt.show()
         plt.plot(t, L[:,2])
         plt.show()       
-        
+        '''
         #Close binary       
         return orbitalElements(np.array([x[i-1,0], x[i-1,1], x[i-1,3], x[i-1,4]]), m1, m2)
         
