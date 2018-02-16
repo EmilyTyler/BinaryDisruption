@@ -55,29 +55,42 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
         cdef double v_max = 10.0**3.0*v_rms
         #Implement encounters
         cdef bool notBound = False
-        cdef int N_enc, i, N_broken
+        cdef int N_enc, i
+        cdef int N_broken = 0
         cdef double b_max
         cdef np.ndarray b, v
         cdef np.ndarray a = np.array([a_0[i] for i in range(N_bin)])
         cdef np.ndarray e = np.array([e_0[i] for i in range(N_bin)])
-        for i in range(N_bin):
-                #Maximum impact parameter
-                b_max = calc_b_max(M_p, v_rms, a[i], m1, m2)
-                #Total number of encounters in time T 
-                N_enc = np.random.poisson(T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max))
-                #Impact parameters of encounters
-                b = draw_b(b_max, N_enc)
-                #Relative velocities of encounters
-                #v = draw_maxwellian(v_rms, v_min, v_max, N_enc)
-                v = maxwell.rvs(scale=v_rms, size=N_enc)
-                for j in range(N_enc):
-                        (notBound, a[i], e[i]) = encounter(m1, m2, v[j], b[j], a[i], e[i], M_p)
-                        if notBound:
-                                N_broken += 1
-                                print('Binary broken!')
-                                a[i] = 0.0
-                                e[i] = 0.0
-                                break
+        cdef int N_loops = 1
+        while True:
+                try:
+                        for k in range(N_loops):
+                                for i in range(N_bin):
+                                        #Maximum impact parameter
+                                        b_max = calc_b_max(M_p, v_rms, a[i], m1, m2)
+                                        #Mean number of encounters in time T 
+                                        N_mean = T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max)/N_loops
+                                        #Number of encounters in time T 
+                                        N_enc = np.random.poisson(N_mean)
+                                        print('N_enc =', N_enc)
+                                        #Impact parameters of encounters
+                                        b = draw_b(b_max, N_enc)
+                                        #Relative velocities of encounters
+                                        #v = draw_maxwellian(v_rms, v_min, v_max, N_enc)
+                                        v = maxwell.rvs(scale=v_rms, size=N_enc)
+                                        for j in range(N_enc):
+                                                (notBound, a[i], e[i]) = encounter(m1, m2, v[j], b[j], a[i], e[i], M_p)
+                                                if notBound:
+                                                        N_broken += 1
+                                                        #print('Binary broken!')
+                                                        a[i] = 0.0
+                                                        e[i] = 0.0
+                                                        break
+                        break
+                except OverflowError:
+                        print('OverflowError being handled')
+                        N_loops *= 10
+                        print('N_loops =', N_loops)
         return (a, e, N_broken)
 
 

@@ -27,14 +27,16 @@ T = 10.0 * giga*year
 
 #Number of binary pairs
 #TAKES 1.5 HOURS TO RUN 1000
-N_bin = 4000
+N_bin = 10
+
+print('Initial number of binaries =', N_bin)
 
 print('Generating initial population')
 #Semi-major axis array
 #Draw a from distribution dN/dloga\propto a^{1-alpha}
 alpha = 2.0
-a_min = 10.0**1.0
-a_max = 10.0**5.5
+a_min = 10.0**3.0*au
+a_max = 10.0**6.0*au
 if alpha == 2.0:
         c = np.log(a_min)/np.log(a_max/a_min)
         a = (a_max/a_min)**(np.random.random(N_bin) + c) * au
@@ -57,19 +59,20 @@ e = (np.random.random(N_bin))**(1.0/3.0)
 
 #Evolve distribution in time
 print('Evolving population')
-a_end, e_end = MCEncounters(v_rms, n_p, T, m1, m2, M_p, a, e, N_bin)
+a_end, e_end, N_broken = MCEncounters(v_rms, n_p, T, m1, m2, M_p, a, e, N_bin)
 a_end = a_end[np.nonzero(a_end)]
 e_end = e_end[np.nonzero(a_end)]
 
+print('Number of binaries broken =', N_broken)
 
 print('Plotting')
 #Plot final and initial distributions
 #Number of bins
 N_bins = 10
-a_bins_old, N_a_old = calcFrequency(a, N_bins, log=True)
-a_bins_new, N_a_new = calcFrequency(a_end, N_bins, log=True)
-e_bins_old, N_e_old = calcFrequency(e, N_bins)
-e_bins_new, N_e_new = calcFrequency(e_end, N_bins)
+a_bins_old, N_a_old, a_old_binwidth = calcFrequency(a, N_bins, log=True)
+a_bins_new, N_a_new, a_new_binwidth = calcFrequency(a_end, N_bins, log=True)
+e_bins_old, N_e_old, e_old_binwidth = calcFrequency(e, N_bins)
+e_bins_new, N_e_new, e_new_binwidth = calcFrequency(e_end, N_bins)
 #Semi-major axis
 plt.loglog(a_bins_old/au, N_a_old)
 plt.loglog(a_bins_new/au, N_a_new)

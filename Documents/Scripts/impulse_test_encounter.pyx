@@ -49,12 +49,13 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         cdef double e_thr = e
         cdef double a_frac = 0.0
         cdef double e_diff = 0.0
+        cdef double E_frac = 0.0
 
         cdef np.ndarray v_vec, X, R, b_vec, V_imp, b_90, b_star, v_perp, v_parr, t, x, M, x_new
         cdef double b_vec_norm, b_star_norm, w, t_end, dt
         cdef int i
         #If the encounter is not negligible
-        if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0) and (b < calc_b_max(M_p, V_0, a, m1, m2)):             
+        if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0) and (b < calc_b_max(M_p, V_0, a, m1, m2)):          
                 #Find perturber velocity
                 v_vec = V_0 * randomDirection()
                 #print('v_vec = ', v_vec)
@@ -223,8 +224,8 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 print('a_thr_calc = ', a_thr_calc)
                 '''
                 
-                E_imp = -G*m1*m2/(2.0*a_imp)
-                E_thr = -G*m1*m2/(2.0*a_thr)
+                E_imp = -G*(m1+m2)/(2.0*a_imp)
+                E_thr = -G*(m1+m2)/(2.0*a_thr)
                 E_frac = (E_imp - E_thr)/E_thr
                 
                 

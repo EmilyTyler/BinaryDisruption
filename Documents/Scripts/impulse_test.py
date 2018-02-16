@@ -35,16 +35,16 @@ n_p = rho/M_p
 a_min = 10.0**3.0 * au
 a_max = 10.0**6.0 * au
 #Number of a's to test
-N_a = 10
+N_a = 50
 #Impact parameters
 b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
 b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
 #Number of b's to test
-N_b = 10
+N_b = 50
 
 #Number of encounters per each pair of values
-#TAKES 5.5 HOURS TO RUN for 20, 20, 100
-N_enc = 10
+#TAKES 0.5 HOURS TO RUN for 10, 10, 100
+N_enc = 1000
 
 
 
@@ -93,10 +93,30 @@ plt.xscale('log')
 plt.yscale('log')
 plt.show()
 
+plt.title('Absolute average fractional error in semi-major axis due to impulse approximation')
+ax = plt.gca()
+cs = ax.pcolormesh(a_bins/au, b_bins/au, np.transpose(np.absolute(a_frac_avg)), norm=colors.LogNorm())
+plt.colorbar(cs)
+plt.ylabel('Impact parameter, au')
+plt.xlabel('Semi-major axis, au')
+plt.xscale('log')
+plt.yscale('log')
+plt.show()
+
 #Log absolute value
 plt.title('Absolute average fractional error in energy due to impulse approximation')
 ax = plt.gca()
 cs = ax.contourf(a_bins/au, b_bins/au, np.transpose(np.absolute(E_frac_avg)), locator=ticker.LogLocator())
+plt.colorbar(cs)
+plt.ylabel('Impact parameter, au')
+plt.xlabel('Semi-major axis, au')
+plt.xscale('log')
+plt.yscale('log')
+plt.show()
+
+plt.title('Absolute average fractional error in energy due to impulse approximation')
+ax = plt.gca()
+cs = ax.pcolormesh(a_bins/au, b_bins/au, np.transpose(np.absolute(E_frac_avg)), norm=colors.LogNorm())
 plt.colorbar(cs)
 plt.ylabel('Impact parameter, au')
 plt.xlabel('Semi-major axis, au')
@@ -147,7 +167,7 @@ plt.xlabel('Semi-major axis, au')
 plt.xscale('log')
 plt.yscale('log')
 plt.show()
-'''
+
 #Plot third time ratio test
 t_T3 = np.zeros((N_a, N_b))
 for i in range(N_a):
@@ -165,7 +185,7 @@ plt.xlabel('Semi-major axis, au')
 plt.xscale('log')
 plt.yscale('log')
 plt.show()
-'''
+
 
 #Plot deltaV/V for PBH velocity
 V_frac = np.zeros((N_b, N_a))
@@ -203,7 +223,8 @@ for i in range(N_a):
                                 #Find impact parameter vector
                                 b_vec = np.dot(R,v_vec)/v_rms**2.0*v_vec - R
                                 b_vec_norm = np.sqrt(b_vec[0]**2.0+b_vec[1]**2.0+b_vec[2]**2.0)
-                                b_vec = b_bins[j] * b_vec/b_vec_norm
+                                if b_vec_norm > 0.0:
+                                        b_vec = b_bins[j] * b_vec/b_vec_norm
                                 #Impact parameters for individual stars
                                 for l in range(2):
                                         b_star_vec = (np.dot(X[l],v_vec) - np.dot(b_vec,v_vec))/v_rms**2.0 * v_vec + b_vec - X[l]
@@ -212,13 +233,22 @@ for i in range(N_a):
 plt.title('Maximum crossing time of encounter divided by orbital period')
 ax = plt.gca()
 cs = ax.contourf(a_bins/au, b_bins/au, np.transpose(t_crossing_P), locator=ticker.LogLocator())
-#cs = ax.contourf(a_bins/au, b_bins/au, np.transpose(t_crossing_P))
 plt.colorbar(cs)
 plt.ylabel('Impact parameter, au')
 plt.xlabel('Semi-major axis, au')
 plt.xscale('log')
 plt.yscale('log')
-plt.show()        
+plt.show() 
+
+plt.title('Maximum crossing time of encounter divided by orbital period')
+ax = plt.gca()
+cs = ax.pcolormesh(a_bins/au, b_bins/au, np.transpose(t_crossing_P), norm=colors.LogNorm())
+plt.colorbar(cs)
+plt.ylabel('Impact parameter, au')
+plt.xlabel('Semi-major axis, au')
+plt.xscale('log')
+plt.yscale('log')
+plt.show()   
         
   
         
