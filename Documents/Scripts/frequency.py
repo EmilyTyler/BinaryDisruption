@@ -1,16 +1,16 @@
 import numpy as np
 
-def calcFrequency(x, N_bins, normalise=False, log=False):
+def calcFrequency(x, N_bins, normalise=False, log=False, offset=1):
         x_min = np.min(x)
         x_max = np.max([np.max(x), x_min+1.0])
         
         #x bins
         if log:
-                dlogx = (np.log(x_max)-np.log(x_min))/(N_bins-1)
+                dlogx = (np.log(x_max)-np.log(x_min))/(N_bins - offset)
                 dx = dlogx
                 x_bins = np.array([x_min * np.exp(i*dlogx) for i in range(N_bins)])
         else:
-                dx = (x_max - x_min)/(N_bins-1)
+                dx = (x_max - x_min)/(N_bins - offset)
                 x_bins = np.array([x_min + i*dx for i in range(N_bins)])
         
         #Count frequency

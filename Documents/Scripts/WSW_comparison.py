@@ -29,7 +29,7 @@ v_rms = 220.0 * 1000.0
 n_p = rho/M_p
 
 #Semi-major axis
-a = 10.0**3.0 * au
+a = 10.0**1.0 * au
 print('a = ', a)
 #Initial energy
 E_old = -G*(m1+m2)/(2.0*a)

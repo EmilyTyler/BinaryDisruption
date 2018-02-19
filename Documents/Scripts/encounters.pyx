@@ -144,6 +144,16 @@ def encounter(double m1, double m2, double v, double b, double a, double e, doub
         else:
                 return integrateEncounter(m1, m2, v, b, a, e, M_p)
 
+#Find impact parameter vector and velocity vector
+def impactAndVelocityVectors(double b, double v):
+        #Velocity vector
+        cdef np.ndarray v_vec = v*randomDirection()
+        #Random vector
+        cdef np.ndarray n = randomDirection()
+        #Impact parameter vector
+        cdef np.ndarray b_vec = b/v * np.cross(n, v_vec)
+        return b_vec, v_vec
+
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation, M_p is perturber mass
 #From Binney and Tremaine hyperbolic encounters
 def impulseEncounter(double m1, double m2, double v, double b, double a, double e, double M_p):
@@ -152,21 +162,15 @@ def impulseEncounter(double m1, double m2, double v, double b, double a, double 
         #90 degree deflection radius
         cdef np.ndarray b_90 = G*(M_p+m)/v**2.0   
         print('b_90 = ', b_90)
-        #Find perturber velocity
-        cdef np.ndarray v_vec = v * randomDirection()
+        #Find impact parameter vector and velocity vector
+        cdef np.ndarray b_vec
+        cdef np.ndarray v_vec
+        b_vec, v_vec = impactAndVelocityVectors(b, v)
+        print('b_vec = ', b_vec)
         print('v_vec = ', v_vec)
         #Open binary
         cdef np.ndarray X = setupRandomBinary(a, e, m1, m2)
-        print('X = ', X)
-        #Centre of mass vector
-        cdef np.ndarray R = (m1*X[0] + m2*X[1])/(m1 + m2)
-        print('R = ', R)
-        #Find impact parameter vector
-        cdef np.ndarray b_vec = dot_3d(R,v_vec)/v**2.0*v_vec - R
-        cdef double b_vec_norm = np.sqrt(b_vec[0]**2.0 + b_vec[1]**2.0 + b_vec[2]**2.0)
-        if b_vec_norm > 0.0:
-                b_vec = b * b_vec/b_vec_norm
-        print('b_vec = ', b_vec)
+        print('X = ', X)    
         #Implement encounter for both stars  
         cdef int i
         cdef np.ndarray b_star, v_perp, v_parr
@@ -174,7 +178,7 @@ def impulseEncounter(double m1, double m2, double v, double b, double a, double 
         for i in range(2):
                 print('i = ', i)
                 #Calculate impact parameter for this star
-                b_star = (dot_3d(X[i],v_vec) - dot_3d(b_vec,v_vec))/v**2.0 * v_vec + b_vec - X[i]
+                b_star = dot_3d(X[i],v_vec)/v**2.0 * v_vec + b_vec - X[i]
                 print('b_star = ', b_star)
                 b_star_norm = np.sqrt(b_star[0]**2.0 + b_star[1]**2.0 + b_star[2]**2.0)
                 print('b_star_norm = ', b_star_norm)
