@@ -5,13 +5,12 @@ import numpy as np
 cimport numpy as np 
 from matplotlib import pyplot as plt
 
-
 from evolve_binary import integrateBinary
 from orbital_elements import semimajorAxis
 from random_binary import setupRandomBinary
 from orbital_elements import orbitalElements
 from random_direction import randomDirection
-
+import random
 from scipy.constants import G
 
 #Encounter rate for impact parameters between b0 and b1 and for relative velocities between v0 and v1
@@ -21,9 +20,6 @@ def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, dou
 
 #To find b_max
 def calc_b_max(double M_p, double v, double a, double m1, double m2, double delta = 10.0**(-3.0)):
-        return calc_b_max_cdef(M_p, v, a, m1, m2, delta)
-
-cdef double calc_b_max_cdef(double M_p, double v, double a, double m1, double m2, double delta):
         return (2.0*G*M_p/(v*delta)*(a/(G*(m1+m2)))**0.5)
 
 #Evolve binary without encounters
@@ -147,11 +143,13 @@ def encounter(double m1, double m2, double v, double b, double a, double e, doub
 #Find impact parameter vector and velocity vector
 def impactAndVelocityVectors(double b, double v):
         #Velocity vector
-        cdef np.ndarray v_vec = v*randomDirection()
+        cdef np.ndarray v_vec = v * randomDirection()
         #Random vector
         cdef np.ndarray n = randomDirection()
-        #Impact parameter vector
-        cdef np.ndarray b_vec = b/v * np.cross(n, v_vec)
+        #Unnormalised impact parameter vector
+        cdef np.ndarray b_vec = np.array([v_vec[1]*n[2] - v_vec[2]*n[1], v_vec[2]*n[0] - v_vec[0]*n[2], v_vec[0]*n[1] - v_vec[1]*n[0]])
+        #Normalise b_vec
+        b_vec *= b/np.sqrt(b_vec[0]**2.0 + b_vec[1]**2.0 + b_vec[2]**2.0)
         return b_vec, v_vec
 
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation, M_p is perturber mass
@@ -161,109 +159,112 @@ def impulseEncounter(double m1, double m2, double v, double b, double a, double 
         cdef np.ndarray m = np.array([m1, m2])
         #90 degree deflection radius
         cdef np.ndarray b_90 = G*(M_p+m)/v**2.0   
-        print('b_90 = ', b_90)
+        #print('b_90 = ', b_90)
+        #Open binary
+        cdef np.ndarray X = setupRandomBinary(a, e, m1, m2)
+        #print('X = ', X)    
         #Find impact parameter vector and velocity vector
         cdef np.ndarray b_vec
         cdef np.ndarray v_vec
         b_vec, v_vec = impactAndVelocityVectors(b, v)
-        print('b_vec = ', b_vec)
-        print('v_vec = ', v_vec)
-        #Open binary
-        cdef np.ndarray X = setupRandomBinary(a, e, m1, m2)
-        print('X = ', X)    
+        #print('b_vec = ', b_vec)
+        #print('v_vec = ', v_vec)
         #Implement encounter for both stars  
         cdef int i
         cdef np.ndarray b_star, v_perp, v_parr
         cdef double b_star_norm
         for i in range(2):
-                print('i = ', i)
+                #print('i = ', i)
                 #Calculate impact parameter for this star
                 b_star = dot_3d(X[i],v_vec)/v**2.0 * v_vec + b_vec - X[i]
-                print('b_star = ', b_star)
+                #print('b_star = ', b_star)
                 b_star_norm = np.sqrt(b_star[0]**2.0 + b_star[1]**2.0 + b_star[2]**2.0)
-                print('b_star_norm = ', b_star_norm)
+                #print('b_star_norm = ', b_star_norm)
                 #Calculate velocity change in b direction
                 v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star/b_star_norm)
-                print('v_perp = ', v_perp)
+                #print('v_perp = ', v_perp)
                 #Calculate velocity change in -v direction
                 v_parr = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/v)
-                print('v_parr = ', v_parr)
+                #print('v_parr = ', v_parr)
                 #Change velocity
                 X[i+2] += v_perp + v_parr
-                print('X_new = ', X)
+                #print('X_new = ', X)
         #Close binary
         return orbitalElements(X, m1, m2)
 
 #Implements encounter with full 3 body simulation
 def integrateEncounter(double m1, double m2, double v, double b, double a, double e, double M_p):
-        #Masses
-        cdef np.ndarray M = np.array([m1, m2, M_p])
-        #Time array
-        cdef np.ndarray t = np.array([0.0])     
-        #Find perturber velocity
-        cdef np.ndarray v_vec = v * randomDirection()
-        #Open binary
-        cdef np.ndarray X = setupRandomBinary(a, e, m1, m2)
-        #Centre of mass vector
-        cdef np.ndarray R = (m1*X[0] + m2*X[1])/(m1 + m2)
-        #Find impact parameter vector
-        cdef np.ndarray b_vec = dot_3d(R,v_vec)/v**2.0*v_vec - R
-        cdef double b_vec_norm = np.sqrt(b_vec[0]**2.0 + b_vec[1]**2.0 + b_vec[2]**2.0)
-        if b_vec_norm > 0.0:
-                b_vec = b * b_vec/b_vec_norm
-        #Perturber starting distance parameter
-        cdef double w = np.sqrt(10.0**6.0*M_p*a**2.0/(np.min([m1, m2])) - b**2.0)/v
-        #End time
-        cdef double t_end = 2.0*w
-        #Initial positions and velocities
-        cdef np.ndarray x = np.array([[X[0], X[1], b_vec - w*v_vec, X[2], X[3], v_vec]])    
-        #Initialise counter
-        cdef int i = 1
-        while t[i-1] < t_end:
-                (x_new, dt) = integrateBinary(3, x[i-1], M)
-                x = np.append(x, [x_new], axis=0)
-                t = np.append(t, t[i-1]+dt)
-                #Increment counter
-                i += 1
-        '''        
-        #Check conserved quantities
-        N_t = np.size(t)
-        #Total energy
-        E = np.zeros(N_t)
-        #Total momentum
-        P = np.zeros((N_t,3))
-        #Total angular momentum
-        L = np.zeros((N_t,3))
-        for i in range(N_t):
-                r_12 = np.linalg.norm(x[i,0]-x[i,1])
-                r_13 = np.linalg.norm(x[i,0]-x[i,2])
-                r_23 = np.linalg.norm(x[i,1]-x[i,2])
-                v_1 = np.linalg.norm(x[i,3])
-                v_2 = np.linalg.norm(x[i,4])
-                v_3 = np.linalg.norm(x[i,5])
+        cdef double a_new = a
+        cdef double e_new = e
+        notBound_new = False
+        cdef np.ndarray M, t, X, b_vec, v_vec, x
+        cdef double w, t_end
+        cdef int i
+        #Check encounters aren't negligible
+        if (10.0**6.0*M_p*a**2.0/(np.min([m1, m2])) - b**2.0 > 0.0):
+                #Masses
+                M = np.array([m1, m2, M_p])
+                #Time array
+                t = np.array([0.0])     
+                #Open binary
+                X = setupRandomBinary(a, e, m1, m2)
+                #Find impact parameter vector and velocity vector
+                b_vec, v_vec = impactAndVelocityVectors(b, v)
+                #Perturber starting distance parameter
+                w = np.sqrt(10.0**6.0*M_p*a**2.0/(np.min([m1, m2])) - b**2.0)/v
+                #End time
+                t_end = 2.0*w
+                #Initial positions and velocities
+                x = np.array([[X[0], X[1], b_vec - w*v_vec, X[2], X[3], v_vec]])    
+                #Initialise counter
+                i = 1
+                while t[i-1] < t_end:
+                        (x_new, dt) = integrateBinary(3, x[i-1], M)
+                        x = np.append(x, [x_new], axis=0)
+                        t = np.append(t, t[i-1]+dt)
+                        #Increment counter
+                        i += 1
+                #Close binary
+                notBound_new, a_new, e_new = orbitalElements(np.array([x[i-1,0], x[i-1,1], x[i-1,3], x[i-1,4]]), m1, m2)
+                '''        
+                #Check conserved quantities
+                N_t = np.size(t)
                 #Total energy
-                E[i] = 0.5*m1*v_1**2.0+0.5*m2*v_2**2.0+0.5*M_p*v_3**2.0 - G*m1*m2/r_12 - G*m1*M_p/r_13 - G*m2*M_p/r_23
+                E = np.zeros(N_t)
                 #Total momentum
-                P[i] = m1*x[i,3] + m2*x[i,4] + M_p*x[i,5]
+                P = np.zeros((N_t,3))
                 #Total angular momentum
-                L[i] = m1*np.cross(x[i,0], x[i,3]) + m2*np.cross(x[i,1], x[i,4]) + M_p*np.cross(x[i,2], x[i,5])
-        plt.plot(t, E)
-        plt.show()
-        plt.plot(t, P[:,0])
-        plt.show()
-        plt.plot(t, P[:,1])
-        plt.show()
-        plt.plot(t, P[:,2])
-        plt.show()
-        plt.plot(t, L[:,0])
-        plt.show()
-        plt.plot(t, L[:,1])
-        plt.show()
-        plt.plot(t, L[:,2])
-        plt.show()       
-        '''
-        #Close binary       
-        return orbitalElements(np.array([x[i-1,0], x[i-1,1], x[i-1,3], x[i-1,4]]), m1, m2)
+                L = np.zeros((N_t,3))
+                for i in range(N_t):
+                        r_12 = np.linalg.norm(x[i,0]-x[i,1])
+                        r_13 = np.linalg.norm(x[i,0]-x[i,2])
+                        r_23 = np.linalg.norm(x[i,1]-x[i,2])
+                        v_1 = np.linalg.norm(x[i,3])
+                        v_2 = np.linalg.norm(x[i,4])
+                        v_3 = np.linalg.norm(x[i,5])
+                        #Total energy
+                        E[i] = 0.5*m1*v_1**2.0+0.5*m2*v_2**2.0+0.5*M_p*v_3**2.0 - G*m1*m2/r_12 - G*m1*M_p/r_13 - G*m2*M_p/r_23
+                        #Total momentum
+                        P[i] = m1*x[i,3] + m2*x[i,4] + M_p*x[i,5]
+                        #Total angular momentum
+                        L[i] = m1*np.cross(x[i,0], x[i,3]) + m2*np.cross(x[i,1], x[i,4]) + M_p*np.cross(x[i,2], x[i,5])
+                plt.plot(t, E)
+                plt.show()
+                plt.plot(t, P[:,0])
+                plt.show()
+                plt.plot(t, P[:,1])
+                plt.show()
+                plt.plot(t, P[:,2])
+                plt.show()
+                plt.plot(t, L[:,0])
+                plt.show()
+                plt.plot(t, L[:,1])
+                plt.show()
+                plt.plot(t, L[:,2])
+                plt.show()       
+                '''
+               
+        return notBound_new, a_new, e_new 
         
 #Checks if the impulse approximation is valid
 def impulseValid():

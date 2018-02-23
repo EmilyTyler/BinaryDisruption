@@ -1,4 +1,3 @@
-import math
 import random
 import numpy as np
 cimport numpy as np
@@ -19,23 +18,23 @@ def setupRandomBinary(double a, double e, double m1, double m2):
         cdef np.ndarray V = np.zeros(3, dtype=float)
         
         #Randomise mean anomaly
-        M = random.uniform(0.0, 2.0*math.pi)
+        M = np.random.uniform(0.0, 2.0*np.pi)
         #Find eccentric anomaly from Kepler's equation
         E = findEccentricAnomaly(e, M)
         #Find true anomaly
-        f = 2.0*math.atan(((1.0+e)/(1.0-e))**0.5 * math.tan(0.5*E))
+        f = 2.0*np.arctan(((1.0+e)/(1.0-e))**0.5 * np.tan(0.5*E))
         #Initial separation
-        r = a*(1.0 - e**2.0)/(1.0 + e*math.cos(f))
+        r = a*(1.0 - e**2.0)/(1.0 + e*np.cos(f))
         #Mean motion
-        n = math.sqrt(G*(m1+m2)/(a**3.0))
+        n = np.sqrt(G*(m1+m2)/(a**3.0))
         #Initial coordinates of first star (cartesian)
         x1 = np.array([0.0, 0.0, 0.0])
         #Initial velocity of first star
         v1 = np.array([0.0, 0.0, 0.0])
         #Initial coordinates of second star (cartesian)
-        x2 = np.array([r*math.cos(f), r*math.sin(f), 0.0])
+        x2 = np.array([r*np.cos(f), r*np.sin(f), 0.0])
         #Initial velocity of second star
-        v2 = np.array([- n*a/(math.sqrt(1.0-e**2.0)) * math.sin(f), n*a/(math.sqrt(1.0-e**2.0)) * (e + math.cos(f)), 0.0])
+        v2 = np.array([- n*a/(np.sqrt(1.0-e**2.0)) * np.sin(f), n*a/(np.sqrt(1.0-e**2.0)) * (e + np.cos(f)), 0.0])
         
         #Centre of mass position vector
         R = (m1*x1 + m2*x2)/(m1 + m2)

@@ -33,24 +33,24 @@ a = 10.0**1.0 * au
 print('a = ', a)
 #Initial energy
 E_old = -G*(m1+m2)/(2.0*a)
-print('E_old = ', E_old)
+#print('E_old = ', E_old)
 #Impact parameter
 b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
 b_max = calc_b_max(M_p, v_rms, a, m1, m2)
-b = 100.0*b_max
+b = 10.0*b_max
 print('b = ', b)
 
 #Number of encounters
-N_enc = 1
+N_enc = 1000
 
 #Average energy change from impulse
 dE_imp_mean = 0.0
 dE_imp_meansq = 0.0
 for i in range(N_enc):
         notBound_new, a_new, e_new = impulseEncounter(m1, m2, v_rms, b, a, e, M_p)
-        print('a_new =', a_new)
+        #print('a_new =', a_new)
         E_new = -G*(m1+m2)/(2.0*a_new)
-        print('E_new =', E_new)
+        #print('E_new =', E_new)
         dE_imp_mean += (E_new-E_old)
         dE_imp_meansq += (E_new-E_old)**2.0
 #Normalise
@@ -76,10 +76,12 @@ dE_thr_var = dE_thr_meansq - dE_thr_mean**2.0
 #Calculate mean and variance from WSW
 if a > b:
         #Single kick regime
+        print('Single kick regime')
         dE_wsw_mean = 2.0*(G*M_p/(b*v_rms))**2.0
         dE_wsw_var = 4.0/3.0*(G*(m1+m2)/a)*(G*M_p/(b*v_rms))**2.0
 else:
         #Tidal regime
+        print('Tidal regime')
         dE_wsw_mean = 4.0/3.0*(G*M_p/(b*v_rms))**2.0 * (a/b)**2.0 * (1.0+3.0/2.0*e**2.0)
         dE_wsw_var = 4.0/5.0*(G*(m1+m2)/a)*(G*M_p/(b*v_rms))**2.0*(a/b)**2.0*(1.0 - e**2.0/3.0) + 16.0/45.0*(G*M_p/(b*v_rms))**4.0*(a/b)**4.0*(1.0 + 15.0*e**2.0)
 

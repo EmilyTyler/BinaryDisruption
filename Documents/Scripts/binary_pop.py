@@ -10,10 +10,10 @@ from scipy.constants import au, year, mega, giga
 from frequency import calcFrequency
 
 #Mass of binary stars
-m1 = 0.5 * 2.0*10.0**30.0
-m2 = 0.5 * 2.0*10.0**30.0
+m1 = 2.0*10.0**30.0
+m2 = 2.0*10.0**30.0
 #Mass of perturbers
-M_p = 10.0 * 2.0*10.0**30.0
+M_p = 1.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 220.0 * 1000.0
 #Density of dark matter halo solar masses/pc**3
@@ -23,11 +23,11 @@ rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number density of perturbers
 n_p = rho/M_p
 #Time to run simulation for
-T = 10.0 * giga*year
+T = 10.0 * giga * year
 
 #Number of binary pairs
 #TAKES 1.5 HOURS TO RUN 1000
-N_bin = 10
+N_bin = 1
 
 print('Initial number of binaries =', N_bin)
 
@@ -39,9 +39,9 @@ a_min = 10.0**3.0*au
 a_max = 10.0**6.0*au
 if alpha == 2.0:
         c = np.log(a_min)/np.log(a_max/a_min)
-        a = (a_max/a_min)**(np.random.random(N_bin) + c) * au
+        a = (a_max/a_min)**(np.random.random(N_bin) + c)
 else:
-        a = (np.random.random(N_bin)*(a_max**(2.0-alpha) - a_min**(2.0-alpha)) + a_min**(2.0-alpha))**(1.0/(2.0-alpha)) * au
+        a = (np.random.random(N_bin)*(a_max**(2.0-alpha) - a_min**(2.0-alpha)) + a_min**(2.0-alpha))**(1.0/(2.0-alpha))
 
 #a_bins, N_a = calcFrequency(a/au, 1000)
 #plt.loglog(a_bins, N_a)

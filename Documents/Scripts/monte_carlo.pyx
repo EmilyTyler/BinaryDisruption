@@ -50,12 +50,12 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
         #Minimum impact parameter
         cdef double b_min = 0.0
         #Minimum velocity
-        cdef double v_min = 10.0**(-3.0)*v_rms
+        cdef double v_min = 10.0**(-2.0)*v_rms
         #Maximum velocity
-        cdef double v_max = 10.0**3.0*v_rms
+        cdef double v_max = 10.0**2.0*v_rms
         #Implement encounters
         cdef bool notBound = False
-        cdef int N_enc, i
+        cdef int N_enc, i, k
         cdef int N_broken = 0
         cdef double b_max
         cdef np.ndarray b, v
@@ -63,13 +63,19 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
         cdef np.ndarray e = np.array([e_0[i] for i in range(N_bin)])
         cdef int N_loops = 1
         while True:
+                #print('Repeating loop')
                 try:
                         for k in range(N_loops):
+                                #print('Loop',k+1,'of',N_loops)
                                 for i in range(N_bin):
+                                        #print('Binary',i+1,'of',N_bin)
                                         #Maximum impact parameter
+                                        print('a[i] =', a[i])
                                         b_max = calc_b_max(M_p, v_rms, a[i], m1, m2)
+                                        print('b_max =', b_max)
                                         #Mean number of encounters in time T 
                                         N_mean = T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max)/N_loops
+                                        print('N_mean =', N_mean)
                                         #Number of encounters in time T 
                                         N_enc = np.random.poisson(N_mean)
                                         print('N_enc =', N_enc)
@@ -78,6 +84,7 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
                                         #Relative velocities of encounters
                                         #v = draw_maxwellian(v_rms, v_min, v_max, N_enc)
                                         v = maxwell.rvs(scale=v_rms, size=N_enc)
+                                        #print('Implementing',N_enc,'encounters')
                                         for j in range(N_enc):
                                                 (notBound, a[i], e[i]) = encounter(m1, m2, v[j], b[j], a[i], e[i], M_p)
                                                 if notBound:
@@ -88,9 +95,13 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
                                                         break
                         break
                 except OverflowError:
-                        print('OverflowError being handled')
+                        #print('OverflowError being handled')
                         N_loops *= 10
-                        print('N_loops =', N_loops)
+                        #print('N_loops =', N_loops)
+                except MemoryError:
+                        #print('MemoryError being handled')
+                        N_loops *= 10
+                        #print('N_loops =', N_loops)
         return (a, e, N_broken)
 
 

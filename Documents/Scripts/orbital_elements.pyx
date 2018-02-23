@@ -24,7 +24,7 @@ def orbitalElements(np.ndarray[double, ndim=2] X, double m1, double m2):
         cdef np.ndarray x = np.zeros(3, dtype=float)
         cdef np.ndarray v = np.zeros(3, dtype=float)
         cdef np.ndarray L = np.zeros(3, dtype=float)
-        cdef double R, V, E, a, e
+        cdef double R, V, E, a, e, L_squared
         
         x = X[0] - X[1]
         v = X[2] - X[3]

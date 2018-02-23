@@ -7,6 +7,9 @@ os.system("python setup.py build_ext --inplace")
 import matplotlib.pyplot as plt
 from encounters import impactAndVelocityVectors
 from frequency import calcFrequency
+from random_binary import setupRandomBinary
+from scipy.constants import au
+from mpl_toolkits.mplot3d import Axes3D
 
 #Find theta in spherical polars
 def theta(x):
@@ -17,9 +20,16 @@ def phi(x):
         return np.arctan(x[1]/x[0])
 
 #Impact parameter
-b = 1.0
+b = 10.0**6.0 * au
 #Perturber speed
-v = 1.0
+v = 2.2*10.0**5.0
+#Semi-major axis
+a = 10.0**3.0 * au
+#Stellar masses
+m1 = 2.0*10.0**30.0
+m2 = 2.0*10.0**30.0
+#Eccentricity
+e = 0.7
 #Number of vectors to generate
 N_vec = 100000
 
@@ -28,10 +38,30 @@ b_vectors = np.zeros((N_vec,3))
 v_phis = np.zeros(N_vec)
 b_phis = np.zeros(N_vec)
 for i in range(N_vec):
-        b_vectors[i], v_vectors[i] = impactAndVelocityVectors(b, v)
+        #Generate binary
+        X = setupRandomBinary(a, e, m1, m2)
+        #Find b and v
+        b_vectors[i], v_vectors[i] = impactAndVelocityVectors(b, v, X)
+        #Make unit vectors
+        b_vectors[i] /= b
+        v_vectors[i] /= v
+        #Find phis
         b_phis[i] = phi(b_vectors[i])
         v_phis[i] = phi(v_vectors[i])
-        
+     
+fig = plt.figure()
+plt.title('v distribution')
+ax1 = fig.add_subplot(111, projection='3d')
+ax1.scatter(v_vectors[:,0], v_vectors[:,1], v_vectors[:,2])
+plt.show()
+
+fig = plt.figure()
+plt.title('b distribution')
+ax2 = fig.add_subplot(111, projection='3d')
+ax2.scatter(b_vectors[:,0], b_vectors[:,1], b_vectors[:,2])
+plt.show()
+     
+
 plt.title('z test for v')        
 vz_bins, N_vz, d_vz = calcFrequency(v_vectors[:,2], 100)
 plt.plot(vz_bins, N_vz/N_vec/d_vz)

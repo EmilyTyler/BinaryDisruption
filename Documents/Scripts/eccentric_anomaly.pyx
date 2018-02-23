@@ -1,7 +1,8 @@
 #Solve Kepler's equation for eccentric anomaly
 import numpy as np
+cimport numpy as np
 
-def findEccentricAnomaly(double e,double M):
+def findEccentricAnomaly(double e, double M):
 
         #Solves Kepler's equation E-esinE=M to find eccentric anomaly E given eccentricity e and mean anomaly M.
         #From page 36 of Solar System Dynamics, or Danby 1988
@@ -27,4 +28,4 @@ def findEccentricAnomaly(double e,double M):
                         print ('findEccentricAnomaly did not converge')
                         break
                 count += 1
-        return E 
+        return E

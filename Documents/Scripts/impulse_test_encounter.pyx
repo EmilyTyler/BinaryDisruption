@@ -7,12 +7,13 @@ from matplotlib import animation
 from mpl_toolkits.mplot3d import Axes3D
 import mpl_toolkits.mplot3d.axes3d as p3
 
+
 from orbital_elements import orbitalElements
 from orbital_elements import semimajorAxis
 from random_direction import randomDirection
 from random_binary import setupRandomBinary
 from evolve_binary import integrateBinary
-from encounters import calc_b_max
+from encounters import calc_b_max, impactAndVelocityVectors
 
 from scipy.constants import G, parsec, au, giga, year
 
@@ -56,21 +57,13 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         cdef int i
         #If the encounter is not negligible
         if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0) and (b < calc_b_max(M_p, V_0, a, m1, m2)):          
-                #Find perturber velocity
-                v_vec = V_0 * randomDirection()
-                #print('v_vec = ', v_vec)
                 #Open binary
                 X = setupRandomBinary(a, e, m1, m2)
                 #print('X = ', X)
                 #Centre of mass vector
                 R = (m1*X[0] + m2*X[1])/(m1 + m2)
-                #Find impact parameter vector
-                b_vec = np.dot(R,v_vec)/V_0**2.0*v_vec - R
-                #print('b_vec = ', b_vec)
-                b_vec_norm = np.sqrt(b_vec[0]**2.0+b_vec[1]**2.0+b_vec[2]**2.0)
-                if b_vec_norm > 0.0:              
-                        b_vec = b * b_vec/b_vec_norm
-                #print('b_vec = ', b_vec)
+                #Find impact parameter vector and velocity vector
+                b_vec, v_vec = impactAndVelocityVectors(b, V_0)
                 #Impulse approximation:
                 #New star velocities for impulse approximation
                 V_imp = np.zeros((2,3), dtype=float)               
@@ -179,16 +172,6 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Set new velocity
                 X[2:] = V_imp 
                 
-                #Move into centre of mass rest frame:
-                #Impulse
-                #Centre of mass velocity
-                V_cm = (m1*X[2] + m2*X[3])/(m1 + m2)
-                X[2] -= V_cm
-                X[3] -= V_cm
-                #Integration
-                V_cm = (m1*x[i-1,3] + m2*x[i-1,4])/(m1 + m2)
-                x[i-1,3] -= V_cm
-                x[i-1,4] -= V_cm
                 
                 #Semi-major axis and eccentricity differences
                 (notBound_imp, a_imp, e_imp) = orbitalElements(X, m1, m2)
@@ -204,31 +187,9 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #print('a_frac = ', a_frac)
                 #print('e_diff = ', e_diff)
                 
-                '''
-                #Manual energy calculation checks
-                #Impulse
-                r = np.linalg.norm(X[0]-X[1])
-                v1 = np.linalg.norm(X[2])
-                v2 = np.linalg.norm(X[3])
-                E_imp = 0.5*m1*v1**2.0 + 0.5*m2*v2**2.0 - G*m1*m2/r
-                print('E_imp = ', E_imp)
-                a_imp_calc = - G*m1*m2/(2.0*E_imp)
-                print('a_imp_calc = ', a_imp_calc)
-                #Three body
-                r = np.linalg.norm(x[i-1,0]-x[i-1,1])
-                v1 = np.linalg.norm(x[i-1,3])
-                v2 = np.linalg.norm(x[i-1,4])
-                E_thr = 0.5*m1*v1**2.0 + 0.5*m2*v2**2.0 - G*m1*m2/r
-                print('E_thr = ', E_thr)
-                a_thr_calc = - G*m1*m2/(2.0*E_thr)
-                print('a_thr_calc = ', a_thr_calc)
-                '''
-                
                 E_imp = -G*(m1+m2)/(2.0*a_imp)
                 E_thr = -G*(m1+m2)/(2.0*a_thr)
-                E_frac = (E_imp - E_thr)/E_thr
-                
-                
+                E_frac = (E_imp - E_thr)/E_thr               
 
         return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac)
         
