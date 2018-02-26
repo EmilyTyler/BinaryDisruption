@@ -23,11 +23,12 @@ rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number density of perturbers
 n_p = rho/M_p
 #Time to run simulation for
-T = 10.0 * giga * year
+T = 100.0 * giga * year
 
 #Number of binary pairs
-#TAKES 1.5 HOURS TO RUN 1000
-N_bin = 1
+#TAKES 16 minutes TO RUN 1000 for T=10Gyr
+#Takes 13h20m to run 5000 for 100Gyr
+N_bin = 5000
 
 print('Initial number of binaries =', N_bin)
 
@@ -68,7 +69,7 @@ print('Number of binaries broken =', N_broken)
 print('Plotting')
 #Plot final and initial distributions
 #Number of bins
-N_bins = 10
+N_bins = N_bin//10
 a_bins_old, N_a_old, a_old_binwidth = calcFrequency(a, N_bins, log=True)
 a_bins_new, N_a_new, a_new_binwidth = calcFrequency(a_end, N_bins, log=True)
 e_bins_old, N_e_old, e_old_binwidth = calcFrequency(e, N_bins)

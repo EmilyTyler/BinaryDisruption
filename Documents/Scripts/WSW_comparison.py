@@ -41,7 +41,7 @@ b = 10.0*b_max
 print('b = ', b)
 
 #Number of encounters
-N_enc = 1000
+N_enc = 1
 
 #Average energy change from impulse
 dE_imp_mean = 0.0
@@ -59,6 +59,7 @@ dE_imp_meansq /= N_enc
 #Calculate variance
 dE_imp_var = dE_imp_meansq - dE_imp_mean**2.0
 
+'''
 #Average energy change from three body
 dE_thr_mean = 0.0
 dE_thr_meansq = 0.0
@@ -72,6 +73,7 @@ dE_thr_mean /= N_enc
 dE_thr_meansq /= N_enc
 #Calculate variance
 dE_thr_var = dE_thr_meansq - dE_thr_mean**2.0
+'''
 
 #Calculate mean and variance from WSW
 if a > b:
@@ -88,9 +90,11 @@ else:
 print('Impulse approximation code:')
 print('Mean = ', dE_imp_mean)
 print('Variance = ', dE_imp_var)
+'''
 print('Integration code:')
 print('Mean = ', dE_thr_mean)
 print('Variance = ', dE_thr_var)
+'''
 print('Weinberg et al equations:')
 print('Mean = ', dE_wsw_mean)
 print('Variance = ', dE_wsw_var)

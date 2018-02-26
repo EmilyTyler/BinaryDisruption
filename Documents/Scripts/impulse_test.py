@@ -33,14 +33,14 @@ n_p = rho/M_p
 
 #Semi-major axes
 a_min = 10.0**3.0 * au
-a_max = 10.0**6.0 * au
+a_max = 10.0**5.0 * au
 #Number of a's to test
-N_a = 50
+N_a = 20
 #Impact parameters
 b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
 b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
 #Number of b's to test
-N_b = 50
+N_b = 20
 
 #Number of encounters per each pair of values
 #TAKES 0.5 HOURS TO RUN for 10, 10, 100

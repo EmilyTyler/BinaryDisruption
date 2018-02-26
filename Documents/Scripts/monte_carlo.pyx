@@ -61,47 +61,31 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
         cdef np.ndarray b, v
         cdef np.ndarray a = np.array([a_0[i] for i in range(N_bin)])
         cdef np.ndarray e = np.array([e_0[i] for i in range(N_bin)])
-        cdef int N_loops = 1
-        while True:
-                #print('Repeating loop')
-                try:
-                        for k in range(N_loops):
-                                #print('Loop',k+1,'of',N_loops)
-                                for i in range(N_bin):
-                                        #print('Binary',i+1,'of',N_bin)
-                                        #Maximum impact parameter
-                                        print('a[i] =', a[i])
-                                        b_max = calc_b_max(M_p, v_rms, a[i], m1, m2)
-                                        print('b_max =', b_max)
-                                        #Mean number of encounters in time T 
-                                        N_mean = T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max)/N_loops
-                                        print('N_mean =', N_mean)
-                                        #Number of encounters in time T 
-                                        N_enc = np.random.poisson(N_mean)
-                                        print('N_enc =', N_enc)
-                                        #Impact parameters of encounters
-                                        b = draw_b(b_max, N_enc)
-                                        #Relative velocities of encounters
-                                        #v = draw_maxwellian(v_rms, v_min, v_max, N_enc)
-                                        v = maxwell.rvs(scale=v_rms, size=N_enc)
-                                        #print('Implementing',N_enc,'encounters')
-                                        for j in range(N_enc):
-                                                (notBound, a[i], e[i]) = encounter(m1, m2, v[j], b[j], a[i], e[i], M_p)
-                                                if notBound:
-                                                        N_broken += 1
-                                                        #print('Binary broken!')
-                                                        a[i] = 0.0
-                                                        e[i] = 0.0
-                                                        break
-                        break
-                except OverflowError:
-                        #print('OverflowError being handled')
-                        N_loops *= 10
-                        #print('N_loops =', N_loops)
-                except MemoryError:
-                        #print('MemoryError being handled')
-                        N_loops *= 10
-                        #print('N_loops =', N_loops)
+        for i in range(N_bin):
+                #Maximum impact parameter
+                #print('a[i] =', a[i])
+                b_max = calc_b_max(M_p, v_rms, a[i], m1, m2)
+                #print('b_max =', b_max)
+                #Mean number of encounters in time T 
+                N_mean = T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max)
+                #print('N_mean =', N_mean)
+                #Number of encounters in time T 
+                N_enc = np.random.poisson(N_mean)
+                #print('N_enc =', N_enc)
+                #Impact parameters of encounters
+                b = draw_b(b_max, N_enc)
+                #Relative velocities of encounters
+                #v = draw_maxwellian(v_rms, v_min, v_max, N_enc)
+                v = maxwell.rvs(scale=v_rms, size=N_enc)
+                #print('Implementing',N_enc,'encounters')
+                for j in range(N_enc):
+                        (notBound, a[i], e[i]) = encounter(m1, m2, v[j], b[j], a[i], e[i], M_p)
+                        if notBound:
+                                N_broken += 1
+                                #print('Binary broken!')
+                                a[i] = 0.0
+                                e[i] = 0.0
+                                break
         return (a, e, N_broken)
 
 
