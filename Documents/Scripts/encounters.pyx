@@ -167,9 +167,9 @@ def impulseEncounter(double m1, double m2, double v, double b, double a, double 
         cdef np.ndarray b_vec
         cdef np.ndarray v_vec
         b_vec, v_vec = impactAndVelocityVectors(b, v)
-        print('b_vec =', b_vec)
+        #print('b_vec =', b_vec)
         #print('v_vec = ', v_vec)
-        print('v =', v)
+        #print('v =', v)
         #Implement encounter for both stars  
         cdef int i
         cdef np.ndarray b_star, v_perp, v_parr
@@ -178,18 +178,18 @@ def impulseEncounter(double m1, double m2, double v, double b, double a, double 
                 #print('i = ', i)
                 #Calculate impact parameter for this star
                 b_star = dot_3d(X[i],v_vec)/v**2.0 * v_vec + b_vec - X[i]
-                print('b_star = ', b_star)
+                #print('b_star = ', b_star)
                 b_star_norm = np.sqrt(b_star[0]**2.0 + b_star[1]**2.0 + b_star[2]**2.0)
-                print('b_star_norm = ', b_star_norm)
+                #print('b_star_norm = ', b_star_norm)
                 #Calculate velocity change in b direction
                 v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star/b_star_norm)
-                print('v_perp = ', v_perp)
+                #print('v_perp = ', v_perp)
                 #Calculate velocity change in -v direction
                 v_parr = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/v)
-                print('v_parr = ', v_parr)
+                #print('v_parr = ', v_parr)
                 #Change velocity
                 X[i+2] += v_perp + v_parr
-                #print('X_new = ', X)
+        #print('X_new = ', X)
         #Close binary
         return orbitalElements(X, m1, m2)
 

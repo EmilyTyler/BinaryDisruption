@@ -7,7 +7,6 @@ os.system("python setup.py build_ext --inplace")
 import matplotlib.pyplot as plt
 from encounters import impactAndVelocityVectors
 from frequency import calcFrequency
-from random_binary import setupRandomBinary
 from scipy.constants import au
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -31,17 +30,15 @@ m2 = 2.0*10.0**30.0
 #Eccentricity
 e = 0.7
 #Number of vectors to generate
-N_vec = 100000
+N_vec = 1000
 
 v_vectors = np.zeros((N_vec,3))
 b_vectors = np.zeros((N_vec,3))
 v_phis = np.zeros(N_vec)
 b_phis = np.zeros(N_vec)
 for i in range(N_vec):
-        #Generate binary
-        X = setupRandomBinary(a, e, m1, m2)
         #Find b and v
-        b_vectors[i], v_vectors[i] = impactAndVelocityVectors(b, v, X)
+        b_vectors[i], v_vectors[i] = impactAndVelocityVectors(b, v)
         #Make unit vectors
         b_vectors[i] /= b
         v_vectors[i] /= v
