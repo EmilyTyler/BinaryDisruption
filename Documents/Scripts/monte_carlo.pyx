@@ -83,8 +83,8 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
                         if notBound:
                                 N_broken += 1
                                 #print('Binary broken!')
-                                a[i] = 0.0
-                                e[i] = 0.0
+                                a[i] = -1.0
+                                e[i] = -1.0
                                 break
         return (a, e, N_broken)
 

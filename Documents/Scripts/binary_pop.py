@@ -23,13 +23,11 @@ rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
 #Number density of perturbers
 n_p = rho/M_p
 #Time to run simulation for
-T = 100.0 * giga * year
+T = 10.0 * giga * year
 
 #Number of binary pairs
-#TAKES 16 minutes TO RUN 1000 for T=10Gyr
-#Takes 2h40m to run 1000 for 100Gyr
-#Takes 13h20m to run 5000 for 100Gyr
-N_bin = 5000
+#TAKES 25 minutes TO RUN 1000 for T=10Gyr
+N_bin = 1000
 
 print('Initial number of binaries =', N_bin)
 
@@ -62,8 +60,8 @@ e = (np.random.random(N_bin))**(1.0/3.0)
 #Evolve distribution in time
 print('Evolving population')
 a_end, e_end, N_broken = MCEncounters(v_rms, n_p, T, m1, m2, M_p, a, e, N_bin)
-a_end = a_end[np.nonzero(a_end)]
-e_end = e_end[np.nonzero(a_end)]
+a_end = a_end[np.where(a_end!=-1.0)]
+e_end = e_end[np.where(e_end!=-1.0)]
 
 print('Number of binaries broken =', N_broken)
 
@@ -73,22 +71,26 @@ print('Plotting')
 N_bins = 50
 a_bins_old, N_a_old, a_old_binwidth = calcFrequency(a, N_bins, log=True)
 a_bins_new, N_a_new, a_new_binwidth = calcFrequency(a_end, N_bins, log=True)
+#Actual bin widths
+da_old = a_bins_old *(np.exp(a_old_binwidth)-1.0)
+da_new = a_bins_new *(np.exp(a_new_binwidth)-1.0)
+
 e_bins_old, N_e_old, e_old_binwidth = calcFrequency(e, N_bins)
 e_bins_new, N_e_new, e_new_binwidth = calcFrequency(e_end, N_bins)
 #Semi-major axis
-plt.loglog(a_bins_old/au, N_a_old)
-plt.loglog(a_bins_new/au, N_a_new)
+plt.loglog(a_bins_old/au, N_a_old/(N_bin-N_broken)/(da_old/au))
+plt.loglog(a_bins_new/au, N_a_new/(N_bin-N_broken)/(da_new/au))
 #plt.xlim(10.0**3.0, 3.0*10.0**5.0)
 #plt.ylim(5.0*10.0**(-1.0), 3.0*10.0**3.0)
 plt.xlabel('Semi-major axis, au')
-plt.ylabel('Number of binaries')
+plt.ylabel(r'Probability density, au$^{-1}$')
 plt.show()
 #Eccentricity
-plt.plot(e_bins_old, N_e_old)
-plt.plot(e_bins_new, N_e_new)
+plt.plot(e_bins_old, N_e_old/(N_bin-N_broken)/e_old_binwidth)
+plt.plot(e_bins_new, N_e_new/(N_bin-N_broken)/e_new_binwidth)
 plt.xlim(0.0, 1.0)
 plt.xlabel('Eccentricity')
-plt.ylabel('Number of binaries')
+plt.ylabel('Probability density')
 plt.show()
 
 print('Finished')

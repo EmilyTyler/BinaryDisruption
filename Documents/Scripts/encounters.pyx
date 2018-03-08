@@ -11,7 +11,7 @@ from random_binary import setupRandomBinary
 from orbital_elements import orbitalElements
 from random_direction import randomDirection
 import random
-from scipy.constants import G
+from scipy.constants import G, giga, year
 
 #Encounter rate for impact parameters between b0 and b1 and for relative velocities between v0 and v1
 def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, double v1):
@@ -42,7 +42,7 @@ def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, d
 def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, double m1, double m2, double M_p):
         cdef int i, j
         #Set up b array
-        cdef double b_min = 10.0**(-2.0)*(np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+        cdef double b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
         #print('b_min = ', b_min)
         cdef double b_max = calc_b_max(M_p, v_rms, a_0, m1, m2)
         #print('b_max = ', b_max)
@@ -64,14 +64,16 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
         #Matrix of encounter rates
         #R[i,j] is the encounter rate for objects with impact parameter b[i] and relative velocity v[j]
         cdef np.ndarray R = np.zeros([N_b,N_v], dtype=float)
-        #R = np.fromfunction(lambda i,j: encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv)), (N_b,N_v), dtype=int)
         for i in range(N_b):
                 for j in range(N_v):
                         R[i,j] = encounterRate(n_p, v_rms, b[i], b[i]*np.exp(dlogb), v[j], v[j]*np.exp(dlogv))
         #Calculate time step
         cdef double dt = 1.0/np.amax(R)
         #Setup time array
-        cdef int N_t = int(np.ceil(t_end/dt + 1))
+        cdef int N_t = int(np.around(t_end/dt))
+        #Adjust dt to take rounding into account
+        dt = t_end/N_t
+        #Time array
         cdef np.ndarray t = np.array([dt*i for i in range(N_t)])
         #Array of semi-major axes
         cdef np.ndarray A = np.zeros(N_t, dtype=float)
@@ -80,7 +82,8 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
         cdef np.ndarray es = np.zeros(N_t, dtype=float)
         es[0] = e_0
         #Number of encounters matrix:
-        cdef np.ndarray N = np.rollaxis(np.array([[np.random.poisson(R[i,j]*dt, size=N_t) for j in range(N_v)] for i in range(N_b)]), 2)
+        cdef np.ndarray N = np.zeros((N_t, N_b, N_v), dtype=int)
+        N = np.rollaxis(np.array([[np.random.poisson(R[i,j]*dt, size=N_t) for j in range(N_v)] for i in range(N_b)]), 2)
         #Array of indices where encounters happen
         cdef np.ndarray i_enc = np.transpose(np.array(np.nonzero(N)))
         #Number of binaries broken
