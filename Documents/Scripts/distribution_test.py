@@ -54,9 +54,9 @@ b_MC = draw_b(b_max, N_enc_MC)
 v_MC = maxwell.rvs(scale=v_rms, size=N_enc_MC)
 #v_MC = draw_maxwellian(v_rms, v_min, v_max, N_enc_MC)
 #Bin b values
-b_bins_MC, N_b_MC, db_MC = calcFrequency(b_MC, N_b)
+b_bins_MC, N_b_MC, db_MC = calcFrequency(b_MC, N_b, log=True)
 #Bin v values
-v_bins_MC, N_v_MC, dv_MC = calcFrequency(v_MC, N_v)
+v_bins_MC, N_v_MC, dv_MC = calcFrequency(v_MC, N_v, log=True)
 
 #Binning
 #b bins for encounter rate
@@ -126,6 +126,8 @@ for i in range(N_b):
                 RT_b[i] += R[i,j]*T
                 RT_v[j] += R[i,j]*T
 
+print(np.sum(RT_b))
+print(np.sum(RT_v))
 #Plot distributions
 #Plot b distributions
 plt.plot(b_bins_MC/parsec, N_b_MC/N_enc_MC/(db_MC/parsec), label='Monte Carlo')
@@ -139,7 +141,7 @@ plt.show()
 #Plot v distributions
 plt.plot(v_bins_MC/1000.0, N_v_MC/N_enc_MC/(dv_MC/1000.0), label='Monte Carlo')
 plt.plot(v_bins_B/1000.0, N_v_B/N_enc_B/(dv_B/1000.0), label='Binning')
-plt.plot(v_bins_B/1000.0, RT_v/N_enc_B/(dv_B/1000.0), label='Binning means')
+plt.plot(v_bins_B/1000.0, RT_v/N_enc_B/(dv_B/1000.0)**2.0, label='Binning means')
 pdf = np.array([maxwellianPdf(x, v_rms) for x in v_bins_MC])
 plt.plot(v_bins_MC/1000.0, pdf*1000.0, label='PDF MC')
 pdf = np.array([maxwellianPdf(x, v_rms) for x in v_bins_B])

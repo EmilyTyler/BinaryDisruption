@@ -1,6 +1,6 @@
 import numpy as np
 
-def calcFrequency(x, N_bins, normalise=False, log=False, offset=1):
+def calcFrequency(x, N_bins, normalise=False, log=False, offset=0):
         x_min = np.min(x)
         x_max = np.max([np.max(x), x_min+1.0])
         
@@ -17,11 +17,17 @@ def calcFrequency(x, N_bins, normalise=False, log=False, offset=1):
         N = np.zeros(N_bins, dtype=int)
         if log:
                 for val in x:
-                        i = int(np.floor(np.log(val/x_min)/dlogx))
+                        if val == x_max:
+                                i = N_bins - 1
+                        else:
+                                i = int(np.floor(np.log(val/x_min)/dlogx))
                         N[i] += 1
         else:
                 for val in x:
-                        i = int(np.floor((val - x_min)/dx))
+                        if val == x_max:
+                                i = N_bins - 1
+                        else:
+                                i = int(np.floor((val - x_min)/dx))
                         N[i] += 1
         
         #Normalise
