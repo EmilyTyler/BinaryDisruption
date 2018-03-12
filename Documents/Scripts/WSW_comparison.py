@@ -41,11 +41,11 @@ b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
 b_max = calc_b_max(M_p, v_rms, a, m1, m2)
 #WSW b_max
 b_max_wsw = v_rms*P/(2.0*np.pi)
-b = b_max_wsw
+b = 0.05 * b_max_wsw
 print('b = ', b)
 
 #Number of encounters
-N_enc = 1
+N_enc = 10**8
 
 #Average energy change from impulse
 dE_imp_mean = 0.0
@@ -54,7 +54,7 @@ for i in range(N_enc):
         notBound_new, a_new, e_new = impulseEncounter(m1, m2, v_rms, b, a, e, M_p)
         #print('a_new =', a_new)
         E_new = -G*(m1+m2)/(2.0*a_new)
-        print('E_new =', E_new)
+        #print('E_new =', E_new)
         dE_imp_mean += (E_new-E_old)
         dE_imp_meansq += (E_new-E_old)**2.0
 #Normalise

@@ -56,7 +56,8 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         cdef double b_vec_norm, b_star_norm, w, t_end, dt
         cdef int i
         #If the encounter is not negligible
-        if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0) and (b < calc_b_max(M_p, V_0, a, m1, m2)):          
+        #if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0) and (b < calc_b_max(M_p, V_0, a, m1, m2)):    
+        if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0):
                 #Open binary
                 X = setupRandomBinary(a, e, m1, m2)
                 #print('X = ', X)
