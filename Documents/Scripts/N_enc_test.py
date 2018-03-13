@@ -46,7 +46,7 @@ v_max = 10.0**2.0 * v_rms
 N_v = 100
 N_b = 100
 #Number of numbers of encounters to generate
-N_N_enc = 1000
+N_N_enc = 10000
 
 #Monte Carlo
 #Number of encounters

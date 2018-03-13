@@ -47,7 +47,7 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
         cdef double b_max = calc_b_max(M_p, v_rms, a_0, m1, m2)
         #print('b_max = ', b_max)
         #Number of bins
-        cdef int N_b = 100
+        cdef int N_b = 1000
         #Width of logarithmically spaced bins
         cdef double dlogb = (np.log(b_max)-np.log(b_min))/N_b
         cdef np.ndarray b = np.array([b_min*np.exp(i*dlogb) for i in range(N_b)])
@@ -56,7 +56,7 @@ def binning(double v_rms, double n_p, double t_end, double a_0, double e_0, doub
         cdef double v_min = 0.01 * v_rms
         cdef double v_max = 100.0 * v_rms
         #Number of bins
-        cdef int N_v = 100
+        cdef int N_v = 1000
         #Width of logarithmically spaced bins
         cdef double dlogv = (np.log(v_max)-np.log(v_min))/N_v
         cdef np.ndarray v = np.array([v_min*np.exp(i*dlogv) for i in range(N_v)])

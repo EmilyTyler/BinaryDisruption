@@ -26,8 +26,8 @@ n_p = rho/M_p
 T = 10.0 * giga * year
 
 #Number of binary pairs
-#TAKES 25 minutes TO RUN 1000 for T=10Gyr
-N_bin = 1000
+#TAKES 25-40 minutes TO RUN 1000 for T=10Gyr
+N_bin = 5000
 
 print('Initial number of binaries =', N_bin)
 
@@ -95,13 +95,13 @@ plt.show()
 
 #Plot absolute numbers rather than densities
 #Set up bins
-a_min = np.min([a_ini, a_fin])
-a_max = np.max([a_ini, a_fin])
+a_min = np.min([np.min(a_ini), np.min(a_fin)])
+a_max = np.max([np.max(a_ini), np.max(a_fin)])
 dloga = (np.log(a_max)-np.log(a_min))/N_bins
 a_bins = np.array([a_min*np.exp(i*dloga) for i in range(N_bins)])
 # e
-e_min = np.min([e_ini, e_fin])
-e_max = np.max([e_ini, e_fin])
+e_min = np.min([np.min(e_ini), np.min(e_fin)])
+e_max = np.max([np.max(e_ini), np.max(e_fin)])
 dloge = (np.log(e_max)-np.log(e_min))/N_bins
 e_bins = np.array([e_min*np.exp(i*dloge) for i in range(N_bins)])
 #Count frequency
@@ -131,14 +131,14 @@ for val in e_fin:
         else:
                 i = int(np.floor(np.log(val/e_min)/dloge))
                 N_e_fin[i] += 1
-plt.plot(a_bins/au, N_a_ini, label='Initial')
-plt.plot(a_bins/au, N_a_fin, label='Final')
+plt.loglog(a_bins/au, N_a_ini, label='Initial')
+plt.loglog(a_bins/au, N_a_fin, label='Final')
 plt.legend()
 plt.xlabel('Semi-major axis, au')
 plt.ylabel('Number of binaries')
 plt.show()
-plt.plot(e_bins, N_e_ini, label='Initial')
-plt.plot(e_bins, N_e_fin, label='Final')
+plt.loglog(e_bins, N_e_ini, label='Initial')
+plt.loglog(e_bins, N_e_fin, label='Final')
 plt.legend()
 plt.xlabel('Eccentricity')
 plt.ylabel('Number of binaries')

@@ -54,9 +54,9 @@ b_MC = draw_b(b_max, N_enc_MC)
 v_MC = maxwell.rvs(scale=v_rms, size=N_enc_MC)
 #v_MC = draw_maxwellian(v_rms, v_min, v_max, N_enc_MC)
 #Bin b values
-#b_bins_MC, N_b_MC, db_MC = calcFrequency(b_MC, N_b)
+b_bins_MC, N_b_MC, db_MC = calcFrequency(b_MC, N_b)
 #Bin v values
-#v_bins_MC, N_v_MC, dv_MC = calcFrequency(v_MC, N_v)
+v_bins_MC, N_v_MC, dv_MC = calcFrequency(v_MC, N_v)
 
 #Binning
 #b bins for encounter rate
@@ -80,7 +80,7 @@ dv_B = v * (np.exp(dlogv) - 1.0)
 #dv_B = (v_max - v_min)/(N_v)
 #v = np.array([v_min + i*dv_B for i in range(N_v)])
 
-
+'''
 #Bin MC values
 N_b_MC = np.zeros(N_b, dtype=int)
 for val in b_MC:
@@ -97,7 +97,7 @@ for val in v_MC:
                 i = int(np.floor(np.log(val/v_min)/dlogv))
                 N_v_MC[i] += 1
 
-
+'''
 #R[i,j] is the encounter rate for objects with impact parameter b[i] and relative velocity v[j]
 R = np.zeros([N_b,N_v], dtype=float)
 for i in range(N_b):
@@ -147,7 +147,7 @@ for i in range(N_b):
 #print(np.sum(RT_b))
 #print(np.sum(RT_v))
 #Plot distributions
-'''
+
 #Plot b distributions
 plt.plot(b_bins_MC/parsec, N_b_MC/N_enc_MC/(db_MC/parsec), label='Monte Carlo')
 plt.plot(b_bins_B/parsec, N_b_B/N_enc_B/(db_B/parsec), label='Binning')
@@ -188,7 +188,7 @@ plt.ylabel(r'Fraction of encounters at relative velocity $v$')
 plt.legend()
 plt.show()
 
-
+'''
 
 
 
