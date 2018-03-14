@@ -6,7 +6,7 @@ os.system("python setup.py build_ext --inplace")
 import matplotlib.pyplot as plt
 from scipy.constants import giga, year, parsec
 from scipy.stats import maxwell
-from monte_carlo import draw_b, maxwellianPdf, draw_maxwellian
+from monte_carlo import draw_b, maxwellianPdf, draw_maxwellian, draw_vmaxwellian
 from encounters import calc_b_max, encounterRate
 from frequency import calcFrequency
 
@@ -51,8 +51,8 @@ print('M Mean =', T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max))
 #b values
 b_MC = draw_b(b_max, N_enc_MC)
 #v values
-v_MC = maxwell.rvs(scale=v_rms, size=N_enc_MC)
-#v_MC = draw_maxwellian(v_rms, v_min, v_max, N_enc_MC)
+#v_MC = maxwell.rvs(scale=v_rms, size=N_enc_MC)
+v_MC = draw_vmaxwellian(v_rms, v_min, v_max, N_enc_MC)
 #Bin b values
 b_bins_MC, N_b_MC, db_MC = calcFrequency(b_MC, N_b)
 #Bin v values
@@ -161,10 +161,10 @@ plt.show()
 plt.plot(v_bins_MC/1000.0, N_v_MC/N_enc_MC/(dv_MC/1000.0), label='Monte Carlo')
 plt.plot(v_bins_B/1000.0, N_v_B/N_enc_B/(dv_B/1000.0), label='Binning')
 plt.plot(v_bins_B/1000.0, RT_v/N_enc_B/(dv_B/1000.0), label='Binning means')
-pdf = np.array([maxwellianPdf(x, v_rms) for x in v_bins_MC])
-plt.plot(v_bins_MC/1000.0, pdf*1000.0, label='PDF MC')
-pdf = np.array([maxwellianPdf(x, v_rms) for x in v_bins_B])
-plt.plot(v_bins_B/1000.0, pdf*1000.0, label='PDF Binning')
+#pdf = np.array([maxwellianPdf(x, v_rms) for x in v_bins_MC])
+#plt.plot(v_bins_MC/1000.0, pdf*1000.0, label='PDF MC')
+#pdf = np.array([maxwellianPdf(x, v_rms) for x in v_bins_B])
+#plt.plot(v_bins_B/1000.0, pdf*1000.0, label='PDF Binning')
 plt.xlabel(r'Relative velocity $v$, kms$^{-1}$')
 plt.ylabel(r'Probability density of encounters at relative velocity $v$, km$^{-1}$s')
 plt.legend()

@@ -41,6 +41,35 @@ def maxwellianComparison(double x, double v_rms, double v_min, double v_max):
 def maxwellianX_from_area(double A, double v_rms, double v_min):      
         return (2.0*np.pi)**0.5*v_rms*np.exp(1.0)*A/4.0 + v_min
 
+#Draw velocities from a Maxwellian times v distribution
+def draw_vmaxwellian(double v_rms, double v_min, double v_max, int N):
+        #Accepted points
+        cdef np.ndarray accepted = np.array([])
+        #Total area under comparison function
+        cdef double area = (v_max - v_min)*3.0**(3.0/2.0)/(2.0*v_rms)*np.exp(-3.0/2.0)
+        
+        cdef double u, x, y
+        while accepted.size < N:
+                u = random.uniform(0.0, area)
+                x = vmaxwellianX_from_area(u, v_rms, v_min)
+                y = random.uniform(0.0, vmaxwellianComparison(x, v_rms, v_min, v_max))
+                if y < vmaxwellianPdf(x, v_rms):
+                        accepted = np.append(accepted, x)
+        return accepted
+
+def vmaxwellianPdf(double x, double v_rms):
+        return x**3.0/(2.0*v_rms**4.0)*np.exp(-x**2.0/(2.0*v_rms**2.0))
+
+def vmaxwellianComparison(double x, double v_rms, double v_min, double v_max):
+        cdef double answer = 0.0
+        if v_min<x<v_max:
+                answer = 3.0**(3.0/2.0)/(2.0*v_rms)*np.exp(-3.0/2.0)
+        return answer
+
+def vmaxwellianX_from_area(double A, double v_rms, double v_min):
+        return v_min + 2.0*v_rms*A*np.exp(3.0/2.0)/3.0**(3.0/2.0)
+
+
 #Draw impact parameter from a distribution linear in b
 def draw_b(double b_max, int N):
         return b_max*np.sqrt(np.random.uniform(0.0, 1.0, size=N))
@@ -75,8 +104,8 @@ def MCEncounters(double v_rms, double n_p, double T, double m1, double m2, doubl
                 #Impact parameters of encounters
                 b = draw_b(b_max, N_enc)
                 #Relative velocities of encounters
-                #v = draw_maxwellian(v_rms, v_min, v_max, N_enc)
-                v = maxwell.rvs(scale=v_rms, size=N_enc)
+                v = draw_vmaxwellian(v_rms, v_min, v_max, N_enc)
+                #v = maxwell.rvs(scale=v_rms, size=N_enc)
                 #print('Implementing',N_enc,'encounters')
                 for j in range(N_enc):
                         (notBound, a[i], e[i]) = encounter(m1, m2, v[j], b[j], a[i], e[i], M_p)

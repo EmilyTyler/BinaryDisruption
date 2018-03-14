@@ -27,7 +27,7 @@ T = 10.0 * giga * year
 
 #Number of binary pairs
 #TAKES 25-40 minutes TO RUN 1000 for T=10Gyr
-N_bin = 5000
+N_bin = 10000
 
 print('Initial number of binaries =', N_bin)
 

@@ -45,7 +45,7 @@ b = 0.05 * b_max_wsw
 print('b = ', b)
 
 #Number of encounters
-N_enc = 5*10**8
+N_enc = 10**9
 
 #Average energy change from impulse
 dE_imp_mean = 0.0
