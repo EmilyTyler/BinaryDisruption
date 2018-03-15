@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from encounters import encounter
+from scipy.constants import parsec, au, giga, year
 
 #Initialise variables
 #Eccentricity
@@ -12,11 +13,11 @@ e = 0.7
 m1 = 1.0*10.0**30.0
 m2 = 1.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
-v_rms = 100.0 * 1000.0
+v_rms = 220.0 * 1000.0
 #Density of dark matter halo solar masses/pc**3
 rho = 0.009
 #Convert to SI
-rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
+rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 
 
 #Total number of encounters per mass and semi-major axis bin
@@ -34,8 +35,8 @@ M_bins = np.array([M_min*np.exp(dlogM*i) for i in range(N_M)])
 
 #Semi-major axis
 #Minimum a
-a_min = 1000.0 * 1.5*10.0**11.0
-a_max = 100000000.0 * 1.5*10.0**11.0
+a_min = 1000.0 * au
+a_max = 100000000.0 * au
 #Number of a's to test
 N_a = 100
 #Set up logarithmic a bins
@@ -47,7 +48,7 @@ F_enc = np.zeros((N_M, N_a))
 #Number density of perturbers
 n_p = rho/M_bins
 #Minimum impact parameter
-b_min = (np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
 
 for k in range(N_a):
         for j in range(N_M):      
@@ -61,7 +62,7 @@ F_enc /= N_enc
 
 #Contour plot
 plt.title(r'Fraction of binaries broken due to a single encounter at $b=b_\mathrm{min}$')
-plt.contourf(M_bins/(2.0*10.0**30.0), a_bins/(1.5*10.0**11.0), np.transpose(F_enc), levels=np.linspace(0.0, 1.0, 11))
+plt.contourf(M_bins/(2.0*10.0**30.0), a_bins/au, np.transpose(F_enc), levels=np.linspace(0.0, 1.0, 11))
 plt.xlabel('Perturber mass, solar masses')
 plt.ylabel('Semi-major axis, au')
 plt.xscale('log')

@@ -13,7 +13,7 @@ from frequency import calcFrequency
 m1 = 2.0*10.0**30.0
 m2 = 2.0*10.0**30.0
 #Mass of perturbers
-M_p = 1.0 * 2.0*10.0**30.0
+M_p = 10.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 220.0 * 1000.0
 #Density of dark matter halo solar masses/pc**3
