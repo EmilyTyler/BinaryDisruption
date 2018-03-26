@@ -13,7 +13,7 @@ from frequency import calcFrequency
 m1 = 2.0*10.0**30.0
 m2 = 2.0*10.0**30.0
 #Mass of perturbers
-M_p = 10.0 * 2.0*10.0**30.0
+M_p = 1.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 220.0 * 1000.0
 #Density of dark matter halo solar masses/pc**3
@@ -27,7 +27,7 @@ T = 10.0 * giga * year
 
 #Number of binary pairs
 #TAKES 25-40 minutes TO RUN 1000 for T=10Gyr
-N_bin = 10000
+N_bin = 10**2
 
 print('Initial number of binaries =', N_bin)
 
@@ -42,6 +42,8 @@ if alpha == 2.0:
         a_ini = (a_max/a_min)**(np.random.random(N_bin) + c)
 else:
         a_ini = (np.random.random(N_bin)*(a_max**(2.0-alpha) - a_min**(2.0-alpha)) + a_min**(2.0-alpha))**(1.0/(2.0-alpha))
+        
+#a_ini = np.array([4.55*10.0**5.0*au]*N_bin)
 
 #a_bins, N_a = calcFrequency(a/au, 1000)
 #plt.loglog(a_bins, N_a)

@@ -11,7 +11,7 @@ from random_binary import setupRandomBinary
 from orbital_elements import orbitalElements
 from random_direction import randomDirection
 import random
-from scipy.constants import G, giga, year
+from scipy.constants import G, giga, year, parsec, au
 
 #Encounter rate for impact parameters between b0 and b1 and for relative velocities between v0 and v1
 def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, double v1):
@@ -20,7 +20,11 @@ def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, dou
 
 #To find b_max
 def calc_b_max(double M_p, double v, double a, double m1, double m2, double delta = 10.0**(-3.0)):
-        return (2.0*G*M_p/(v*delta)*(a/(G*(m1+m2)))**0.5)
+        cdef double b_max_old = (2.0*G*M_p/(v*delta)*(a/(G*(m1+m2)))**0.5)
+        cdef double b_max_new = 0.01*parsec*(2.2*10.0**5.0/v)*(a/(10.0**4.0*au))**(3.0/4.0)*(2.0*2.0*10.0**30.0/(m1+m2))**(1.0/2.0)*(M_p/(2.0*10.0**30.0))**(1.0/2.0)
+        #print('b_max_old/pc =', b_max_old/parsec)
+        #print('b_max_new/pc =', b_max_new/parsec)
+        return b_max_new
 
 #Evolve binary without encounters
 def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, double m2):
@@ -158,8 +162,15 @@ def impactAndVelocityVectors(double b, double v):
 #Implement encounters with relative velocity v and impact parameter b using impulse approximation, M_p is perturber mass
 #From Binney and Tremaine hyperbolic encounters
 def impulseEncounter(double m1, double m2, double v, double b, double a, double e, double M_p):
+        #print('ENCOUNTER!')
+        #print('b =', b)
+        #print('v =', v)
+        #print('a =', a)
+        #print('e =', e)
+        #print('M_p =', M_p)
         #Star masses
         cdef np.ndarray m = np.array([m1, m2])
+        #print('m =', m)
         #90 degree deflection radius
         cdef np.ndarray b_90 = G*(M_p+m)/v**2.0   
         #print('b_90 = ', b_90)
@@ -172,7 +183,6 @@ def impulseEncounter(double m1, double m2, double v, double b, double a, double 
         b_vec, v_vec = impactAndVelocityVectors(b, v)
         #print('b_vec =', b_vec)
         #print('v_vec = ', v_vec)
-        #print('v =', v)
         #Implement encounter for both stars  
         cdef int i
         cdef np.ndarray b_star, v_perp, v_parr
