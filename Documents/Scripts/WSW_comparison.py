@@ -45,13 +45,15 @@ b = 0.05 * b_max_wsw
 print('b = ', b)
 
 #Number of encounters
-N_enc = 10**5
+N_enc = 10**0
 
 #Average energy change from impulse
 dE_imp_mean = 0.0
 dE_imp_meansq = 0.0
 #Number of negative energy changes
 N_neg = 0
+#Array of delta E's
+
 for i in range(N_enc):
         notBound_new, a_new, e_new = impulseEncounter(m1, m2, v_rms, b, a, e, M_p)
         #print('a_new =', a_new)
