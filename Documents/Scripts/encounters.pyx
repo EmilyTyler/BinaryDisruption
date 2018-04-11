@@ -204,6 +204,42 @@ def impulseEncounter(double m1, double m2, double v, double b, double a, double 
         #Close binary
         return orbitalElements(X, m1, m2)
 
+#Implements many impulsive encounters at once
+def multipleImpulseEncounter(double m1, double m2, double v, double b, double a, double e, double M_p, int N_enc):
+        cdef int i,j
+        cdef np.ndarray b_star = np.zeros((N_enc,3), dtype=float)
+        cdef np.ndarray v_perp = np.zeros((N_enc,3), dtype=float)
+        cdef np.ndarray v_parr = np.zeros((N_enc,3), dtype=float)
+        cdef np.ndarray b_star_norm = np.zeros(N_enc, dtype=float)
+        #Star masses
+        cdef np.ndarray m = np.array([m1, m2])
+        #90 degree deflection radius
+        cdef np.ndarray b_90 = G*(M_p+m)/v**2.0   
+        #Open binaries
+        cdef np.ndarray X = np.array([setupRandomBinary(a, e, m1, m2) for i in range(N_enc)])
+        #print('X = ', X)    
+        #Find impact parameter vectors and velocity vectors
+        cdef np.ndarray b_vec = np.zeros((N_enc,3), dtype=float)
+        cdef np.ndarray v_vec = np.zeros((N_enc,3), dtype=float)
+        for i in range(N_enc):
+                b_vec[i], v_vec[i] = impactAndVelocityVectors(b, v)
+        #Implement encounters
+        for i in range(2):
+                for j in range(3):
+                        #Calculate impact parameter for this star
+                        b_star[:,j] = (X[:,i,0]*v_vec[:,0] + X[:,i,1]*v_vec[:,1] + X[:,i,2]*v_vec[:,2])/v**2.0 * v_vec[:,j] + b_vec[:,j] - X[:,i,j]
+                        b_star_norm = np.sqrt(b_star[:,0]**2.0 + b_star[:,1]**2.0 + b_star[:,2]**2.0)
+                        #Calculate velocity change in b direction
+                        v_perp[:,j] = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star[:,j]/b_star_norm)
+                        #Calculate velocity change in -v direction
+                        v_parr[:,j] = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec[:,j]/v)
+                #Change velocity
+                X[:,i+2] += v_perp + v_parr
+        #Close binary
+        results = np.array([orbitalElements(X[i], m1, m2) for i in range(N_enc)])
+        a_new = results[:,1]
+        return a_new
+
 #Implements encounter with full 3 body simulation
 def integrateEncounter(double m1, double m2, double v, double b, double a, double e, double M_p):
         cdef double a_new = a

@@ -7,7 +7,7 @@ os.system("python setup.py build_ext --inplace")
 from matplotlib import pyplot as plt
 from scipy.constants import au, giga, year, parsec, G
 
-from encounters import calc_b_max, impulseEncounter, integrateEncounter
+from encounters import calc_b_max, impulseEncounter, integrateEncounter, multipleImpulseEncounter
 from frequency import calcFrequency
 
 
@@ -45,34 +45,43 @@ b = 0.05 * b_max_wsw
 print('b = ', b)
 
 #Number of encounters
-N_enc = 10**0
+N_enc = 10**6
 
 #Average energy change from impulse
 dE_imp_mean = 0.0
 dE_imp_meansq = 0.0
 #Number of negative energy changes
-N_neg = 0
-#Array of delta E's
-
+#N_neg = 0
+'''
 for i in range(N_enc):
         notBound_new, a_new, e_new = impulseEncounter(m1, m2, v_rms, b, a, e, M_p)
         #print('a_new =', a_new)
-        if notBound_new:
-                print('BINARY BROKEN!')
+        #if notBound_new:
+                #print('BINARY BROKEN!')
         E_new = -G*(m1+m2)/(2.0*a_new)
         #print('E_new =', E_new)
         #print('E_new-E_old =', E_new-E_old)
-        if (E_new-E_old) < 0.0:
-                N_neg += 1
+        #if (E_new-E_old) < 0.0:
+                #N_neg += 1
         dE_imp_mean += (E_new-E_old)
         dE_imp_meansq += (E_new-E_old)**2.0
+
 #Normalise
 dE_imp_mean /= N_enc
 dE_imp_meansq /= N_enc
 #Calculate variance
 dE_imp_var = dE_imp_meansq - dE_imp_mean**2.0
 
-print('Fraction of energy changes < 0 =', N_neg/N_enc)
+'''
+
+a_new = multipleImpulseEncounter(m1, m2, v_rms, b, a, e, M_p, N_enc)
+E_new = -G*(m1+m2)/(2.0*a_new)
+dE_imp_mean = np.sum(E_new - E_old)/N_enc
+dE_imp_meansq = np.sum((E_new-E_old)**2.0)/N_enc
+#Calculate variance
+dE_imp_var = dE_imp_meansq - dE_imp_mean**2.0
+
+#print('Fraction of energy changes < 0 =', N_neg/N_enc)
 
 '''
 #Average energy change from three body
