@@ -45,14 +45,14 @@ b = 0.05 * b_max_wsw
 print('b = ', b)
 
 #Number of encounters
-N_enc = 10**6
+N_enc = 10**4
 
 #Average energy change from impulse
 dE_imp_mean = 0.0
 dE_imp_meansq = 0.0
 #Number of negative energy changes
 #N_neg = 0
-'''
+
 for i in range(N_enc):
         notBound_new, a_new, e_new = impulseEncounter(m1, m2, v_rms, b, a, e, M_p)
         #print('a_new =', a_new)
@@ -73,6 +73,11 @@ dE_imp_meansq /= N_enc
 dE_imp_var = dE_imp_meansq - dE_imp_mean**2.0
 
 '''
+print('Impulse approximation code:')
+print('Mean = ', dE_imp_mean)
+print('Variance = ', dE_imp_var)
+
+
 
 a_new = multipleImpulseEncounter(m1, m2, v_rms, b, a, e, M_p, N_enc)
 E_new = -G*(m1+m2)/(2.0*a_new)
@@ -80,7 +85,7 @@ dE_imp_mean = np.sum(E_new - E_old)/N_enc
 dE_imp_meansq = np.sum((E_new-E_old)**2.0)/N_enc
 #Calculate variance
 dE_imp_var = dE_imp_meansq - dE_imp_mean**2.0
-
+'''
 #print('Fraction of energy changes < 0 =', N_neg/N_enc)
 
 '''

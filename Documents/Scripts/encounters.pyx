@@ -216,14 +216,16 @@ def multipleImpulseEncounter(double m1, double m2, double v, double b, double a,
         #90 degree deflection radius
         cdef np.ndarray b_90 = G*(M_p+m)/v**2.0   
         #Open binaries
-        cdef np.ndarray X = np.array([setupRandomBinary(a, e, m1, m2) for i in range(N_enc)])
-        #print('X = ', X)    
+        print('Opening binaries')
+        cdef np.ndarray X = np.array([setupRandomBinary(a, e, m1, m2) for i in range(N_enc)])   
         #Find impact parameter vectors and velocity vectors
         cdef np.ndarray b_vec = np.zeros((N_enc,3), dtype=float)
         cdef np.ndarray v_vec = np.zeros((N_enc,3), dtype=float)
+        print('Calculating b and v vectors')
         for i in range(N_enc):
                 b_vec[i], v_vec[i] = impactAndVelocityVectors(b, v)
         #Implement encounters
+        print('Calculating velocity changes')
         for i in range(2):
                 for j in range(3):
                         #Calculate impact parameter for this star
@@ -236,6 +238,7 @@ def multipleImpulseEncounter(double m1, double m2, double v, double b, double a,
                 #Change velocity
                 X[:,i+2] += v_perp + v_parr
         #Close binary
+        print('Closing binaries')
         results = np.array([orbitalElements(X[i], m1, m2) for i in range(N_enc)])
         a_new = results[:,1]
         return a_new

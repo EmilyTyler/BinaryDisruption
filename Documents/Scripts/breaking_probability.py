@@ -2,11 +2,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from encounters import encounter
+from encounters import impulseEncounter
+from scipy.constants import parsec, giga, year
 
 #Initialise variables
 #Semi-major axis, m
-a = 0.1 * 3.086*10.0**16.0
+a = 0.1 * parsec
 #Eccentricity
 e = 0.7
 #Mass of binary stars
@@ -17,7 +18,7 @@ v_rms = 100.0 * 1000.0
 #Density of dark matter halo solar masses/pc**3
 rho = 0.009
 #Convert to SI
-rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
+rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 
 
 #Total number of encounters per mass
@@ -38,11 +39,11 @@ for j in range(N_M):
         #Number density of perturbers
         n_p = rho/M_bins[j]
         #Minimum impact parameter
-        b_min = (np.pi*n_p*v_rms*(10.0**10.0*365.25*24.0*60.0*60.0))**(-0.5)
+        b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
         b = b_min
         #Implement encounters
         for i in range(N_enc):
-                (notBound, a_new, e_new) = encounter(m1, m2, v, b, a, e, M_bins[j])
+                (notBound, a_new, e_new) = impulseEncounter(m1, m2, v, b, a, e, M_bins[j])
                 if notBound:
                         F_enc[j] += 1
 

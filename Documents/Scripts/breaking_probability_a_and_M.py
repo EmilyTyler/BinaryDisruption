@@ -3,7 +3,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from encounters import encounter
+from encounters import impulseEncounter
 from scipy.constants import parsec, au, giga, year
 
 #Initialise variables
@@ -53,7 +53,7 @@ b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
 for k in range(N_a):
         for j in range(N_M):      
                 for i in range(N_enc):
-                        (notBound, a_new, e_new) = encounter(m1, m2, v_rms, b_min[j], a_bins[k], e, M_bins[j])
+                        (notBound, a_new, e_new) = impulseEncounter(m1, m2, v_rms, b_min[j], a_bins[k], e, M_bins[j])
                         if notBound:
                                 F_enc[j,k] += 1
 
