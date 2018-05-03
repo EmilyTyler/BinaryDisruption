@@ -36,6 +36,7 @@ def setupRandomBinary(double a, double e, double m1, double m2):
         #Initial velocity of second star
         v2 = np.array([- n*a/(np.sqrt(1.0-e**2.0)) * np.sin(f), n*a/(np.sqrt(1.0-e**2.0)) * (e + np.cos(f)), 0.0])
         
+        '''
         #Centre of mass position vector
         R = (m1*x1 + m2*x2)/(m1 + m2)
         #Centre of mass velocity vector
@@ -45,5 +46,6 @@ def setupRandomBinary(double a, double e, double m1, double m2):
         x2 -= R
         v1 -= V
         v2 -= V
+        '''
         
         return np.array([x1, x2, v1, v2])

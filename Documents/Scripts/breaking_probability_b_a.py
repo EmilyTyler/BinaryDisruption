@@ -21,7 +21,7 @@ rho = 0.009
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 #Perturber mass
-M_p = 10.0*2.0*10.0**30.0
+M_p = 1000.0*2.0*10.0**30.0
 #Number density of perturbers
 n_p = rho/M_p
 
@@ -64,8 +64,12 @@ for k in range(N_a):
 F_enc /= N_enc
 
 #Contour plot
-plt.title(r'Fraction of binaries broken due to a single encounter with $M_p=10M_\odot$')
+plt.title(r'Fraction of binaries broken due to a single encounter with $M_p=1000M_\odot$')
 plt.contourf(b_bins/parsec, a_bins/parsec, np.transpose(F_enc), levels=np.linspace(0.0, 1.0, 11))
+plt.plot(1.5*(G*M_p**2.0*a_bins**3.0/((m1+m2)*v_rms**2.0))**0.25/parsec, a_bins/parsec, color='orange', label=r'$b=b_1$, tidal limit')
+plt.plot(2.0*(G*M_p**2.0*a_bins/((m1+m2)*v_rms**2.0))**0.5/parsec, a_bins/parsec, color='cyan', label=r'$b=b_1$, single kick limit')
+plt.plot(a_bins/parsec, a_bins/parsec, color='magenta', label=r'$b=a$')
+plt.legend(loc='lower right')
 plt.xlabel('Impact parameter, pc')
 plt.ylabel('Semi-major axis, pc')
 plt.xscale('log')
