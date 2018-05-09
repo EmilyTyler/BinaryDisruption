@@ -1,6 +1,8 @@
 #Plot the fraction of binaries that break over a two dimensional parameter space of a and M_p
 
 import numpy as np
+import os
+os.system("python setup.py build_ext --inplace")
 import matplotlib.pyplot as plt
 
 from encounters import impulseEncounter

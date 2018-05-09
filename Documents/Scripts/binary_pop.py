@@ -6,7 +6,7 @@ os.system("python setup.py build_ext --inplace")
 
 from monte_carlo import MCEncounters
 import matplotlib.pyplot as plt
-from scipy.constants import au, year, mega, giga
+from scipy.constants import au, year, mega, giga, parsec
 from frequency import calcFrequency
 
 #Mass of binary stars
@@ -19,7 +19,7 @@ v_rms = 220.0 * 1000.0
 #Density of dark matter halo solar masses/pc**3
 rho = 0.009
 #Convert to SI
-rho = rho * 2.0*10.0**30.0/((3.086*10.0**16.0)**3.0)
+rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 #Number density of perturbers
 n_p = rho/M_p
 #Time to run simulation for
@@ -34,7 +34,7 @@ print('Initial number of binaries =', N_bin)
 print('Generating initial population')
 #Semi-major axis array
 #Draw a from distribution dN/dloga\propto a^{1-alpha}
-alpha = 2.0
+alpha = 1.0
 a_min = 10.0**3.0*au
 a_max = 10.0**6.0*au
 if alpha == 2.0:
@@ -64,6 +64,15 @@ print('Evolving population')
 a_fin, e_fin, N_broken = MCEncounters(v_rms, n_p, T, m1, m2, M_p, a_ini, e_ini, N_bin)
 a_fin = a_fin[np.where(a_fin!=-1.0)]
 e_fin = e_fin[np.where(e_fin!=-1.0)]
+
+#Save data
+print('Saving data')
+np.savez('binary_pop.npz', a_fin=a_fin, e_fin=e_fin, N_broken=N_broken)
+
+#Load data
+#print('Loading data')
+#data = np.load('binary_pop.npz')
+#a_fin, e_fin, N_broken = data['a_fin'], data['e_fin'], data['N_broken']
 
 print('Number of binaries broken =', N_broken)
 

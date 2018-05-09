@@ -1,5 +1,7 @@
 #Plot probability of binary breaking against perturber mass
 import numpy as np
+import os
+os.system("python setup.py build_ext --inplace")
 import matplotlib.pyplot as plt
 
 from encounters import impulseEncounter
