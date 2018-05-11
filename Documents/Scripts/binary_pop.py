@@ -6,7 +6,7 @@ os.system("python setup.py build_ext --inplace")
 
 from monte_carlo import MCEncounters
 import matplotlib.pyplot as plt
-from scipy.constants import au, year, mega, giga, parsec
+from scipy.constants import au, year, mega, giga, parsec, kilo
 from frequency import calcFrequency
 
 #Mass of binary stars
@@ -23,11 +23,11 @@ rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 #Number density of perturbers
 n_p = rho/M_p
 #Time to run simulation for
-T = 10.0 * giga * year
+T = 1.0 * giga * year
 
 #Number of binary pairs
 #TAKES 25-40 minutes TO RUN 1000 for T=10Gyr
-N_bin = 10**2
+N_bin = 10**3
 
 print('Initial number of binaries =', N_bin)
 
@@ -104,6 +104,7 @@ plt.xlabel('Eccentricity')
 plt.ylabel('Probability density')
 plt.show()
 
+'''
 #Plot absolute numbers rather than densities
 #Set up bins
 a_min = np.min([np.min(a_ini), np.min(a_fin)])
@@ -154,7 +155,7 @@ plt.legend()
 plt.xlabel('Eccentricity')
 plt.ylabel('Number of binaries')
 plt.show()
-
+'''
 print('Finished')
 
 
