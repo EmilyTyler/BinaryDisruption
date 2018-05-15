@@ -6,7 +6,7 @@ os.system("python setup.py build_ext --inplace")
 import matplotlib.pyplot as plt
 
 from scipy.constants import parsec, au, giga, year, G
-from scipy.special import iv, jv
+from scipy.special import jv
 from scipy.integrate import quad
 
 #Total mass of binaries

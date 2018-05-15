@@ -13,7 +13,7 @@ from scipy.special import erf
 m1 = 2.0*10.0**30.0
 m2 = 2.0*10.0**30.0
 #Mass of perturbers
-M_p = 1000.0 * 2.0*10.0**30.0
+M_p = 10000.0 * 2.0*10.0**30.0
 #Relative velocity dispersion
 v_rel = 2.2*10.0**5.0
 #Density of dark matter halo solar masses/pc**3
@@ -59,11 +59,12 @@ P[0] = 1.0
 P[1:] = erf((x_0/tau[1:])**0.5) - 4.0/(3.0*np.pi**0.5)*(3.0/2.0*(x_0/tau[1:])**0.5 + (x_0/tau[1:])**1.5)*np.exp(-x_0/tau[1:])
 
 #Plot
-plt.plot(t/(giga*year), 1.0 - N_broken, label='Simulation')
 plt.plot(t/(giga*year), P, label='Weinberg B19')
+plt.plot(t/(giga*year), 1.0 - N_broken, label='Simulation')
 plt.legend()
 plt.xlabel('Time, Gyr')
 plt.ylabel('Survival probability')
+plt.title(r'Predicted survival probability or fraction out of {} binaries that survived as a function of time with $M_p=${}$M_\odot$, $a_\mathrm{{initial}}=${}au'.format(N_bin, int(M_p/(2.0*10.0**30.0)), int(a_0/au)), wrap=True)
 plt.show()
 
 
