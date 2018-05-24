@@ -4,7 +4,7 @@ import numpy as np
 import os
 os.system("python setup.py build_ext --inplace")
 
-from monte_carlo import MCEncounters
+from monte_carlo import MCEncounters, JTEncounters
 import matplotlib.pyplot as plt
 from scipy.constants import au, year, mega, giga, parsec, kilo
 from frequency import calcFrequency
@@ -13,7 +13,7 @@ from frequency import calcFrequency
 m1 = 2.0*10.0**30.0
 m2 = 2.0*10.0**30.0
 #Mass of perturbers
-M_p = 1.0 * 2.0*10.0**30.0
+M_p = 10.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 220.0 * 1000.0
 #Density of dark matter halo solar masses/pc**3
@@ -23,11 +23,11 @@ rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 #Number density of perturbers
 n_p = rho/M_p
 #Time to run simulation for
-T = 1.0 * giga * year
+T = 10.0 * giga * year
 
 #Number of binary pairs
 #TAKES 25-40 minutes TO RUN 1000 for T=10Gyr
-N_bin = 10**3
+N_bin = 10**5
 
 print('Initial number of binaries =', N_bin)
 
@@ -61,7 +61,7 @@ e_ini = (np.random.random(N_bin))**(1.0/3.0)
 
 #Evolve distribution in time
 print('Evolving population')
-a_fin, e_fin, N_broken = MCEncounters(v_rms, n_p, T, m1, m2, M_p, a_ini, e_ini, N_bin)
+a_fin, e_fin, N_broken = JTEncounters(v_rms, n_p, T, m1, m2, M_p, a_ini, e_ini, N_bin)
 a_fin = a_fin[np.where(a_fin!=-1.0)]
 e_fin = e_fin[np.where(e_fin!=-1.0)]
 
@@ -89,7 +89,7 @@ da_fin = a_bins_fin *(np.exp(a_fin_binwidth)-1.0)
 e_bins_ini, N_e_ini, e_ini_binwidth = calcFrequency(e_ini, N_bins)
 e_bins_fin, N_e_fin, e_fin_binwidth = calcFrequency(e_fin, N_bins)
 #Semi-major axis
-plt.loglog(a_bins_ini/au, N_a_ini/(N_bin-N_broken)/(da_ini/au))
+plt.loglog(a_bins_ini/au, N_a_ini/N_bin/(da_ini/au))
 plt.loglog(a_bins_fin/au, N_a_fin/(N_bin-N_broken)/(da_fin/au))
 #plt.xlim(10.0**3.0, 3.0*10.0**5.0)
 #plt.ylim(5.0*10.0**(-1.0), 3.0*10.0**3.0)
@@ -97,7 +97,7 @@ plt.xlabel('Semi-major axis, au')
 plt.ylabel(r'Probability density, au$^{-1}$')
 plt.show()
 #Eccentricity
-plt.plot(e_bins_ini, N_e_ini/(N_bin-N_broken)/e_ini_binwidth)
+plt.plot(e_bins_ini, N_e_ini/N_bin/e_ini_binwidth)
 plt.plot(e_bins_fin, N_e_fin/(N_bin-N_broken)/e_fin_binwidth)
 plt.xlim(0.0, 1.0)
 plt.xlabel('Eccentricity')

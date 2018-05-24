@@ -42,7 +42,7 @@ epsilon = 4.0*(2.0*np.pi)**0.5*n_p*G**2.0*M_p**2.0/v_rel * coul_log
 #E_0 = abs(E(a_max))
 E_0 = G*M_b/(2.0*a_max)
 #Dimensionless time steps
-N_tau = 10001
+N_tau = 1001
 tau_min = 0.0
 tau_max = 2.0*epsilon*t_end/(3.0*E_0)
 d_tau = (tau_max - tau_min)/(N_tau - 1)
@@ -132,7 +132,7 @@ for i in range(N_M):
 plt.xlabel('Semi-major axis, au')
 plt.ylabel(r'Number of binaries, au$^{-1}$')
 plt.title('Semi-major axis distribution after {}Gyr found by numerically solving the Fokker-Planck equation (Weinberg et al B11)'.format(int(t_end/(giga*year))), wrap=True)
-plt.axis([1000.0, 300000.0, 0.1, 600.0])
+plt.axis([1000.0, 300000.0, 1.0, 6000.0])
 plt.legend()
 plt.show()
 
