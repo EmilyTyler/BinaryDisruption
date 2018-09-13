@@ -3,7 +3,6 @@ import numpy as np
 def calcFrequency(x, N_bins, normalise=False, log=False, offset=0):
         x_min = np.min(x)
         x_max = np.max([np.max(x), x_min+1.0])
-        
         #x bins
         if log:
                 dlogx = (np.log(x_max)-np.log(x_min))/(N_bins - offset)
@@ -32,7 +31,7 @@ def calcFrequency(x, N_bins, normalise=False, log=False, offset=0):
         
         #Normalise
         if normalise:
-                N /= np.size(x)
+                N = N/np.size(x)
                 
         return(x_bins, N, dx)
         

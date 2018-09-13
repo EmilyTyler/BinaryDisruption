@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 
 from evolve_binary import integrateBinary
 from orbital_elements import semimajorAxis
-from random_binary import setupRandomBinary
+from random_binary import setupRandomBinary, setupRandomBinaryBHT
 from orbital_elements import orbitalElements
 from random_direction import randomDirection
 import random
@@ -20,9 +20,9 @@ def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, dou
 
 #To find b_max
 def calc_b_max(double M_p, double v_rel, double a, double m1, double m2, double delta = 10.0**(-3.0), double prefactor = 1.0):
-        cdef double b_max_old = (2.0*G*M_p/(v_rel*delta)*(a/(G*(m1+m2)))**0.5)
-        cdef double b_max_new = prefactor * 0.1*parsec * (delta/(10.0**(-3.0)))**(-0.5) * (M_p/(2.0*10.0**30.0))**0.5 * ((m1+m2)/(4.0*10.0**30.0))**(-0.25) * (a/(10.0**4.0*au))**0.75 * (v_rel/(2.2*10.0**5.0))**(-0.5)
-        return b_max_new
+        #cdef double b_max_old = (2.0*G*M_p/(v_rel*delta)*(a/(G*(m1+m2)))**0.5)
+        cdef double b_max = prefactor * 0.1*parsec * (delta/(10.0**(-3.0)))**(-0.5) * (M_p/(2.0*10.0**30.0))**0.5 * ((m1+m2)/(4.0*10.0**30.0))**(-0.25) * (a/(10.0**4.0*au))**0.75 * (v_rel/(2.2*10.0**5.0))**(-0.5)
+        return b_max
 
 #Evolve binary without encounters
 def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, double m2):
@@ -321,6 +321,39 @@ def integrateEncounter(double m1, double m2, double v, double b, double a, doubl
 def impulseValid():
         return True
 
+#Implements an encounter like BHT
+def BHTEncounter(double m1, double m2, double v, double b, double a, double e, double M_p):
+        #Open binary
+        cdef np.ndarray X = setupRandomBinary(a, e, m1, m2)
+        #print('X = ', X)    
+        #Find impact parameter vector and velocity vector
+        cdef np.ndarray b_vec
+        cdef np.ndarray v_vec
+        b_vec, v_vec = impactAndVelocityVectors(b, v)
+        #print('b_vec =', b_vec)
+        #print('v_vec = ', v_vec)
+        #Implement encounter for both stars  
+        cdef int i
+        cdef np.ndarray b_star, v_perp
+        cdef double b_star_norm
+        for i in range(2):
+                #print('i = ', i)
+                #Calculate impact parameter for this star
+                b_star = dot_3d(X[i],v_vec)/v**2.0 * v_vec + b_vec - X[i]
+                #print('b_star = ', b_star)
+                b_star_norm = np.sqrt(b_star[0]**2.0 + b_star[1]**2.0 + b_star[2]**2.0)
+                #print('b_star_norm = ', b_star_norm)
+                #Calculate velocity change in b direction
+                if b > a:
+                        v_perp = G*M_p*a/(b_star_norm**2.0*v) * (b_star/b_star_norm)
+                else:
+                        v_perp = G*M_p/(b_star_norm*v) * (b_star/b_star_norm)
+                #print('v_perp = ', v_perp)
+                #Change velocity
+                X[i+2] += v_perp
+        #print('X_new = ', X)
+        #Close binary
+        return orbitalElements(X, m1, m2)
 
         
         

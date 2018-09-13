@@ -31,13 +31,13 @@ coul_log = 1.0
 #End time of simulation
 t_end = 10.0 * giga * year
 #Number of binaries
-N_bin = 10**9
+N_bin = 10**6
 
 
 
 #First order diffusion coefficient
 #e_1/P in Weinberg et al
-epsilon = 4.0*(2.0*np.pi)**0.5*n_p*G**2.0*M_p**2.0/v_rel * coul_log
+epsilon = 8.0*(2.0*np.pi)**0.5*n_p*G**2.0*M_p**2.0/v_rel * coul_log
 #Minimum energy
 #E_0 = abs(E(a_max))
 E_0 = G*M_b/(2.0*a_max)
@@ -61,10 +61,6 @@ print('Generating initial distribution')
 
 if alpha == 2.0:
         c = np.log(a_min)/np.log(a_max/a_min)
-        #a_ini = (a_max/a_min)**(np.random.random(N_bin) + c)
-#else:
-        #a_ini = (np.random.random(N_bin)*(a_max**(2.0-alpha) - a_min**(2.0-alpha)) + a_min**(2.0-alpha))**(1.0/(2.0-alpha))
-#x_ini = G*M_b/(2.0*a_ini*E_0)
 
 #Matrix of N values
 N = np.zeros((N_M, N_tau, N_x), dtype=float)
@@ -106,8 +102,6 @@ for l in range(N_M):
                         k[j] = N[l,i-1,j]/d_tau[l] + 7.0/(8.0*dx)*(N[l,i-1,j+1] - N[l,i-1,j-1]) + x_bins[j]/(2.0*dx**2.0)*(N[l,i-1,j+1] - 2.0*N[l,i-1,j] + N[l,i-1,j-1])
                 N[l,i] = np.dot(M_inv[l],k)
 #
-print('Plotting')
-#Plot N
 #Timesteps in giga years
 t_bins = np.array([3.0*E_0*tau_bins[i]/(2.0*epsilon[i]) /(giga*year) for i in range(N_M)])
 #Semi-major axis in au
@@ -116,7 +110,13 @@ da = np.zeros(N_x)
 for i in range(N_x-1):
         da[i] = a_bins[i-1] - a_bins[i]
 da[N_x-1] = a_max - a_bins[N_x-1]
-#
+
+print('Saving data')
+np.savez('numerical.npz', N=N, a_bins=a_bins*au, da=da*au)
+
+print('Plotting')
+#Plot N
+
 '''
 for i in range(0,N_tau,N_tau//5):
         plt.loglog(a_bins, N[i]/da, label='t={}Gyr'.format(t_bins[i]))

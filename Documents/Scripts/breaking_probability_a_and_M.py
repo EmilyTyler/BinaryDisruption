@@ -4,6 +4,7 @@ import numpy as np
 import os
 os.system("python setup.py build_ext --inplace")
 import matplotlib.pyplot as plt
+plt.rc('font', family='serif')
 
 from encounters import impulseEncounter
 from scipy.constants import parsec, au, giga, year
@@ -12,8 +13,8 @@ from scipy.constants import parsec, au, giga, year
 #Eccentricity
 e = 0.7
 #Mass of binary stars
-m1 = 1.0*10.0**30.0
-m2 = 1.0*10.0**30.0
+m1 = 2.0*10.0**30.0
+m2 = 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 220.0 * 1000.0
 #Density of dark matter halo solar masses/pc**3
@@ -28,7 +29,7 @@ N_enc = 1000
 #Perturber mass
 #Minimum mass
 M_min = 2.0*10.0**30.0
-M_max = 100000000.0 * 2.0*10.0**30.0
+M_max = 10.0**8.0 * 2.0*10.0**30.0
 #Number of masses to test
 N_M = 100
 #Set up logarithmic mass bins
@@ -37,8 +38,8 @@ M_bins = np.array([M_min*np.exp(dlogM*i) for i in range(N_M)])
 
 #Semi-major axis
 #Minimum a
-a_min = 1000.0 * au
-a_max = 100000000.0 * au
+a_min = 10.0**3.0 * au
+a_max = 10.0**8.0 * au
 #Number of a's to test
 N_a = 100
 #Set up logarithmic a bins
@@ -63,7 +64,7 @@ for k in range(N_a):
 F_enc /= N_enc
 
 #Contour plot
-plt.title(r'Fraction of binaries broken due to a single encounter at $b=b_\mathrm{min}$')
+#plt.title(r'Fraction of binaries broken due to a single encounter at $b=b_\mathrm{min}$')
 plt.contourf(M_bins/(2.0*10.0**30.0), a_bins/au, np.transpose(F_enc), levels=np.linspace(0.0, 1.0, 11))
 plt.xlabel('Perturber mass, solar masses')
 plt.ylabel('Semi-major axis, au')

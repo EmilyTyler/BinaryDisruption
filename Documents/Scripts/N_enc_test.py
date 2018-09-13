@@ -5,7 +5,7 @@ import os
 os.system("python setup.py build_ext --inplace")
 
 import matplotlib.pyplot as plt
-from scipy.constants import giga, year, parsec
+from scipy.constants import giga, year, parsec, mega
 from scipy.stats import maxwell
 from monte_carlo import draw_b, maxwellianPdf
 from encounters import calc_b_max, encounterRate
@@ -103,15 +103,28 @@ for k in range(N_N_enc):
         #Total number of encounters
         N_enc_B[k] = np.sum(N)
         
+
+#Filter method
+b_max_filter = 10.0*b_max
+F_mean = T*encounterRate(n_p, v_rms, b_min, b_max_filter, v_min, v_max)
+N_enc_F = np.zeros(N_N_enc)
+for i in range(N_N_enc):
+        n = np.random.poisson(F_mean)
+        b_F = draw_b(b_max_filter, n)
+        b_F = b_F[np.where(b_F<=b_max)]
+        N_enc_F[i] = np.size(b_F)
+                
+               
 #Bin N_enc values
 #print('N_enc_B =', N_enc_B)
 N_enc_bins_MC, N_N_enc_MC, dN_enc_MC = calcFrequency(N_enc_MC, 100)
 N_enc_bins_B, N_N_enc_B, dN_enc_B = calcFrequency(N_enc_B, 100)
-
+N_enc_bins_F, N_N_enc_F, dN_enc_F = calcFrequency(N_enc_F, 100)
 
 #Plot N_enc distribution
 plt.plot(N_enc_bins_MC, N_N_enc_MC/N_N_enc/dN_enc_MC, label='Monte Carlo')
 plt.plot(N_enc_bins_B, N_N_enc_B/N_N_enc/dN_enc_B, label='Binning')
+plt.plot(N_enc_bins_F, N_N_enc_F/N_N_enc/dN_enc_F, label='Filter')
 plt.plot([MC_mean]*np.size(N_N_enc_MC), N_N_enc_MC/N_N_enc/dN_enc_MC, label='MC mean')
 plt.plot([B_mean]*np.size(N_N_enc_B), N_N_enc_B/N_N_enc/dN_enc_B, label='Binning mean')
 plt.xlabel('Number of encounters')

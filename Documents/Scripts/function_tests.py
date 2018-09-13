@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from orbital_elements import semimajorAxis, orbitalElements
-from random_binary import setupRandomBinary
+from random_binary import setupRandomBinary, setupRandomBinaryBHT
 from evolve_binary import integrateBinary
 from scipy.constants import au, parsec
 
@@ -20,7 +20,7 @@ def orbitalElementsTest():
         m1 = 2.0*10.0**30.0
         m2 = 2.0*10.0**30.0
 
-        X = setupRandomBinary(a, e, m1, m2)
+        X = setupRandomBinaryBHT(a, e, m1, m2)
         
         (notBound, a_found, e_found) = orbitalElements(X, m1, m2)
         
@@ -28,7 +28,7 @@ def orbitalElementsTest():
         print('Error in e = ', (e_found-e))
 
         
-#orbitalElementsTest()     
+orbitalElementsTest()     
 
 #Test integrateBinary
 def integrateBinaryTest():
@@ -56,4 +56,4 @@ def integrateBinaryTest():
         plt.plot(t, (E-E[0])/E[0])
         plt.show()
         
-integrateBinaryTest()
+#integrateBinaryTest()

@@ -12,8 +12,8 @@ from scipy.constants import parsec, au, giga, year, G
 #Eccentricity
 e = 0.7
 #Mass of binary stars
-m1 = 1.0*10.0**30.0
-m2 = 1.0*10.0**30.0
+m1 = 2.0*10.0**30.0
+m2 = 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 220.0 * 1000.0
 #Density of dark matter halo solar masses/pc**3
