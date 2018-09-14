@@ -30,12 +30,12 @@ e_0 = 0.7
 #Tidal radius
 a_T = parsec
 #Number of binaries per simulation
-N_bin = 100
+N_bin = 1000
 print('N_bin =', N_bin)
 #Number of simulations
 N_sim = 1
 #Starting index in file names
-i_start = 4
+i_start = 0
 
 #Time steps
 #Minimum impact parameter
