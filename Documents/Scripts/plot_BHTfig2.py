@@ -11,49 +11,45 @@ for i in range(0,100):
         plt.plot(t_sim_25/(giga*year), 1-N_broken_sim_25, color='darkgrey')
       
 '''
+
 #Encounters with dv given by equations in BHT
 #Simulations of 25 binaries
-for i in range(0,26):
+for i in range(0,100):
         N_broken_sim_25 = np.load('BHTfig2_25bin_mysim_BHTenc_{}.npz'.format(i))['N_broken']
         t_sim_25 = np.load('BHTfig2_25bin_mysim_BHTenc_{}.npz'.format(i))['t']
         plt.plot(t_sim_25/(giga*year), 1-N_broken_sim_25, color='darkgrey')
-        
+      
         
 #My simulation data
 N_broken_sim = np.load('BHTfig2_1000bin_mysim_0.npz')['N_broken']
 t_sim = np.load('BHTfig2_1000bin_mysim_0.npz')['t']
 plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='My sim, 1000 binaries', color='red')
 
-'''
+
 #Encounters with dv given by equations in BHT   
 #My simulation data
-N_broken_sim = np.load('BHTfig2_1000bin_mysim_BHTenc_0.npz')['N_broken']
-t_sim = np.load('BHTfig2_1000bin_mysim_BHTenc_0.npz')['t']
+N_broken_sim = np.load('BHTfig2_1000bin_mysim_BHTenc_1.npz')['N_broken']
+t_sim = np.load('BHTfig2_1000bin_mysim_BHTenc_1.npz')['t']
 plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='BHT encounters, 1000 binaries', color='darkorange')
 
-#My simulation data from my laptop
-N_broken_sim = np.load('BHTfig2_100bin_mysim_BHTenc_0.npz')['N_broken']
-t_sim = np.load('BHTfig2_100bin_mysim_BHTenc_0.npz')['t']
-plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='BHT encounters from my laptop, 100 binaries', color='violet')
 '''
 #Different separations
-
 #Average separation
-N_broken_sim = np.load('BHTfig2_100bin_mysim_BHTenc_4.npz')['N_broken']
-t_sim = np.load('BHTfig2_100bin_mysim_BHTenc_4.npz')['t']
-plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='Avg. sep.', color='darkorange')
-'''
+N_broken_sim = np.load('BHTfig2_100bin_mysim_avgsep_0.npz')['N_broken']
+t_sim = np.load('BHTfig2_100bin_mysim_avgsep_0.npz')['t']
+plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='Avg. sep., 100 binaries', color='darkorange')
+
 #Maximum separation
 N_broken_sim = np.load('BHTfig2_100bin_mysim_maxsep_0.npz')['N_broken']
 t_sim = np.load('BHTfig2_100bin_mysim_maxsep_0.npz')['t']
-plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='Max. sep.', color='darkorange')
+plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='Max. sep., 100 binaries', color='brown')
 
 #Minimum separation
 N_broken_sim = np.load('BHTfig2_100bin_mysim_minsep_0.npz')['N_broken']
 t_sim = np.load('BHTfig2_100bin_mysim_minsep_0.npz')['t']
-plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='Min. sep.', color='violet')
-
+plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='Min. sep., 100 binaries', color='violet')
 '''
+
 #Plot BHT data
 BHTsim = np.array([[]])
 with open('BHTfig2simdata.csv') as csvfile:

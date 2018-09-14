@@ -30,10 +30,10 @@ e_0 = 0.7
 #Tidal radius
 a_T = parsec
 #Number of binaries per simulation
-N_bin = 1000
+N_bin = 25
 print('N_bin =', N_bin)
 #Number of simulations
-N_sim = 1
+N_sim = 100
 #Starting index in file names
 i_start = 0
 
@@ -95,7 +95,7 @@ for k in range(N_sim):
         N_broken /= N_bin
         #Save data
         print('Saving')
-        np.savez('BHTfig2_{}bin_mysim_BHTenc_{}.npz'.format(N_bin, i_start+k), N_broken=N_broken, t=t)
+        np.savez('BHTfig2_{}bin_mysim_minsep_{}.npz'.format(N_bin, i_start+k), N_broken=N_broken, t=t)
 
 
 

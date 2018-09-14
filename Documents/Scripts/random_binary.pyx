@@ -79,13 +79,11 @@ def setupRandomBinaryBHT(double a, double e, double m1, double m2):
         #Initial separation
         #r = a*(1.0 - e**2.0)/(1.0 + e*np.cos(f))
         #Time averaged separation
-        r = a * (1.0 + 0.5*e**2.0)
+        #r = a * (1.0 + 0.5*e**2.0)
         #Maximum separation
         #r = a * (1.0 + e)
         #Minimum separation
-        #r = a * (1.0 - e)  
-        #Position averaged separation?
-        #r = 0.5 * a   
+        r = a * (1.0 - e)   
 
         #Mean motion
         n = np.sqrt(G*(m1+m2)/(a**3.0))
@@ -96,8 +94,8 @@ def setupRandomBinaryBHT(double a, double e, double m1, double m2):
         #Initial coordinates of second star (cartesian)
         x2 = np.array([r*np.cos(f), r*np.sin(f), 0.0])
         #Initial velocity of second star
-        #v2 = np.array([- n*a/(np.sqrt(1.0-e**2.0)) * np.sin(f), n*a/(np.sqrt(1.0-e**2.0)) * (e + np.cos(f)), 0.0])
-        v2 = np.array([0.0, 0.0, 0.0])
+        v2 = np.array([- n*a/(np.sqrt(1.0-e**2.0)) * np.sin(f), n*a/(np.sqrt(1.0-e**2.0)) * (e + np.cos(f)), 0.0])
+        #v2 = np.array([0.0, 0.0, 0.0])
 
         #Centre of mass position vector
         R = (m1*x1 + m2*x2)/(m1 + m2)

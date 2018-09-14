@@ -35,16 +35,16 @@ n_p = rho/M_p
 a_min = 10.0**3.0 * au
 a_max = 10.0**5.0 * au
 #Number of a's to test
-N_a = 20
+N_a = 10
 #Impact parameters
 b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
 b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
 #Number of b's to test
-N_b = 20
+N_b = 10
 
 #Number of encounters per each pair of values
 #TAKES 0.5 HOURS TO RUN for 10, 10, 100
-N_enc = 1000
+N_enc = 100
 
 
 
@@ -52,7 +52,7 @@ dloga = (np.log(a_max)-np.log(a_min))/N_a
 a_bins = np.array([a_min*np.exp(dloga*i) for i in range(N_a)])
 dlogb = (np.log(b_max)-np.log(b_min))/N_b
 b_bins = np.array([b_min*np.exp(dlogb*i) for i in range(N_b)])
-#a_frac_avg, E_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
+a_frac_avg, E_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
 
 #Contour plot
 '''
@@ -81,7 +81,7 @@ plt.yscale('log')
 plt.show()
 
 '''
-'''
+
 #Log absolute value
 plt.title('Absolute average fractional error in semi-major axis due to impulse approximation')
 ax = plt.gca()
@@ -123,7 +123,7 @@ plt.xlabel('Semi-major axis, au')
 plt.xscale('log')
 plt.yscale('log')
 plt.show()
-'''
+
 '''
 plt.title('Sign of average fractional error in semi-major axis due to impulse approximation')
 plt.contourf(a_bins/au, b_bins/au, np.transpose(np.sign(a_frac_avg)))
@@ -201,7 +201,7 @@ plt.xscale('log')
 plt.yscale('log')
 plt.show()
 '''
-
+'''
 #Crossing time over period
 t_crossing_P = np.zeros((N_a, N_b))
 b_star = np.zeros(2)
@@ -250,7 +250,7 @@ plt.xscale('log')
 plt.yscale('log')
 plt.show()   
         
-  
+'''
         
         
         
