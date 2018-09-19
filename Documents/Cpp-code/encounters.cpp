@@ -34,4 +34,5 @@ using namespace std;
  	{
  		b_vec[i] *= b/b_vec_norm;
  	}
+  return make_tuple(b_vec, v_vec);
  }
