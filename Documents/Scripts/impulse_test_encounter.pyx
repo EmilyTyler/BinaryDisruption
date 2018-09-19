@@ -52,7 +52,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         cdef double e_diff = 0.0
         cdef double E_frac = 0.0
 
-        cdef np.ndarray v_vec, X, R, b_vec, V_imp, b_90, b_star, v_perp, v_parr, t, x, M, x_new
+        cdef np.ndarray v_vec, X, b_vec, V_imp, b_90, b_star, v_perp, v_parr, t, x, M, x_new
         cdef double b_vec_norm, b_star_norm, w, t_end, dt
         cdef int i
         #If the encounter is not negligible
@@ -61,8 +61,6 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Open binary
                 X = setupRandomBinary(a, e, m1, m2)
                 #print('X = ', X)
-                #Centre of mass vector
-                R = (m1*X[0] + m2*X[1])/(m1 + m2)
                 #Find impact parameter vector and velocity vector
                 b_vec, v_vec = impactAndVelocityVectors(b, V_0)
                 #Impulse approximation:
@@ -80,8 +78,13 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         v_perp = 2.0*M_p*V_0/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star/b_star_norm)
                         #Calculate velocity change in -v_vec direction
                         v_parr = 2.0*M_p*V_0/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/V_0)
+                        #if b > a:
+                                #v_BHT = G*M_p*a/(b_star_norm**2.0*V_0) * (b_star/b_star_norm)
+                        #else:
+                                #v_BHT = G*M_p/(b_star_norm*V_0) * (b_star/b_star_norm)
                         #New velocity
                         V_imp[i] = X[i+2] + v_perp + v_parr
+                        #V_imp[i] = X[i+2] + v_BHT
                 #print('V_imp = ', V_imp)
                 #Three body encounter:          
                 #Time array

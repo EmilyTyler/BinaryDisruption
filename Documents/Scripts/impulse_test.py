@@ -25,7 +25,7 @@ rho = 0.009
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 #Mass of perturbers
-M_p = 1.0 * 2.0*10.0**30.0
+M_p = 3.0 * 2.0*10.0**30.0
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 220.0 * 1000.0
 #Number density of perturbers
@@ -35,16 +35,16 @@ n_p = rho/M_p
 a_min = 10.0**3.0 * au
 a_max = 10.0**5.0 * au
 #Number of a's to test
-N_a = 10
+N_a = 20
 #Impact parameters
 b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
 b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
 #Number of b's to test
-N_b = 10
+N_b = 20
 
 #Number of encounters per each pair of values
-#TAKES 0.5 HOURS TO RUN for 10, 10, 100
-N_enc = 100
+#TAKES 2000 MINUTES TO RUN for 20, 20, 1000
+N_enc = 1000
 
 
 
