@@ -42,7 +42,7 @@ b_max = calc_b_max(M_p, v_rel, a_max, m1, m2)
 N_b = 20
 
 #Number of encounters per each pair of values
-#TAKES 2000 MINUTES TO RUN for 20, 20, 1000
+#TAKES 70 SECONDS TO RUN for 20, 20, 1000
 N_enc = 1000
 
 #Semi-major axis bins

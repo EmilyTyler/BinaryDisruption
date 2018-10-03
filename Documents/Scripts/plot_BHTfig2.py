@@ -11,14 +11,14 @@ for i in range(0,100):
         plt.plot(t_sim_25/(giga*year), 1-N_broken_sim_25, color='darkgrey')
       
 '''
-
+'''
 #Encounters with dv given by equations in BHT
 #Simulations of 25 binaries
 for i in range(0,100):
         N_broken_sim_25 = np.load('BHTfig2_25bin_mysim_BHTenc_{}.npz'.format(i))['N_broken']
         t_sim_25 = np.load('BHTfig2_25bin_mysim_BHTenc_{}.npz'.format(i))['t']
         plt.plot(t_sim_25/(giga*year), 1-N_broken_sim_25, color='darkgrey')
-      
+ '''     
         
 #My simulation data
 N_broken_sim = np.load('BHTfig2_1000bin_mysim_0.npz')['N_broken']
@@ -28,9 +28,15 @@ plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='My sim, 1000 binaries', color
 
 #Encounters with dv given by equations in BHT   
 #My simulation data
-N_broken_sim = np.load('BHTfig2_1000bin_mysim_BHTenc_1.npz')['N_broken']
-t_sim = np.load('BHTfig2_1000bin_mysim_BHTenc_1.npz')['t']
+N_broken_sim = np.load('BHTfig2_1000bin_mysim_BHTenc_0.npz')['N_broken']
+t_sim = np.load('BHTfig2_1000bin_mysim_BHTenc_0.npz')['t']
 plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='BHT encounters, 1000 binaries', color='darkorange')
+
+#Encounters with dv given by equations in BHT   
+#My simulation data
+N_broken_sim = np.load('BHTfig2_1000bin_2BHT_0.npz')['N_broken']
+t_sim = np.load('BHTfig2_1000bin_2BHT_0.npz')['t']
+plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='2x BHT encounters, 1000 binaries', color='violet')
 
 '''
 #Different separations
