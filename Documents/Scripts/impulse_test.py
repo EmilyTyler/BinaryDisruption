@@ -37,8 +37,10 @@ a_max = 10.0**5.0 * au
 #Number of a's to test
 N_a = 20
 #Impact parameters
-b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
-b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
+#b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
+#b_max = calc_b_max(M_p, v_rms, a_max, m1, m2)
+b_min = a_min
+b_max = a_max
 #Number of b's to test
 N_b = 20
 
@@ -53,6 +55,8 @@ a_bins = np.array([a_min*np.exp(dloga*i) for i in range(N_a)])
 dlogb = (np.log(b_max)-np.log(b_min))/N_b
 b_bins = np.array([b_min*np.exp(dlogb*i) for i in range(N_b)])
 a_frac_avg, E_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
+
+np.savez('impulsecontour_2BHTenc.npz', a_frac_avg=a_frac_avg, E_frac_avg=E_frac_avg, a_bins=a_bins, b_bins=b_bins)
 
 #Contour plot
 '''
@@ -83,7 +87,7 @@ plt.show()
 '''
 
 #Log absolute value
-plt.title('Absolute average fractional error in semi-major axis due to impulse approximation')
+plt.title('Absolute average fractional error in semi-major axis due to impulse approximation (double Bahcall et al. equations)', wrap=True)
 ax = plt.gca()
 cs = ax.contourf(a_bins/au, b_bins/au, np.transpose(np.absolute(a_frac_avg)), locator=ticker.LogLocator())
 plt.colorbar(cs)
@@ -93,7 +97,7 @@ plt.xscale('log')
 plt.yscale('log')
 plt.show()
 
-plt.title('Absolute average fractional error in semi-major axis due to impulse approximation')
+plt.title('Absolute average fractional error in semi-major axis due to impulse approximation (double Bahcall et al. equations)', wrap=True)
 ax = plt.gca()
 cs = ax.pcolormesh(a_bins/au, b_bins/au, np.transpose(np.absolute(a_frac_avg)), norm=colors.LogNorm())
 plt.colorbar(cs)
@@ -104,7 +108,7 @@ plt.yscale('log')
 plt.show()
 
 #Log absolute value
-plt.title('Absolute average fractional error in energy due to impulse approximation')
+plt.title('Absolute average fractional error in energy due to impulse approximation (double Bahcall et al. equations)', wrap=True)
 ax = plt.gca()
 cs = ax.contourf(a_bins/au, b_bins/au, np.transpose(np.absolute(E_frac_avg)), locator=ticker.LogLocator())
 plt.colorbar(cs)
@@ -114,7 +118,7 @@ plt.xscale('log')
 plt.yscale('log')
 plt.show()
 
-plt.title('Absolute average fractional error in energy due to impulse approximation')
+plt.title('Absolute average fractional error in energy due to impulse approximation (double Bahcall et al. equations)', wrap=True)
 ax = plt.gca()
 cs = ax.pcolormesh(a_bins/au, b_bins/au, np.transpose(np.absolute(E_frac_avg)), norm=colors.LogNorm())
 plt.colorbar(cs)

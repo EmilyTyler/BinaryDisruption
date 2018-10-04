@@ -52,7 +52,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         cdef double e_diff = 0.0
         cdef double E_frac = 0.0
 
-        cdef np.ndarray v_vec, X, b_vec, V_imp, b_90, b_star, v_perp, v_parr, t, x, M, x_new
+        cdef np.ndarray v_vec, X, b_vec, V_imp, b_90, b_star, v_perp, v_parr, t, x, M, x_new, v_BHT
         cdef double b_vec_norm, b_star_norm, w, t_end, dt
         cdef int i
         #If the encounter is not negligible
@@ -67,7 +67,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #New star velocities for impulse approximation
                 V_imp = np.zeros((2,3), dtype=float)               
                 #90 degree deflection radius
-                b_90 = G*(M_p+m)/V_0**2.0 
+                #b_90 = G*(M_p+m)/V_0**2.0 
                 for i in range(2):
                         #Calculate impact parameter for this star
                         b_star = (np.dot(X[i],v_vec) - np.dot(b_vec,v_vec))/V_0**2.0 * v_vec + b_vec - X[i]
@@ -75,16 +75,16 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         b_star_norm = np.sqrt(b_star[0]**2.0+b_star[1]**2.0+b_star[2]**2.0)
                         #print('b_star_norm = ', b_star_norm)
                         #Calculate velocity change in b direction
-                        v_perp = 2.0*M_p*V_0/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star/b_star_norm)
+                        #v_perp = 2.0*M_p*V_0/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star/b_star_norm)
                         #Calculate velocity change in -v_vec direction
-                        v_parr = 2.0*M_p*V_0/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/V_0)
-                        #if b > a:
-                                #v_BHT = G*M_p*a/(b_star_norm**2.0*V_0) * (b_star/b_star_norm)
-                        #else:
-                                #v_BHT = G*M_p/(b_star_norm*V_0) * (b_star/b_star_norm)
+                        #v_parr = 2.0*M_p*V_0/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/V_0)
+                        if b > a:
+                                v_BHT = 2.0*G*M_p*a/(b_star_norm**2.0*V_0) * (b_star/b_star_norm)
+                        else:
+                                v_BHT = 2.0*G*M_p/(b_star_norm*V_0) * (b_star/b_star_norm)
                         #New velocity
-                        V_imp[i] = X[i+2] + v_perp + v_parr
-                        #V_imp[i] = X[i+2] + v_BHT
+                        #V_imp[i] = X[i+2] + v_perp + v_parr
+                        V_imp[i] = X[i+2] + v_BHT
                 #print('V_imp = ', V_imp)
                 #Three body encounter:          
                 #Time array
