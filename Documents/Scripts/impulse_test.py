@@ -14,6 +14,7 @@ from encounters import calc_b_max
 from random_direction import randomDirection
 from random_binary import setupRandomBinary
 
+'''
 #Initialise variables
 #Eccentricity
 e = 0.7
@@ -56,7 +57,14 @@ dlogb = (np.log(b_max)-np.log(b_min))/N_b
 b_bins = np.array([b_min*np.exp(dlogb*i) for i in range(N_b)])
 a_frac_avg, E_frac_avg, a_bins, b_bins = encounterGrid(m1, m2, v_rms, e, M_p, a_min, a_max, N_a, b_min, b_max, N_b, N_enc)
 
+#Save
 np.savez('impulsecontour_2BHTenc.npz', a_frac_avg=a_frac_avg, E_frac_avg=E_frac_avg, a_bins=a_bins, b_bins=b_bins)
+'''
+#Load
+a_frac_avg = np.load('impulsecontour_hypenc.npz')['a_frac_avg']
+E_frac_avg = np.load('impulsecontour_hypenc.npz')['E_frac_avg']
+a_bins = np.load('impulsecontour_hypenc.npz')['a_bins']
+b_bins = np.load('impulsecontour_hypenc.npz')['b_bins']
 
 #Contour plot
 '''
@@ -110,7 +118,8 @@ plt.show()
 #Log absolute value
 plt.title('Absolute average fractional error in energy due to impulse approximation (double Bahcall et al. equations)', wrap=True)
 ax = plt.gca()
-cs = ax.contourf(a_bins/au, b_bins/au, np.transpose(np.absolute(E_frac_avg)), locator=ticker.LogLocator())
+norm= colors.LogNorm(vmin=10.0**(-7.0),vmax=10.0**2.0)
+cs = ax.contourf(a_bins/au, b_bins/au, np.transpose(np.absolute(E_frac_avg)), norm=norm)
 plt.colorbar(cs)
 plt.ylabel('Impact parameter, au')
 plt.xlabel('Semi-major axis, au')
@@ -118,9 +127,9 @@ plt.xscale('log')
 plt.yscale('log')
 plt.show()
 
-plt.title('Absolute average fractional error in energy due to impulse approximation (double Bahcall et al. equations)', wrap=True)
+plt.title('Absolute average fractional error in energy due to impulse approximation (hyperbolic equations)', wrap=True)
 ax = plt.gca()
-cs = ax.pcolormesh(a_bins/au, b_bins/au, np.transpose(np.absolute(E_frac_avg)), norm=colors.LogNorm())
+cs = ax.pcolormesh(a_bins/au, b_bins/au, np.transpose(np.absolute(E_frac_avg)), norm=colors.LogNorm(), vmin=10.0**(-6.0), vmax=10.0**1.0)
 plt.colorbar(cs)
 plt.ylabel('Impact parameter, au')
 plt.xlabel('Semi-major axis, au')
