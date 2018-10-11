@@ -17,25 +17,6 @@ from encounters import calc_b_max, impactAndVelocityVectors
 
 from scipy.constants import G, parsec, au, giga, year
 
-#Function to give the value of b for borderline impulse validity
-def bImpulseValid(double a, double n_p, double v_rms, double M_p, double m1, double m2):
-        cdef double m = 1.0
-        cdef double c = 2.0 - 3.0*m
-        cdef double b = parsec * 10.0**(m*np.log10(a/au) + c)
-        cdef double b_min = (np.pi*n_p*v_rms*(10.0*giga*year))**(-0.5)
-        cdef double b_max = calc_b_max(M_p, v_rms, a, m1, m2)
-        cdef double answer = b
-        if b < b_min:
-                answer = b_min
-        elif b > b_max:
-                answer = b_max
-        return answer
-
-def MImpulseValid(a):
-        m = 1.0
-        c = 1.0 - 9.0*m
-        return 2.0*10.0**30.0 * 10.0**(m*np.log10(a/au) + c)
-
 def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, double e, double M_p):
         
         #print('ENCOUNTER!')
@@ -43,26 +24,29 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         #print('V_0 = ', V_0)
         #print('a = ', a)
         #print('e = ', e)
+        
         #Star masses
-        cdef np.ndarray m = np.array([m1, m2])                                                                                                                                                                                                                                             
+        cdef np.ndarray m = np.array([m1, m2]) 
+        
+        #Initialising variables
         notBound_thr = False
         cdef double a_thr = a
         cdef double e_thr = e
         cdef double a_frac = 0.0
         cdef double e_diff = 0.0
         cdef double E_frac = 0.0
-
         cdef np.ndarray v_vec, X, b_vec, V_imp, b_90, b_star, v_perp, v_parr, t, x, M, x_new, v_BHT
         cdef double b_vec_norm, b_star_norm, w, t_end, dt
         cdef int i
-        #If the encounter is not negligible
-        #if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0) and (b < calc_b_max(M_p, V_0, a, m1, m2)):    
+        
+        #If the encounter is not negligible   
         if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0):
                 #Open binary
                 X = setupRandomBinary(a, e, m1, m2)
                 #print('X = ', X)
                 #Find impact parameter vector and velocity vector
                 b_vec, v_vec = impactAndVelocityVectors(b, V_0)
+                
                 #Impulse approximation:
                 #New star velocities for impulse approximation
                 V_imp = np.zeros((2,3), dtype=float)               
@@ -85,7 +69,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         #New velocity
                         V_imp[i] = X[i+2] + v_perp + v_parr
                         #V_imp[i] = X[i+2] + v_BHT
-                #print('V_imp = ', V_imp)
+                        
                 #Three body encounter:          
                 #Time array
                 t = np.array([0.0])
@@ -96,7 +80,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 t_end = 2.0*w
                 #Initial positions and velocities
                 x = np.array([[X[0], X[1], b_vec - w*v_vec, X[2], X[3], v_vec]])
-                #print('x[0] = ', x)
+                print('x[0] = ', x)
                 #Masses
                 M = np.array([m1, m2, M_p])
                 '''
@@ -133,6 +117,8 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         '''
                         #Increment counter
                         i += 1
+                print(x[i-1])
+                print(t[i-1])
                 '''
                 #Plot energy against time
                 plt.plot(t, E)
@@ -177,12 +163,12 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 X[2:] = V_imp 
                 
                 
-                #Semi-major axis and eccentricity differences
+                #New Semi-major axis and eccentricities
                 (notBound_imp, a_imp, e_imp) = orbitalElements(X, m1, m2)
                 (notBound_thr, a_thr, e_thr) = orbitalElements(np.array([x[i-1,0], x[i-1,1], x[i-1,3], x[i-1,4]]), m1, m2)
-                #print('x[i-1] = ', x[i-1])
                 #print('a_imp = ', a_imp)
-                #print('a_thr = ', a_thr)
+                print('a_thr = ', a_thr)
+                
                 #Semimajor axis difference
                 a_diff = a_imp - a_thr
                 a_frac = a_diff/a_thr
@@ -191,6 +177,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #print('a_frac = ', a_frac)
                 #print('e_diff = ', e_diff)
                 
+                #Reduced energies
                 E_imp = -G*(m1+m2)/(2.0*a_imp)
                 E_thr = -G*(m1+m2)/(2.0*a_thr)
                 
@@ -234,28 +221,6 @@ def encounterGrid(double m1, double m2, double v_rms, double e, double M_p, doub
         #Normalise E_frac_avg
         E_frac_avg /= N_enc
         return a_frac_avg, E_frac_avg, a_bins, b_bins
-        
-        
-def encounterGrid_M(double m1, double m2, double v_rms, double rho, double e, double M_p_min, double M_p_max, double a_min, double a_max, int N_M, int N_a, int N_enc):
-        #Set up logarithmic a bins
-        cdef double dloga = (np.log(a_max)-np.log(a_min))/N_a
-        cdef np.ndarray a_bins = np.array([a_min*np.exp(dloga*i) for i in range(N_a)])
-        #Set up logarithmic M_p bins
-        cdef double dlogM = (np.log(M_p_max)-np.log(M_p_min))/N_M
-        cdef np.ndarray M_p_bins = np.array([M_p_min*np.exp(dlogM*i) for i in range(N_M)])
-        #Average fractional difference in a
-        cdef np.ndarray a_frac_avg = np.zeros((N_a, N_M), dtype=float)
-
-        cdef double a_imp, e_imp, a_frac, e_diff
-        for j in range(N_M):
-                n_p = rho/M_p_bins[j]
-                for i in range(N_a):
-                        for k in range(N_enc):
-                                (notBound_imp, a_imp, e_imp, a_frac, e_diff) = impulseTestEncounter(m1, m2, v_rms, bImpulseValid( a_bins[i], n_p, v_rms, M_p_bins[j], m1, m2), a_bins[i], e, M_p_bins[j])
-                                a_frac_avg[i,j] += a_frac
-        #Normalise a_frac_avg
-        a_frac_avg /= N_enc
-        return a_frac_avg, a_bins, M_p_bins
         
         
         
