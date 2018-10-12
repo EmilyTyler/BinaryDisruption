@@ -9,7 +9,7 @@ from matplotlib import ticker
 import matplotlib.colors as colors
 from scipy.constants import G, au, parsec, giga, year
 
-from impulse_test_encounter import impulseTestEncounter
+from impulse_test_encounter import impulseTestEncounter, impulseTestEquations
 from encounters import calc_b_max
 from random_direction import randomDirection
 from random_binary import setupRandomBinary
@@ -41,17 +41,17 @@ print('b_min, au=', b_min/au)
 b_max = v_rel * np.sqrt(a**3.0/(G*(m1+m2)))
 print('b_max, au=', b_max/au)
 #Impact parameter
-b = 10.0**6.0 * au
+b = 10.0**5.0 * au
 print('b, au=', b/au)
 
 #Number of encounters
-N_enc = 1
+N_enc = 10
 
 #
 E_frac_avg = 0.0
 
 for i in range(N_enc):
-        notBound, a_thr, e_thr, a_frac, e_diff, E_frac = impulseTestEncounter(m1, m2, v_rel, b, a, e, M_p)
+        notBound, a_thr, e_thr, a_frac, e_diff, E_frac = impulseTestEquations(m1, m2, v_rel, b, a, e, M_p)
         E_frac_avg += E_frac
         
 #Normalise

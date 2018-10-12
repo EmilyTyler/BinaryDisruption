@@ -16,7 +16,7 @@ print('Initialising')
 #Time array
 t = np.array([0.0])
 #Finish time
-t_end = kilo * year
+t_end = 100.0 * year
 #Initial positions and velocities
 #Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune
 #From http://ssd.jpl.nasa.gov/horizons.cgi#top
@@ -51,7 +51,7 @@ print('Integrating orbits')
 #Initialise counter
 i = 1
 while t[i-1] < t_end:
-        (x_new, dt) = integrateBinary(9, x[i-1], m, n=20)
+        (x_new, dt) = integrateBinary(9, x[i-1], m, n=5)
         x = np.append(x, [x_new], axis=0)
         t = np.append(t, t[i-1]+dt)
         #Increment counter
