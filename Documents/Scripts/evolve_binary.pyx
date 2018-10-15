@@ -2,7 +2,9 @@ import math
 import numpy as np
 cimport numpy as np
 import itertools as it
-from scipy.constants import G
+#from scipy.constants import G
+from internal_units import *
+G = G()
 
 from orbital_elements import orbitalElements
 from random_binary import setupRandomBinary

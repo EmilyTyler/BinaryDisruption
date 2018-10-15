@@ -14,16 +14,18 @@ from random_direction import randomDirection
 from random_binary import setupRandomBinary
 from evolve_binary import integrateBinary
 from encounters import calc_b_max, impactAndVelocityVectors
+from internal_units import *
 
-from scipy.constants import G, parsec, au, giga, year
+G = G()
+#from scipy.constants import G, parsec, au, giga, year
 
 def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, double e, double M_p):
         
-        #print('ENCOUNTER!')
-        #print("b = ", b)
-        #print('V_0 = ', V_0)
-        #print('a = ', a)
-        #print('e = ', e)
+        print('ENCOUNTER!')
+        print("b = ", b)
+        print('V_0 = ', V_0)
+        print('a = ', a)
+        print('e = ', e)
         
         #Star masses
         cdef np.ndarray m = np.array([m1, m2]) 
@@ -43,32 +45,41 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0):
                 #Open binary
                 X = setupRandomBinary(a, e, m1, m2)
-                #print('X = ', X)
+                print('X = ', X)
                 #Find impact parameter vector and velocity vector
                 b_vec, v_vec = impactAndVelocityVectors(b, V_0)
-                
+                print('b_vec =', b_vec)
+                print('v_vec =', v_vec)
                 #Impulse approximation:
                 #New star velocities for impulse approximation
                 V_imp = np.zeros((2,3), dtype=float)               
                 #90 degree deflection radius
-                #b_90 = G*(M_p+m)/V_0**2.0 
+                b_90 = G*(M_p+m)/V_0**2.0 
+                print('b_90 =', b_90)
                 for i in range(2):
+                        print('i =', i)
                         #Calculate impact parameter for this star
                         b_star = (np.dot(X[i],v_vec) - np.dot(b_vec,v_vec))/V_0**2.0 * v_vec + b_vec - X[i]
-                        #print('b_star = ', b_star)
+                        print('b_star = ', b_star)
                         b_star_norm = np.sqrt(b_star[0]**2.0+b_star[1]**2.0+b_star[2]**2.0)
-                        #print('b_star_norm = ', b_star_norm)
+                        print('b_star_norm = ', b_star_norm)
                         #Calculate velocity change in b direction
-                        #v_perp = 2.0*M_p*V_0/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star/b_star_norm)
+                        v_perp = 2.0*M_p*V_0/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star/b_star_norm)
+                        print('v_perp =', v_perp)
                         #Calculate velocity change in -v_vec direction
-                        #v_parr = 2.0*M_p*V_0/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/V_0)
+                        v_parr = 2.0*M_p*V_0/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/V_0)
+                        print('v_parr =', v_parr)
                         if b > a:
+                                print('b>a')
                                 v_BHT = 2.0*G*M_p*a/(b_star_norm**2.0*V_0) * (b_star/b_star_norm)
                         else:
+                                print('b<a')
                                 v_BHT = 2.0*G*M_p/(b_star_norm*V_0) * (b_star/b_star_norm)
+                        print('v_BHT =', v_BHT)
                         #New velocity
                         #V_imp[i] = X[i+2] + v_perp + v_parr
                         V_imp[i] = X[i+2] + v_BHT
+                print('V_imp =', V_imp)
                         
                 #Three body encounter:          
                 #Time array
@@ -96,11 +107,13 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 '''
                 #Initialise counter
                 i = 1
+                #print('t_end =', t_end)
                 while t[i-1] < t_end:
                         #print(x[i-1])
                         (x_new, dt) = integrateBinary(3, x[i-1], M, n=1)
                         x = np.append(x, [x_new], axis=0)
                         t = np.append(t, t[i-1]+dt)
+                        #print('dt =', dt)
                         '''
                         #Some checks
                         #Relative separations
@@ -161,12 +174,12 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 
                 #Set new velocity
                 X[2:] = V_imp 
-                
+                print('X =', X)
                 
                 #New Semi-major axis and eccentricities
                 (notBound_imp, a_imp, e_imp) = orbitalElements(X, m1, m2)
                 (notBound_thr, a_thr, e_thr) = orbitalElements(np.array([x[i-1,0], x[i-1,1], x[i-1,3], x[i-1,4]]), m1, m2)
-                #print('a_imp = ', a_imp)
+                print('a_imp = ', a_imp)
                 print('a_thr = ', a_thr)
                 
                 #Semimajor axis difference
@@ -180,10 +193,13 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Reduced energies
                 E_imp = -G*(m1+m2)/(2.0*a_imp)
                 E_thr = -G*(m1+m2)/(2.0*a_thr)
+                print('E_imp =', E_imp)
+                print('E_thr =', E_thr)
                 
                 #E_frac = (E_imp - E_thr)/E_thr               
                 
                 E_ini = -G*(m1+m2)/(2.0*a)
+                print('E_ini =', E_ini)
                 delta_E_imp = E_imp - E_ini
                 delta_E_thr = E_thr - E_ini
                 E_frac = (delta_E_imp - delta_E_thr)/delta_E_thr

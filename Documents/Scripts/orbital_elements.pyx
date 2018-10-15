@@ -3,7 +3,9 @@
 import numpy as np
 cimport numpy as np
 
-from scipy.constants import G
+#from scipy.constants import G
+from internal_units import *
+G = G()
 
 #To find the semi-major axis of a binary star
 def semimajorAxis(np.ndarray[double, ndim=2] X, double m1, double m2):

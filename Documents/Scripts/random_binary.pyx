@@ -4,7 +4,9 @@ cimport numpy as np
 
 from eccentric_anomaly import findEccentricAnomaly
 
-from scipy.constants import G
+#from scipy.constants import G
+from internal_units import *
+G = G()
 
 #Function to initialise randomly oriented binary
 def setupRandomBinary(double a, double e, double m1, double m2):
