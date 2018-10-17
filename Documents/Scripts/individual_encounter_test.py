@@ -39,15 +39,15 @@ rho = rho /mass_scale() * length_scale()**(3.0)
 n_p = rho/M_p
 
 #Semi-major axis
-a = 10.0**4.0 * au / length_scale()
+a = 10.0**5.0 * au / length_scale()
 #Minimum impact parameter
-b_min = (np.pi*n_p*v_rel*(10.0*giga*year/time_scale()))**(-0.5) /length_scale()
+b_min = (np.pi*n_p*v_rel*(10.0*giga*year/time_scale()))**(-0.5)
 print('b_min=', b_min)
 #Maximum impact parameter for impulse approximation
-b_max = v_rel * np.sqrt(a**3.0/(G()*(m1+m2))) /length_scale()
+b_max = v_rel * np.sqrt(a**3.0/(G()*(m1+m2)))
 print('b_max=', b_max)
 #Impact parameter
-b = 10.0**5.0 * au /length_scale()
+b = 10.0**4.0 * au /length_scale()
 print('b =', b)
 
 #Number of encounters
