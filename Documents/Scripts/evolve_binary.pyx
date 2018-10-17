@@ -45,7 +45,7 @@ cpdef calc_alpha(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3]
         cdef np.ndarray alpha = np.zeros((N, N), dtype=float)
         cdef int i, j
         for i in range(N):
-                for j in range(N):
+                for j in it.chain(range(i), range(i+1, N)):
                         alpha[i,j] = np.dot(x[i,j], v[i,j])/np.dot(x[i,j], x[i,j])
         return alpha
 
@@ -53,7 +53,7 @@ cpdef calc_beta(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3] 
         cdef np.ndarray beta = np.zeros((N, N), dtype=float)
         cdef int i, j
         for i in range(N):
-                for j in range(N):
+                for j in it.chain(range(i), range(i+1, N)):
                         beta[i,j] = (np.dot(v[i,j], v[i,j]) + np.dot(x[i,j], a[i,j]))/np.dot(x[i,j], x[i,j]) + alpha[i,j]**2.0
         return beta
 
@@ -61,7 +61,7 @@ def calc_gamma(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3] v
         cdef np.ndarray gamma = np.zeros((N,N), dtype=float)
         cdef int i, k
         for i in range(N):
-                for k in range(N):
+                for k in it.chain(range(i), range(i+1, N)):
                         gamma[i,k] = (3.0*np.dot(v[i,k], a[i,k]) + np.dot(x[i,k], j[i,k]))/np.dot(x[i,k], x[i,k]) + alpha[i,k]*(3.0*beta[i,k] - 4.0*alpha[i,k]**2.0)
         return gamma
         
@@ -71,7 +71,7 @@ def calc_acc(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim=1] m):
         cdef np.ndarray A = np.zeros((N,N,3), dtype=float)
         cdef int i, j
         for i in range(N):
-                for j in range(N):
+                for j in it.chain(range(i), range(i+1, N)):
                         x[i,j] = X[j] - X[i]
                         A[i,j] = m[j]*x[i,j]/(norm(x[i,j]))**3.0
         for i in range(N):
@@ -85,11 +85,11 @@ def calc_jerk(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=2] V,
         cdef np.ndarray J = np.zeros((N,N,3), dtype=float)
         cdef int i, j
         for i in range(N):
-                for j in range(N):
+                for j in it.chain(range(i), range(i+1, N)):
                         v[i,j] = V[j] - V[i]
         cdef np.ndarray alpha = calc_alpha(N, x, v)
         for i in range(N):
-                for j in range(N):
+                for j in it.chain(range(i), range(i+1, N)):
                         J[i,j] = m[j]*v[i,j]/(norm(x[i,j]))**3.0 - 3.0*alpha[i,j]*A[i,j]     
         for i in range(N):
                 for j in it.chain(range(i), range(i+1, N)):
@@ -102,11 +102,11 @@ def calc_snap(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3] v,
         cdef np.ndarray S = np.zeros((N,N,3), dtype=float)
         cdef int i, j
         for i in range(N):
-                for j in range(N):
+                for j in it.chain(range(i), range(i+1, N)):
                         a[i,j] = acc[j] - acc[i]
         cdef np.ndarray beta = calc_beta(N, x, v, a, alpha)
         for i in range(N):
-                for j in range(N):
+                for j in it.chain(range(i), range(i+1, N)):
                         S[i,j] = m[j]*a[i,j]/(norm(x[i,j]))**3.0 - 6.0*alpha[i,j]*J[i,j] - 3.0*beta[i,j]*A[i,j]
         for i in range(N):
                 for j in it.chain(range(i), range(i+1, N)):
@@ -119,11 +119,11 @@ def calc_crackle(int N, np.ndarray[double, ndim=3] x, np.ndarray[double, ndim=3]
         cdef np.ndarray C = np.zeros((N,N,3), dtype=float)
         cdef int i, k
         for i in range(N):
-                for k in range(N):
+                for k in it.chain(range(i), range(i+1, N)):
                         j[i,k] = jerk[k] - jerk[i]
         cdef np.ndarray gamma = calc_gamma(N, x, v, a, j, alpha, beta)
         for i in range(N):
-                for k in range(N):
+                for k in it.chain(range(i), range(i+1, N)):
                         C[i,k] = m[k]*j[i,k]/(norm(x[i,k]))**3.0 - 9.0*alpha[i,k]*S[i,k] - 9.0*beta[i,k]*J[i,k] - 3.0*gamma[i,k]*A[i,k]
         for i in range(N):
                 for k in it.chain(range(i), range(i+1, N)):

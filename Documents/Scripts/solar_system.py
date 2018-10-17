@@ -7,16 +7,18 @@ from matplotlib import pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import mpl_toolkits.mplot3d.axes3d as p3
 from matplotlib import animation
-from scipy.constants import year, au, day, G, kilo
+from scipy.constants import year, au, day, kilo
 from evolve_binary import integrateBinary
 import itertools as it
 from orbital_elements import orbitalElements
+from internal_units import *
+G = G()
 
 print('Initialising')
 #Time array
 t = np.array([0.0])
 #Finish time
-t_end = 100.0 * year
+t_end = 100.0 * year / time_scale()
 #Initial positions and velocities
 #Sun, Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, Neptune
 #From http://ssd.jpl.nasa.gov/horizons.cgi#top
@@ -43,9 +45,15 @@ x = np.array([[[1.611753050316713*10.0**(-3.0), 6.287395902904349*10.0**(-3.0), 
 #Convert to si
 x = x*au
 x[:,9:] = x[:,9:]/day
+#Convert to internal units
+x = x / length_scale()
+x[:,9:] = x[:,9:] * time_scale()
 
 #Masses in kg
 m = np.array([1.988544*10.0**30.0, 3.302*10.0**23.0, 48.685*10.0**23.0, 5.97219*10.0**24.0, 6.4185*10.0**23.0, 1898.13*10.0**24.0, 5.68319*10.0**26.0, 86.8103*10.0**24.0, 102.41*10.0**24.0])
+#Convert to internal units
+m = m / mass_scale()
+
 
 print('Integrating orbits')
 #Initialise counter
@@ -70,9 +78,9 @@ ax.plot(x[:,5,0]-x[:,0,0], x[:,5,1]-x[:,0,1], x[:,5,2]-x[:,0,2], label='Jupiter'
 ax.plot(x[:,6,0]-x[:,0,0], x[:,6,1]-x[:,0,1], x[:,6,2]-x[:,0,2], label='Saturn')
 ax.plot(x[:,7,0]-x[:,0,0], x[:,7,1]-x[:,0,1], x[:,7,2]-x[:,0,2], label='Uranus')
 ax.plot(x[:,8,0]-x[:,0,0], x[:,8,1]-x[:,0,1], x[:,8,2]-x[:,0,2], label='Neptune')
-ax.set_xlim3d([-50.0*au, 50.0*au])
-ax.set_ylim3d([-50.0*au, 50.0*au])
-ax.set_zlim([-10.0*au, 10.0*au])
+ax.set_xlim3d([-50.0*au/length_scale(), 50.0*au/length_scale()])
+ax.set_ylim3d([-50.0*au/length_scale(), 50.0*au/length_scale()])
+ax.set_zlim([-10.0*au/length_scale(), 10.0*au/length_scale()])
 plt.legend()
 plt.show()
 
@@ -83,18 +91,18 @@ base_interval = 1
 fig = plt.figure()
 ax = p3.Axes3D(fig)
 ax.view_init(elev=90.0)
-ax.set_xlim3d([-30.0*au, 30.0*au])
-ax.set_ylim3d([-30.0*au, 30.0*au])
-ax.set_zlim([-1.0*au, 1.0*au])
+ax.set_xlim3d([-30.0*au/length_scale(), 30.0*au/length_scale()])
+ax.set_ylim3d([-30.0*au/length_scale(), 30.0*au/length_scale()])
+ax.set_zlim([-1.0*au/length_scale(), 1.0*au/length_scale()])
 colours = ["yellow", "darkgrey", "gold", "royalblue", "r", "sienna", "orange", "deepskyblue", "slateblue"]
 graph = ax.scatter(x[0,:9,0]-x[0,0,0], x[0,:9,1]-x[0,0,1], x[0,:9,2]-x[0,0,2], c=colours)
 def update(i):
         ax.clear()
         ax.scatter(x[i,:9,0]-x[i,0,0], x[i,:9,1]-x[i,0,1], x[i,:9,2]-x[i,0,2], c=colours)
         ax.view_init(elev=90.0)
-        ax.set_xlim3d([-30.0*au, 30.0*au])
-        ax.set_ylim3d([-30.0*au, 30.0*au])
-        ax.set_zlim([-1.0*au, 1.0*au])
+        ax.set_xlim3d([-30.0*au/length_scale(), 30.0*au/length_scale()])
+        ax.set_ylim3d([-30.0*au/length_scale(), 30.0*au/length_scale()])
+        ax.set_zlim([-1.0*au/length_scale(), 1.0*au/length_scale()])
         #graph = ax.scatter(x[i,:9,0], x[i,:9,1], x[i,:9,2], c=colours)
         #if i < np.size(x[:,0,0]):
                 #anim.event_source.interval = base_interval * (t[i+1]-t[i])/t[1]
@@ -119,7 +127,7 @@ for i in range(N_t):
 plt.title('Solar System energy conservation test')
 plt.xlabel('Time, yr')
 plt.ylabel('Fractional energy change')
-plt.plot(t/year, (E-E[0])/E[0])
+plt.plot(t/year*time_scale(), (E-E[0])/E[0])
 plt.show()
 
 #Angular momentum conservation
@@ -131,17 +139,17 @@ for i in range(N_t):
 plt.title(r'Solar system angular momentum conservation test: $x$-component')
 plt.xlabel('Time, yr')
 plt.ylabel('Fractional angular momentum change')
-plt.plot(t/year, (L[:,0]-L[0,0])/L[0,0])
+plt.plot(t/year*time_scale(), (L[:,0]-L[0,0])/L[0,0])
 plt.show()
 plt.title(r'Solar system angular momentum conservation test: $y$-component')
 plt.xlabel('Time, yr')
 plt.ylabel('Fractional angular momentum change')
-plt.plot(t/year, (L[:,1]-L[0,1])/L[0,1])
+plt.plot(t/year*time_scale(), (L[:,1]-L[0,1])/L[0,1])
 plt.show()
 plt.title(r'Solar system angular momentum conservation test: $z$-component')
 plt.xlabel('Time, yr')
 plt.ylabel('Fractional angular momentum change')
-plt.plot(t/year, (L[:,2]-L[0,2])/L[0,2])
+plt.plot(t/year*time_scale(), (L[:,2]-L[0,2])/L[0,2])
 plt.show()
 
 #Semi-major axes and eccentricities of Jupiter and Saturn
@@ -160,9 +168,9 @@ ax2 = ax1.twinx()
 plt.title('Semi-major axis test for Jupiter and Saturn')
 ax1.set_xlabel('Time, yr')
 ax1.set_ylabel('Semi-major axis of Jupiter, au')
-ax1.plot(t/year, a_Jup/au, label='Jupiter', color='dodgerblue')
+ax1.plot(t/year*time_scale(), a_Jup/au*length_scale(), label='Jupiter', color='dodgerblue')
 ax2.set_ylabel('Semi-major axis of Saturn, au')
-ax2.plot(t/year, a_Sat/au, label='Saturn', color='darkorange')
+ax2.plot(t/year*time_scale(), a_Sat/au*length_scale(), label='Saturn', color='darkorange')
 plt.legend()
 plt.show()
 #Plot eccentricity
@@ -172,9 +180,9 @@ ax2 = ax1.twinx()
 plt.title('Eccentricity test for Jupiter and Saturn')
 ax1.set_xlabel('Time, yr')
 ax1.set_ylabel('Eccentricity of Jupiter')
-ax1.plot(t/year, e_Jup, label='Jupiter', color='dodgerblue')
+ax1.plot(t/year*time_scale(), e_Jup, label='Jupiter', color='dodgerblue')
 ax2.set_ylabel('Eccentricity of Saturn')
-ax2.plot(t/year, e_Sat, label='Saturn', color='darkorange')
+ax2.plot(t/year*time_scale(), e_Sat, label='Saturn', color='darkorange')
 plt.legend
 plt.show()
 
@@ -186,7 +194,7 @@ for i in range(N_t):
 plt.title('Milankovitch test')
 plt.xlabel('Time, yr')
 plt.ylabel('Eccentricity')
-plt.plot(t/year, e_Earth)
+plt.plot(t/year*time_scale(), e_Earth)
 plt.show()
 
 

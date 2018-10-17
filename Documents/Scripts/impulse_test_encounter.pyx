@@ -109,8 +109,9 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 i = 1
                 #print('t_end =', t_end)
                 while t[i-1] < t_end:
+                #for i in range(1):
                         #print(x[i-1])
-                        (x_new, dt) = integrateBinary(3, x[i-1], M, n=1)
+                        (x_new, dt) = integrateBinary(3, x[i-1], M, n=5)
                         x = np.append(x, [x_new], axis=0)
                         t = np.append(t, t[i-1]+dt)
                         #print('dt =', dt)
