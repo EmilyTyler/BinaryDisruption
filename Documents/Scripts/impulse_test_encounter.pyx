@@ -55,30 +55,31 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 V_imp = np.zeros((2,3), dtype=float)               
                 #90 degree deflection radius
                 b_90 = G*(M_p+m)/V_0**2.0 
+                b_star = np.zeros((2,3))
                 print('b_90 =', b_90)
                 for i in range(2):
                         print('i =', i)
                         #Calculate impact parameter for this star
-                        b_star = (np.dot(X[i],v_vec) - np.dot(b_vec,v_vec))/V_0**2.0 * v_vec + b_vec - X[i]
+                        b_star[i] = (np.dot(X[i],v_vec) - np.dot(b_vec,v_vec))/V_0**2.0 * v_vec + b_vec - X[i]
                         print('b_star = ', b_star)
-                        b_star_norm = np.sqrt(b_star[0]**2.0+b_star[1]**2.0+b_star[2]**2.0)
+                        b_star_norm = np.sqrt(b_star[i,0]**2.0+b_star[i,1]**2.0+b_star[i,2]**2.0)
                         print('b_star_norm = ', b_star_norm)
                         #Calculate velocity change in b direction
-                        v_perp = 2.0*M_p*V_0/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star/b_star_norm)
+                        v_perp = 2.0*M_p*V_0/(m[i]+M_p) * (b_star_norm/b_90[i])/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (b_star[i]/b_star_norm)
                         print('v_perp =', v_perp)
                         #Calculate velocity change in -v_vec direction
                         v_parr = 2.0*M_p*V_0/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/V_0)
                         print('v_parr =', v_parr)
                         if b > a:
                                 print('b>a')
-                                v_BHT = 2.0*G*M_p*a/(b_star_norm**2.0*V_0) * (b_star/b_star_norm)
+                                v_BHT = 2.0*G*M_p*a/(b_star_norm**2.0*V_0) * (b_star[i]/b_star_norm)
                         else:
                                 print('b<a')
-                                v_BHT = 2.0*G*M_p/(b_star_norm*V_0) * (b_star/b_star_norm)
+                                v_BHT = 2.0*G*M_p/(b_star_norm*V_0) * (b_star[i]/b_star_norm)
                         print('v_BHT =', v_BHT)
                         #New velocity
-                        #V_imp[i] = X[i+2] + v_perp + v_parr
-                        V_imp[i] = X[i+2] + v_BHT
+                        V_imp[i] = X[i+2] + v_perp + v_parr
+                        #V_imp[i] = X[i+2] + v_BHT
                 print('V_imp =', V_imp)
                         
                 #Three body encounter:          
@@ -94,7 +95,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #print('x[0] = ', x)
                 #Masses
                 M = np.array([m1, m2, M_p])
-                '''
+                
                 #Relative separations
                 r_12 = np.linalg.norm(x[0,0]-x[0,1])
                 r_13 = np.linalg.norm(x[0,0]-x[0,2])
@@ -104,18 +105,15 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 v_3 = V_0
                 E = np.array([0.5*m1*v_1**2.0+0.5*m2*v_2**2.0+0.5*M_p*v_3**2.0 - G*m1*m2/r_12 - G*m1*M_p/r_13 - G*m2*M_p/r_23])
                 delta = np.array([M_p*m[:2]*r_12**2.0/(m1*m2*np.array([r_13**2.0, r_23**2.0]))])
-                '''
+                
                 #Initialise counter
                 i = 1
-                #print('t_end =', t_end)
                 while t[i-1] < t_end:
-                #for i in range(1):
-                        #print(x[i-1])
                         (x_new, dt) = integrateBinary(3, x[i-1], M, n=5)
                         x = np.append(x, [x_new], axis=0)
                         t = np.append(t, t[i-1]+dt)
                         #print('dt =', dt)
-                        '''
+                        
                         #Some checks
                         #Relative separations
                         r_12 = np.linalg.norm(x[i,0]-x[i,1])
@@ -128,21 +126,28 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         E = np.append(E, 0.5*m1*v_1**2.0+0.5*m2*v_2**2.0+0.5*M_p*v_3**2.0 - G*m1*m2/r_12 - G*m1*M_p/r_13 - G*m2*M_p/r_23)
                         #Fractional PBH force strength
                         delta = np.append(delta, [M_p*m[:2]*r_12**2.0/(m1*m2*np.array([r_13**2.0, r_23**2.0]))], axis=0)
-                        '''
+                        
                         #Increment counter
                         i += 1
-                #print(x[i-1])
-                #print(t[i-1])
-                '''
+                
                 #Plot energy against time
                 plt.plot(t, E)
+                plt.title('Total energy')
+                plt.xlabel('Time')
+                plt.ylabel('Total energy')
                 plt.show()
                 #Plot fractional PBH force strength against time
                 plt.plot(t, delta[:,0])
                 plt.plot(t, delta[:,1])
+                plt.title('Force ratio')
+                plt.xlabel('Time')
+                plt.ylabel('Force ratio')
                 plt.show()
                 #Plot perturber speed against time
                 plt.plot(t, np.linalg.norm(x[:,5], axis=1))
+                plt.title('Perturber speed')
+                plt.xlabel('Time')
+                plt.ylabel('Perturber speed')
                 plt.show()  
                 #Plot paths of stars
                 fig = plt.figure()
@@ -151,8 +156,44 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 ax.plot(x[:,1,0], x[:,1,1], x[:,1,2])
                 ax.plot(x[:,2,0], x[:,2,1], x[:,2,2])
                 plt.show()
-                '''
-                '''
+                
+                #Plot velocity of stars against time
+                plt.title('Star velocities in x direction')
+                plt.plot(t, x[:,3,0])
+                plt.plot(t, x[:,4,0])
+                plt.xlabel('Time')
+                plt.ylabel('Velocity in x direction')
+                plt.show()
+                
+                plt.title('Star velocities in y direction')
+                plt.plot(t, x[:,3,1])
+                plt.plot(t, x[:,4,1])
+                plt.xlabel('Time')
+                plt.ylabel('Velocity in y direction')
+                plt.show()
+                
+                plt.title('Star velocities in z direction')
+                plt.plot(t, x[:,3,2])
+                plt.plot(t, x[:,4,2])
+                plt.xlabel('Time')
+                plt.ylabel('Velocity in z direction')
+                plt.show()
+                
+                plt.title('Star speeds')
+                plt.plot(t, np.linalg.norm(x[:,3], axis=1))
+                plt.plot(t, np.linalg.norm(x[:,4], axis=1))
+                plt.xlabel('Time')
+                plt.ylabel('Speed')
+                plt.show()
+                
+                plt.title('Velocity of stars in b direction')
+                plt.plot(t, np.dot(x[:,3], b_star[0])/np.linalg.norm(b_star[0]))
+                plt.plot(t, np.dot(x[:,4], b_star[1])/np.linalg.norm(b_star[1]))
+                plt.xlabel('Time')
+                plt.ylabel('Velocity in b direction')
+                plt.show()
+                              
+                
                 #Generate animation
                 base_interval = 10
                 fig = plt.figure()
@@ -171,7 +212,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         return(graph)        
                 anim = animation.FuncAnimation(fig, update, interval=base_interval, repeat=True)
                 plt.show()
-                '''
+                
                 
                 #Set new velocity
                 X[2:] = V_imp 
