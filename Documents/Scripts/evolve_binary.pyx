@@ -10,7 +10,7 @@ from orbital_elements import orbitalElements
 from random_binary import setupRandomBinary
 
 #Evolution of binary through integration
-def integrateBinary(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim=1] m, int n=1):
+def integrateBinary(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim=1] m, int n=1, double dt_max=-1.0):
         # dt is step size
         # X = [x1, x2, x3,..., v1, v2, v3,...]
         # N is number of objects
@@ -24,6 +24,8 @@ def integrateBinary(int N, np.ndarray[double, ndim=2] X, np.ndarray[double, ndim
         #Hermite scheme (Dehnen and Read 2011) with Aarseth criterion timesteps  
         #Find initial acceleration and jerk and timestep
         (A_0, J_0, dt) = acc_jerk_and_timestep(N, X_0, V_0, m) 
+        if dt_max>0.0 and dt_max<dt:
+                dt = dt_max
         #Predict positions and velocities
         X_1 = X_0 + V_0*dt + A_0*dt**2.0/2.0 + J_0*dt**3.0/6.0
         V_1 = V_0 + A_0*dt + J_0*dt**2.0/2.0
