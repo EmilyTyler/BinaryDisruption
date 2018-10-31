@@ -44,14 +44,14 @@ a = 10.0**5.0 * au / length_scale()
 b_min = (np.pi*n_p*v_rel*(10.0*giga*year/time_scale()))**(-0.5)
 print('b_min=', b_min)
 #Maximum impact parameter for impulse approximation
-b_max = v_rel * np.sqrt(a**3.0/(G()*(m1+m2)))
-print('b_max=', b_max)
+b_max = 0.1 * v_rel * np.sqrt(a**3.0/(G()*(m1+m2)))
+print('b_max, au =', b_max*length_scale()/au)
 #Impact parameter
-b = 10.0**4.0 * au /length_scale()
+b = np.min([100.0*a])
 print('b =', b)
 
 #Number of encounters
-N_enc = 10
+N_enc = 1
 
 #
 E_frac_avg = 0.0

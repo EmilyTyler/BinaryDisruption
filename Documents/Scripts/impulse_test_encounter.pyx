@@ -17,7 +17,7 @@ from encounters import calc_b_max, impactAndVelocityVectors
 from internal_units import *
 
 G = G()
-#from scipy.constants import G, parsec, au, giga, year
+from scipy.constants import parsec, au, giga, year
 
 def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, double e, double M_p):
         '''
@@ -71,7 +71,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Initialise counter
                 j = 1
                 while t_imp[j-1] <= w:
-                        (x_imp_new, dt) = integrateBinary(2, x_imp[j-1], m, n=50, dt_max=w/100.0)
+                        (x_imp_new, dt) = integrateBinary(2, x_imp[j-1], m, n=100, dt_max=w/100.0)
                         x_imp = np.append(x_imp, [x_imp_new], axis=0)
                         t_imp = np.append(t_imp, t_imp[j-1]+dt)                        
                         #Increment counter
@@ -89,24 +89,60 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         #Calculate velocity change in -v_vec direction
                         v_parr = 2.0*M_p*V_0/(m[i]+M_p) * 1.0/(1.0 + b_star_norm**2.0/b_90[i]**2.0) * (-v_vec/V_0)
                         #print('v_parr =', v_parr)
-                        if b > a:
-                                #print('b>a')
-                                v_BHT = 2.0*G*M_p*a/(b_star_norm**2.0*V_0) * (b_star[i]/b_star_norm)
-                        else:
-                                #print('b<a')
-                                v_BHT = 2.0*G*M_p/(b_star_norm*V_0) * (b_star[i]/b_star_norm)
-                        #print('v_BHT =', v_BHT)
                         #New velocity
                         x_imp[j-1,i+2] += v_perp + v_parr
-                        #x_imp[j-1,i+2] += v_BHT
                 #print('V_imp =', V_imp)
                 while t_imp[j-1] < t_end:
-                        (x_imp_new, dt) = integrateBinary(2, x_imp[j-1], m, n=50, dt_max=w/100.0)
+                        (x_imp_new, dt) = integrateBinary(2, x_imp[j-1], m, n=100, dt_max=w/100.0)
                         x_imp = np.append(x_imp, [x_imp_new], axis=0)
                         t_imp = np.append(t_imp, t_imp[j-1]+dt)                        
                         #Increment counter
                         j += 1
                 N_t_imp = np.size(t_imp)
+                #print('t_imp =', t_imp)
+                
+                
+                #Impulse approximation, Bahcall et al.:            
+                b_star = np.zeros((2,3))
+                #print('b_90 =', b_90)
+                #Initial evolution of binary
+                #Time array
+                t_BHT = np.array([0.0])
+                #Initial positions and velocities
+                x_BHT = np.array([X])
+                #Initialise counter
+                j = 1
+                while t_BHT[j-1] <= w:
+                        (x_BHT_new, dt) = integrateBinary(2, x_BHT[j-1], m, n=100, dt_max=w/100.0)
+                        x_BHT = np.append(x_BHT, [x_BHT_new], axis=0)
+                        t_BHT = np.append(t_BHT, t_BHT[j-1]+dt)                        
+                        #Increment counter
+                        j += 1
+                for i in range(2):
+                        #print('i =', i)
+                        #Calculate impact parameter for this star
+                        b_star[i] = (np.dot(x_imp[j-1,i],v_vec) - np.dot(b_vec,v_vec))/V_0**2.0 * v_vec + b_vec - x_imp[j-1,i]
+                        #print('b_star = ', b_star)
+                for i in range(2):
+                        b_star_norm = np.sqrt(b_star[i,0]**2.0+b_star[i,1]**2.0+b_star[i,2]**2.0)
+                        #print('b_star_norm = ', b_star_norm)
+                        if b > a:
+                                #print('b>a')
+                                v_BHT = -G*M_p*a/(b**2.0*V_0) * (b_star[0]-b_star[1])/np.linalg.norm(b_star[0]-b_star[1])
+                        else:
+                                #print('b<a')
+                                v_BHT = 2.0*G*M_p/(b_star_norm*V_0) * (b_star[i]/b_star_norm)
+                        #print('v_BHT =', v_BHT)
+                        #New velocity
+                        x_BHT[j-1,i+2] += v_BHT
+                #print('V_imp =', V_imp)
+                while t_BHT[j-1] < t_end:
+                        (x_BHT_new, dt) = integrateBinary(2, x_BHT[j-1], m, n=100, dt_max=w/100.0)
+                        x_BHT = np.append(x_BHT, [x_BHT_new], axis=0)
+                        t_BHT = np.append(t_BHT, t_BHT[j-1]+dt)                        
+                        #Increment counter
+                        j += 1
+                N_t_BHT = np.size(t_BHT)
                 #print('t_imp =', t_imp)
                         
                         
@@ -121,7 +157,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Initialise counter
                 i = 1
                 while t_thr[i-1] < t_end:
-                        (x_new, dt) = integrateBinary(3, x[i-1], M, n=50)
+                        (x_new, dt) = integrateBinary(3, x[i-1], M, n=100)
                         x = np.append(x, [x_new], axis=0)
                         t_thr = np.append(t_thr, t_thr[i-1]+dt)                        
                         #Increment counter
@@ -129,6 +165,22 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 N_t_thr = np.size(t_thr)
                 #print('t_thr =', t_thr)
                 
+                '''
+                #Move everything into binary centre of mass velocity frame
+                for i in range(N_t_thr):
+                        v = (m1*x[i,3] + m2*x[i,4])/(m1+m2)
+                        x[i,3] -= v
+                        x[i,4] -= v
+                        x[i,5] -= v
+                for i in range(N_t_imp):
+                        v = (m1*x_imp[i,2] + m2*x_imp[i,3])/(m1+m2)
+                        x_imp[i,2] -= v
+                        x_imp[i,3] -= v
+                for i in range(N_t_BHT):
+                        v = (m1*x_BHT[i,2] + m2*x_BHT[i,3])/(m1+m2)
+                        x_BHT[i,2] -= v
+                        x_BHT[i,3] -= v
+                '''
                 
                 #Calculations
                 #Initial energy of binary
@@ -148,25 +200,33 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 a_imp_t = np.zeros(N_t_imp)
                 for i in range(N_t_imp):
                         temp, a_imp_t[i], temp2, E_imp_t[i] = orbitalElements(x_imp[i], m1, m2)
+                #Energy and a for Bahcall et al.
+                E_BHT_t = np.zeros(N_t_BHT)
+                a_BHT_t = np.zeros(N_t_BHT)
+                for i in range(N_t_BHT):
+                        temp, a_BHT_t[i], temp2, E_BHT_t[i] = orbitalElements(x_BHT[i], m1, m2)
 
 
-                '''
+                
                 #PLOTS
                 #Plot energy against time
-                plt.plot(t_thr*1000.0, E_thr_t, label='N-body')
-                plt.plot(t_imp*1000.0, E_imp_t, label='Impulse')
-                plt.title('Total energy of binary')
+                plt.plot(t_thr*1000.0, E_thr_t*mass_scale()*(length_scale()/time_scale())**2.0, label='N-body')
+                plt.plot(t_imp*1000.0, E_imp_t*mass_scale()*(length_scale()/time_scale())**2.0, label='Hyperbolic')
+                plt.plot(t_BHT*1000.0, E_BHT_t*mass_scale()*(length_scale()/time_scale())**2.0, label='Double Bahcall et al.')
+                #plt.plot(t_thr*1000.0, 0.5*(M_p*mass_scale())*(np.linalg.norm(x[:,5], axis=1)*length_scale()/time_scale())**2.0-0.5*(M_p*mass_scale())*(V_0*length_scale()/time_scale())**2.0, label='Change in kinetic energy of perturber')
+                plt.title('Total energy of binary during encounter for initial semimajor axis $10^{}$au and impact parameter $10^{}$au'.format(np.log10(a*length_scale()/au).astype(int), np.log10(b*length_scale()/au).astype(int)), wrap=True)
                 plt.xlabel('Time, Myr')
-                plt.ylabel('Total energy of binary, internal units')
+                plt.ylabel('Total energy of binary, J')
                 plt.legend()
                 plt.show()
-
+                '''
                 #Plot perturber speed against time
                 plt.plot(t_thr, np.linalg.norm(x[:,5], axis=1))
                 plt.title('Perturber speed')
                 plt.xlabel('Time')
                 plt.ylabel('Perturber speed')
                 plt.show()  
+                
                 #Plot paths of stars
                 fig = plt.figure()
                 ax = fig.gca(projection='3d')
@@ -240,9 +300,9 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 delta_E_imp = E_imp - E_ini
                 delta_E_thr = E_thr - E_ini
                 E_frac = (delta_E_imp - delta_E_thr)/delta_E_thr
-                #print('delta_E_imp =', delta_E_imp)
-                #print('delta_E_thr =', delta_E_thr)
-                #print('E_frac =', E_frac)
+                print('delta_E_imp =', delta_E_imp)
+                print('delta_E_thr =', delta_E_thr)
+                print('E_frac =', E_frac)
                 
         return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac)
         
