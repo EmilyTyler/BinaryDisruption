@@ -121,14 +121,14 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 for i in range(2):
                         #print('i =', i)
                         #Calculate impact parameter for this star
-                        b_star[i] = (np.dot(x_imp[j-1,i],v_vec) - np.dot(b_vec,v_vec))/V_0**2.0 * v_vec + b_vec - x_imp[j-1,i]
+                        b_star[i] = (np.dot(x_BHT[j-1,i],v_vec) - np.dot(b_vec,v_vec))/V_0**2.0 * v_vec + b_vec - x_BHT[j-1,i]
                         #print('b_star = ', b_star)
                 for i in range(2):
                         b_star_norm = np.sqrt(b_star[i,0]**2.0+b_star[i,1]**2.0+b_star[i,2]**2.0)
                         #print('b_star_norm = ', b_star_norm)
                         if b > a:
                                 #print('b>a')
-                                v_BHT = -G*M_p*a/(b**2.0*V_0) * (b_star[0]-b_star[1])/np.linalg.norm(b_star[0]-b_star[1])
+                                v_BHT = 2.0*G*M_p/(b**2.0*V_0) * (np.dot(v_vec,x_BHT[j-1,i])*v_vec/(V_0**2.0)+2.0*np.dot(b_vec,x_BHT[j-1,i])*b_vec/(b**2.0) - x_BHT[j-1,i])
                         else:
                                 #print('b<a')
                                 v_BHT = 2.0*G*M_p/(b_star_norm*V_0) * (b_star[i]/b_star_norm)
@@ -188,6 +188,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #New Semi-major axis and eccentricities
                 (notBound_imp, a_imp, e_imp, E_imp) = orbitalElements(x_imp[N_t_imp-1], m1, m2)
                 (notBound_thr, a_thr, e_thr, E_thr) = orbitalElements(np.array([x[N_t_thr-1,0], x[N_t_thr-1,1], x[N_t_thr-1,3], x[N_t_thr-1,4]]), m1, m2)
+                (notBound_BHT, a_BHT, e_BHT, E_BHT) = orbitalElements(x_BHT[N_t_BHT-1], m1, m2)
                 #print('a_imp = ', a_imp)
                 #print('a_thr = ', a_thr)
                 #Energy and a for N body
@@ -299,9 +300,11 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #print('E_ini =', E_ini)
                 delta_E_imp = E_imp - E_ini
                 delta_E_thr = E_thr - E_ini
+                delta_E_BHT = E_BHT - E_ini
                 E_frac = (delta_E_imp - delta_E_thr)/delta_E_thr
                 print('delta_E_imp =', delta_E_imp)
                 print('delta_E_thr =', delta_E_thr)
+                print('delta_E_BHT =', delta_E_BHT)
                 print('E_frac =', E_frac)
                 
         return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac)
