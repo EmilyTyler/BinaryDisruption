@@ -132,7 +132,13 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         else:
                                 #print('b<a')
                                 v_BHT = 2.0*G*M_p/(b_star_norm*V_0) * (b_star[i]/b_star_norm)
-                        #print('v_BHT =', v_BHT)
+                        print('v_BHT =', v_BHT)
+                        print('1st term =', 2.0*G*M_p/(b**2.0*V_0) * np.dot(v_vec,x_BHT[j-1,i])*v_vec/(V_0**2.0))
+                        print('2nd term =', 2.0*G*M_p/(b**2.0*V_0) * 2.0*np.dot(b_vec,x_BHT[j-1,i])*b_vec/(b**2.0))
+                        print('3st term =', 2.0*G*M_p/(b**2.0*V_0) * - x_BHT[j-1,i])
+                        print('BHT equa =', 2.0*G*M_p*a/(b**2.0*V_0) * -x_BHT[j-1,i]/np.linalg.norm(x_BHT[j-1,i]))
+                        print('norm     =', np.linalg.norm(v_BHT))
+                        print('norm BHT =', G*M_p*a/(b**2.0*V_0))
                         #New velocity
                         x_BHT[j-1,i+2] += v_BHT
                 #print('V_imp =', V_imp)
@@ -297,7 +303,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 
                 #E_frac = (E_imp - E_thr)/E_thr               
                 
-                #print('E_ini =', E_ini)
+                print('E_ini =', E_ini)
                 delta_E_imp = E_imp - E_ini
                 delta_E_thr = E_thr - E_ini
                 delta_E_BHT = E_BHT - E_ini
