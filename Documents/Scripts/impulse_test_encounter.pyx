@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 from matplotlib import animation
 from mpl_toolkits.mplot3d import Axes3D
 import mpl_toolkits.mplot3d.axes3d as p3
+plt.rc('font', family='serif')
 
 
 from orbital_elements import orbitalElements
@@ -113,7 +114,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Initialise counter
                 j = 1
                 while t_BHT[j-1] <= w:
-                        (x_BHT_new, dt) = integrateBinary(2, x_BHT[j-1], m, n=100, dt_max=w/100.0)
+                        (x_BHT_new, dt) = integrateBinary(2, x_BHT[j-1], m, n=20, dt_max=w/100.0)
                         x_BHT = np.append(x_BHT, [x_BHT_new], axis=0)
                         t_BHT = np.append(t_BHT, t_BHT[j-1]+dt)                        
                         #Increment counter
@@ -132,18 +133,18 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         else:
                                 #print('b<a')
                                 v_BHT = 2.0*G*M_p/(b_star_norm*V_0) * (b_star[i]/b_star_norm)
-                        print('v_BHT =', v_BHT)
-                        print('1st term =', 2.0*G*M_p/(b**2.0*V_0) * np.dot(v_vec,x_BHT[j-1,i])*v_vec/(V_0**2.0))
-                        print('2nd term =', 2.0*G*M_p/(b**2.0*V_0) * 2.0*np.dot(b_vec,x_BHT[j-1,i])*b_vec/(b**2.0))
-                        print('3st term =', 2.0*G*M_p/(b**2.0*V_0) * - x_BHT[j-1,i])
-                        print('BHT equa =', 2.0*G*M_p*a/(b**2.0*V_0) * -x_BHT[j-1,i]/np.linalg.norm(x_BHT[j-1,i]))
-                        print('norm     =', np.linalg.norm(v_BHT))
-                        print('norm BHT =', G*M_p*a/(b**2.0*V_0))
+                        #print('v_BHT =', v_BHT)
+                        #print('1st term =', 2.0*G*M_p/(b**2.0*V_0) * np.dot(v_vec,x_BHT[j-1,i])*v_vec/(V_0**2.0))
+                        #print('2nd term =', 2.0*G*M_p/(b**2.0*V_0) * 2.0*np.dot(b_vec,x_BHT[j-1,i])*b_vec/(b**2.0))
+                        #print('3st term =', 2.0*G*M_p/(b**2.0*V_0) * - x_BHT[j-1,i])
+                        #print('BHT equa =', 2.0*G*M_p*a/(b**2.0*V_0) * -x_BHT[j-1,i]/np.linalg.norm(x_BHT[j-1,i]))
+                        #print('norm     =', np.linalg.norm(v_BHT))
+                        #print('norm BHT =', G*M_p*a/(b**2.0*V_0))
                         #New velocity
                         x_BHT[j-1,i+2] += v_BHT
                 #print('V_imp =', V_imp)
                 while t_BHT[j-1] < t_end:
-                        (x_BHT_new, dt) = integrateBinary(2, x_BHT[j-1], m, n=100, dt_max=w/100.0)
+                        (x_BHT_new, dt) = integrateBinary(2, x_BHT[j-1], m, n=20, dt_max=w/100.0)
                         x_BHT = np.append(x_BHT, [x_BHT_new], axis=0)
                         t_BHT = np.append(t_BHT, t_BHT[j-1]+dt)                        
                         #Increment counter
@@ -171,23 +172,6 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 N_t_thr = np.size(t_thr)
                 #print('t_thr =', t_thr)
                 
-                '''
-                #Move everything into binary centre of mass velocity frame
-                for i in range(N_t_thr):
-                        v = (m1*x[i,3] + m2*x[i,4])/(m1+m2)
-                        x[i,3] -= v
-                        x[i,4] -= v
-                        x[i,5] -= v
-                for i in range(N_t_imp):
-                        v = (m1*x_imp[i,2] + m2*x_imp[i,3])/(m1+m2)
-                        x_imp[i,2] -= v
-                        x_imp[i,3] -= v
-                for i in range(N_t_BHT):
-                        v = (m1*x_BHT[i,2] + m2*x_BHT[i,3])/(m1+m2)
-                        x_BHT[i,2] -= v
-                        x_BHT[i,3] -= v
-                '''
-                
                 #Calculations
                 #Initial energy of binary
                 E_ini = -G*m1*m2/(2.0*a)
@@ -207,25 +191,39 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 a_imp_t = np.zeros(N_t_imp)
                 for i in range(N_t_imp):
                         temp, a_imp_t[i], temp2, E_imp_t[i] = orbitalElements(x_imp[i], m1, m2)
+                print('Error in binary energy for impulse =', (E_imp_t-E_ini)[np.where(t_imp<w)])
+                print('Error in binary energy for impulse =', (E_imp_t-E_imp_t[np.where(t_imp>w)][0])[np.where(t_imp>w)])
+                print('Relative error in binary energy from impulse =', E_imp_t-np.roll(E_imp_t,-1))
+                
                 #Energy and a for Bahcall et al.
                 E_BHT_t = np.zeros(N_t_BHT)
                 a_BHT_t = np.zeros(N_t_BHT)
                 for i in range(N_t_BHT):
                         temp, a_BHT_t[i], temp2, E_BHT_t[i] = orbitalElements(x_BHT[i], m1, m2)
-
-
                 
+                
+                #Energy error of N-body simulations
+                E_thr_total = np.zeros(N_t_thr)
+                for i in range(N_t_thr):
+                        E_thr_total[i] = 0.5*m1*np.linalg.norm(x[i,3])**2.0 + 0.5*m2*np.linalg.norm(x[i,4])**2.0 + 0.5*M_p*np.linalg.norm(x[i,5])**2.0 - G*m1*m2/(np.linalg.norm(x[i,0]-x[i,1])) - G*m1*M_p/(np.linalg.norm(x[i,0]-x[i,3])) - G*m2*M_p/(np.linalg.norm(x[i,1]-x[i,3]))
+                #Convert to fractional error
+                E_ini_total = E_ini + 0.5*M_p*V_0**2.0
+                E_thr_total = (E_thr_total - E_ini_total)
+                print('Energy error in 3-body simulation:', np.max(abs(E_thr_total)))
+
+                '''
                 #PLOTS
                 #Plot energy against time
-                plt.plot(t_thr*1000.0, E_thr_t*mass_scale()*(length_scale()/time_scale())**2.0, label='N-body')
-                plt.plot(t_imp*1000.0, E_imp_t*mass_scale()*(length_scale()/time_scale())**2.0, label='Hyperbolic')
-                plt.plot(t_BHT*1000.0, E_BHT_t*mass_scale()*(length_scale()/time_scale())**2.0, label='Double Bahcall et al.')
+                plt.plot(t_thr*1000.0, E_thr_t*mass_scale()*(length_scale()/time_scale())**2.0, label='3-body')
+                plt.plot(t_imp*1000.0, E_imp_t*mass_scale()*(length_scale()/time_scale())**2.0, label='Impulse')
+                #plt.plot(t_BHT*1000.0, E_BHT_t*mass_scale()*(length_scale()/time_scale())**2.0, label='Double Bahcall et al.')
                 #plt.plot(t_thr*1000.0, 0.5*(M_p*mass_scale())*(np.linalg.norm(x[:,5], axis=1)*length_scale()/time_scale())**2.0-0.5*(M_p*mass_scale())*(V_0*length_scale()/time_scale())**2.0, label='Change in kinetic energy of perturber')
-                plt.title('Total energy of binary during encounter for initial semimajor axis $10^{}$au and impact parameter $10^{}$au'.format(np.log10(a*length_scale()/au).astype(int), np.log10(b*length_scale()/au).astype(int)), wrap=True)
+                #plt.title('Total energy of binary during encounter for initial semimajor axis $10^{}$au and impact parameter $10^{}$au'.format(np.log10(a*length_scale()/au).astype(int), np.log10(b*length_scale()/au).astype(int)), wrap=True)
                 plt.xlabel('Time, Myr')
-                plt.ylabel('Total energy of binary, J')
+                plt.ylabel('Total internal energy of binary, J')
                 plt.legend()
                 plt.show()
+                '''
                 '''
                 #Plot perturber speed against time
                 plt.plot(t_thr, np.linalg.norm(x[:,5], axis=1))
@@ -303,17 +301,19 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 
                 #E_frac = (E_imp - E_thr)/E_thr               
                 
-                print('E_ini =', E_ini)
+                #print('E_ini =', E_ini)
+                E_imp = E_BHT
                 delta_E_imp = E_imp - E_ini
                 delta_E_thr = E_thr - E_ini
-                delta_E_BHT = E_BHT - E_ini
-                E_frac = (delta_E_imp - delta_E_thr)/delta_E_thr
-                print('delta_E_imp =', delta_E_imp)
-                print('delta_E_thr =', delta_E_thr)
-                print('delta_E_BHT =', delta_E_BHT)
-                print('E_frac =', E_frac)
+                #delta_E_BHT = E_BHT - E_ini
+                E_frac = delta_E_thr/E_ini
+                E_frac_error = (delta_E_imp - delta_E_thr)/delta_E_thr
+                #print('delta_E_imp =', delta_E_imp)
+                #print('delta_E_thr =', delta_E_thr)
+                #print('delta_E_BHT =', delta_E_BHT)
+                #print('E_frac =', E_frac)
                 
-        return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac)
+        return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac, E_frac_error)
         
         
 def encounterGrid(double m1, double m2, double v_rms, double e, double M_p, double a_min, double a_max, int N_a, double b_min, double b_max, int N_b, int N_enc):
