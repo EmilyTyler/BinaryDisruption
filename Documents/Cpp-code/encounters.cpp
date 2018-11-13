@@ -14,6 +14,7 @@ using namespace std;
  }
 
 // Calculates the impact parameter at which the fractional change in semi-major axis of the binary will be equal to delta, for perturber mass M_p, relative velocity dispersion v_rel, semi-major axis a and binary star masses m1 and m2.
+// Should we change this to the definition from Weinberg et al.?
  double calc_b_max(double M_p, double v_rel, double a, double m1, double m2, double delta = pow(10.0, -3.0))
  {
  	return sqrt(2.0)* pow(G, 0.25)* sqrt(M_p)* pow(m1+m2, -0.25)* pow(a, 0.75)* pow(v_rel, -0.5)* pow(delta, -0.25);
@@ -23,16 +24,12 @@ using namespace std;
  tuple<array<double,3>, array<double,3>> impactAndVelocityVectors(double b, double v)
  {
  	// Velocity vector
- 	array<double, 3> v_vec = v* randomDirection();
+ 	array<double, 3> v_vec = v * randomDirection();
  	// Other random vector
  	array<double, 3> n = randomDirection();
  	// Impact parameter vector
  	array<double, 3> b_vec = cross(v_vec, n);
  	// Correct magnitude of impact parameter vector
- 	double b_vec_norm = norm(b_vec);
- 	for (int i=0; i<3; i++)
- 	{
- 		b_vec[i] *= b/b_vec_norm;
- 	}
+ 	b_vec = b * normalise(b_vec);
   return make_tuple(b_vec, v_vec);
  }
