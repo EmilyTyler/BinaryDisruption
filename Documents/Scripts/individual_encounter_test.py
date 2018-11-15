@@ -51,8 +51,12 @@ b = np.min([0.01*a])
 print('b, au =', b*length_scale()/au)
 
 #Number of encounters
-N_enc = 1
+N_enc = 1000
 print('N_enc =', N_enc)
+
+#Simulation parameters
+delta=10.0**(-4.0)
+eta=0.02
 
 #
 E_frac_avg = 0.0
@@ -60,12 +64,21 @@ E_frac_var = 0.0
 E_frac_error_avg = 0.0
 E_frac_error_var = 0.0
 
+E_ini = np.zeros(N_enc)
+E_thr = np.zeros(N_enc)
+E_imp = np.zeros(N_enc)
+
 for i in range(N_enc):
-        notBound, a_thr, e_thr, a_frac, e_diff, E_frac, E_frac_error = impulseTestEncounter(m1, m2, v_rel, b, a, e, M_p)
+        notBound, a_thr, e_thr, a_frac, e_diff, E_frac, E_frac_error, E_ini[i], E_thr[i], E_imp[i] = impulseTestEncounter(m1, m2, v_rel, b, a, e, M_p, delta=delta, eta=eta)
         E_frac_avg += E_frac
         E_frac_var += E_frac**2.0
         E_frac_error_avg += E_frac_error
         E_frac_error_var += E_frac_error**2.0
+        
+#Convert to SI
+E_ini *= mass_scale()*(length_scale()/time_scale())**2.0
+E_thr *= mass_scale()*(length_scale()/time_scale())**2.0
+E_imp *= mass_scale()*(length_scale()/time_scale())**2.0
         
 #Normalise
 E_frac_avg /= N_enc
@@ -81,3 +94,7 @@ print('Average fractional energy change =', E_frac_avg)
 print('Error on mean of fractional energy change =', E_frac_var**0.5/(N_enc-1)**0.5)
 print('Average fractional error on energy change =', E_frac_error_avg)
 print('Error on mean of fractional error on energy change =', E_frac_error_var**0.5/(N_enc-1)**0.5)
+
+print('Saving data')
+np.savez('impulse_nbody_energy_changes_b10e3au_Nenc10e3.npz', E_ini=E_ini, E_thr=E_thr, E_imp=E_imp)
+print('Finished')

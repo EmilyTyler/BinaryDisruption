@@ -20,7 +20,7 @@ from internal_units import *
 G = G()
 from scipy.constants import parsec, au, giga, year
 
-def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, double e, double M_p):
+def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, double e, double M_p, double delta=10.0**(-6.0), double eta=0.02):
         '''
         print('ENCOUNTER!')
         print("b = ", b)
@@ -38,12 +38,13 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
         cdef double a_frac = 0.0
         cdef double e_diff = 0.0
         cdef double E_frac = 0.0
+        cdef double E_frac_error = 0.0
         cdef np.ndarray v_vec, X, b_vec, V_imp, b_90, b_star, v_perp, v_parr, t, x, M, x_new, v_BHT
         cdef double b_vec_norm, b_star_norm, w, t_end, dt
         cdef int i
         
         #If the encounter is not negligible   
-        if (10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0 > 0.0):
+        if (M_p*a**2.0/(np.min(m)*delta) - b**2.0 > 0.0):
                 #Open binary
                 X = setupRandomBinary(a, e, m1, m2)
                 #print('X = ', X)
@@ -52,8 +53,9 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #print('b_vec =', b_vec)
                 #print('v_vec =', v_vec)
                 #Perturber starting distance parameter
-                w = np.sqrt(10.0**6.0*M_p*a**2.0/(np.min(m)) - b**2.0)/V_0
+                w = np.sqrt(M_p*a**2.0/(np.min(m)*delta) - b**2.0)/V_0
                 #print('w =', w)
+                #w=10.0**(-5.0)
                 #End time
                 t_end = 2.0*w
                 #print('t_end =', t_end)
@@ -72,7 +74,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Initialise counter
                 j = 1
                 while t_imp[j-1] <= w:
-                        (x_imp_new, dt) = integrateBinary(2, x_imp[j-1], m, n=100, dt_max=w/100.0)
+                        (x_imp_new, dt) = integrateBinary(2, x_imp[j-1], m, n=10, dt_max=w/100.0, eta=eta)
                         x_imp = np.append(x_imp, [x_imp_new], axis=0)
                         t_imp = np.append(t_imp, t_imp[j-1]+dt)                        
                         #Increment counter
@@ -94,7 +96,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         x_imp[j-1,i+2] += v_perp + v_parr
                 #print('V_imp =', V_imp)
                 while t_imp[j-1] < t_end:
-                        (x_imp_new, dt) = integrateBinary(2, x_imp[j-1], m, n=100, dt_max=w/100.0)
+                        (x_imp_new, dt) = integrateBinary(2, x_imp[j-1], m, n=10, dt_max=w/100.0, eta=eta)
                         x_imp = np.append(x_imp, [x_imp_new], axis=0)
                         t_imp = np.append(t_imp, t_imp[j-1]+dt)                        
                         #Increment counter
@@ -102,7 +104,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 N_t_imp = np.size(t_imp)
                 #print('t_imp =', t_imp)
                 
-                
+                '''
                 #Impulse approximation, Bahcall et al.:            
                 b_star = np.zeros((2,3))
                 #print('b_90 =', b_90)
@@ -151,7 +153,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         j += 1
                 N_t_BHT = np.size(t_BHT)
                 #print('t_imp =', t_imp)
-                        
+                '''        
                         
                 #Three body encounter:          
                 #Time array
@@ -164,7 +166,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Initialise counter
                 i = 1
                 while t_thr[i-1] < t_end:
-                        (x_new, dt) = integrateBinary(3, x[i-1], M, n=100)
+                        (x_new, dt) = integrateBinary(3, x[i-1], M, n=10, dt_max=w/100.0, eta=eta)
                         x = np.append(x, [x_new], axis=0)
                         t_thr = np.append(t_thr, t_thr[i-1]+dt)                        
                         #Increment counter
@@ -178,30 +180,41 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #New Semi-major axis and eccentricities
                 (notBound_imp, a_imp, e_imp, E_imp) = orbitalElements(x_imp[N_t_imp-1], m1, m2)
                 (notBound_thr, a_thr, e_thr, E_thr) = orbitalElements(np.array([x[N_t_thr-1,0], x[N_t_thr-1,1], x[N_t_thr-1,3], x[N_t_thr-1,4]]), m1, m2)
-                (notBound_BHT, a_BHT, e_BHT, E_BHT) = orbitalElements(x_BHT[N_t_BHT-1], m1, m2)
+                #(notBound_BHT, a_BHT, e_BHT, E_BHT) = orbitalElements(x_BHT[N_t_BHT-1], m1, m2)
                 #print('a_imp = ', a_imp)
                 #print('a_thr = ', a_thr)
+                
+                '''
                 #Energy and a for N body
                 E_thr_t = np.zeros(N_t_thr)
                 a_thr_t = np.zeros(N_t_thr)
                 for i in range(N_t_thr):
                         temp, a_thr_t[i], temp2, E_thr_t[i] = orbitalElements(np.array([x[i,0], x[i,1], x[i,3], x[i,4]]), m1, m2)
+                #print('E_thr_t =', E_thr_t)  
+                #print('Energy change thr =', E_thr_t-np.roll(E_thr_t,-1))
                 #Energy and a for impulse
                 E_imp_t = np.zeros(N_t_imp)
                 a_imp_t = np.zeros(N_t_imp)
                 for i in range(N_t_imp):
                         temp, a_imp_t[i], temp2, E_imp_t[i] = orbitalElements(x_imp[i], m1, m2)
-                print('Error in binary energy for impulse =', (E_imp_t-E_ini)[np.where(t_imp<w)])
-                print('Error in binary energy for impulse =', (E_imp_t-E_imp_t[np.where(t_imp>w)][0])[np.where(t_imp>w)])
-                print('Relative error in binary energy from impulse =', E_imp_t-np.roll(E_imp_t,-1))
+                #print('E_imp_t =', E_imp_t)
+                '''
+                '''
+                #print('Error in binary energy for impulse =', (E_imp_t-E_ini)[np.where(t_imp<w)])
+                #print('Error in binary energy for impulse =', (E_imp_t-E_imp_t[np.where(t_imp>w)][0])[np.where(t_imp>w)])
+                print('Energy change impulse =', E_imp_t-np.roll(E_imp_t,-1))
                 
+                print('Energy change thr but only around the impulse time =', E_thr_t[np.where(t_thr<=1.2*w)][np.where(0.8*w<=t_thr[np.where(t_thr<=1.2*w)])]-np.roll(E_thr_t[np.where(t_thr<=1.2*w)][np.where(0.8*w<=t_thr[np.where(t_thr<=1.2*w)])], -1))
+                print(t_thr[np.where(t_thr<=1.2*w)][np.where(0.8*w<=t_thr[np.where(t_thr<=1.2*w)])])
+                '''
+                '''
                 #Energy and a for Bahcall et al.
                 E_BHT_t = np.zeros(N_t_BHT)
                 a_BHT_t = np.zeros(N_t_BHT)
                 for i in range(N_t_BHT):
                         temp, a_BHT_t[i], temp2, E_BHT_t[i] = orbitalElements(x_BHT[i], m1, m2)
-                
-                
+                '''
+                '''
                 #Energy error of N-body simulations
                 E_thr_total = np.zeros(N_t_thr)
                 for i in range(N_t_thr):
@@ -209,8 +222,8 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #Convert to fractional error
                 E_ini_total = E_ini + 0.5*M_p*V_0**2.0
                 E_thr_total = (E_thr_total - E_ini_total)
-                print('Energy error in 3-body simulation:', np.max(abs(E_thr_total)))
-
+                #print('Energy error in 3-body simulation:', np.max(abs(E_thr_total)))
+                '''
                 '''
                 #PLOTS
                 #Plot energy against time
@@ -222,6 +235,12 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 plt.xlabel('Time, Myr')
                 plt.ylabel('Total internal energy of binary, J')
                 plt.legend()
+                ax = plt.gca()
+                ax.set_axisbelow(True)
+                ax.minorticks_on()
+                ax.grid(which='major')
+                ax.grid(which='minor')
+                plt.title('small b')
                 plt.show()
                 '''
                 '''
@@ -302,7 +321,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #E_frac = (E_imp - E_thr)/E_thr               
                 
                 #print('E_ini =', E_ini)
-                E_imp = E_BHT
+                #E_imp = E_BHT
                 delta_E_imp = E_imp - E_ini
                 delta_E_thr = E_thr - E_ini
                 #delta_E_BHT = E_BHT - E_ini
@@ -313,7 +332,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #print('delta_E_BHT =', delta_E_BHT)
                 #print('E_frac =', E_frac)
                 
-        return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac, E_frac_error)
+        return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac, E_frac_error, E_ini, E_thr, E_imp)
         
         
 def encounterGrid(double m1, double m2, double v_rms, double e, double M_p, double a_min, double a_max, int N_a, double b_min, double b_max, int N_b, int N_enc):
