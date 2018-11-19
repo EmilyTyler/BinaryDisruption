@@ -46,16 +46,15 @@ print('b_min, au =', b_min*length_scale()/au)
 #Maximum impact parameter for impulse approximation
 b_max = 0.1 * v_rel * np.sqrt(a**3.0/(G()*(m1+m2)))
 print('b_max, au =', b_max*length_scale()/au)
+
 #Impact parameter
-b = np.min([0.01*a])
+b = np.min([10.0*a])
 print('b, au =', b*length_scale()/au)
-
 #Number of encounters
-N_enc = 1000
+N_enc = 100
 print('N_enc =', N_enc)
-
 #Simulation parameters
-delta=10.0**(-4.0)
+delta=10.0**(-6.0)
 eta=0.02
 
 #
@@ -96,5 +95,5 @@ print('Average fractional error on energy change =', E_frac_error_avg)
 print('Error on mean of fractional error on energy change =', E_frac_error_var**0.5/(N_enc-1)**0.5)
 
 print('Saving data')
-np.savez('impulse_nbody_energy_changes_b10e3au_Nenc10e3.npz', E_ini=E_ini, E_thr=E_thr, E_imp=E_imp)
+np.savez('impulse_nbody_energy_changes_b10e6au_Nenc10e2.npz', E_ini=E_ini, E_thr=E_thr, E_imp=E_imp)
 print('Finished')
