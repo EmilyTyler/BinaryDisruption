@@ -29,7 +29,7 @@ m2 = 2.0*10.0**30.0 / mass_scale()
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0 / mass_scale()
 #RMS of Maxwellian velocity distribution, m/s
-v_rel = 1.0 * 220.0 * 1000.0 * time_scale()/length_scale()
+v_rel = 220.0 * 1000.0 * time_scale()/length_scale()
 #Density of dark matter halo solar masses/pc**3
 rho = 0.009
 #Convert to SI
@@ -44,18 +44,18 @@ a = 10.0**5.0 * au / length_scale()
 b_min = (np.pi*n_p*v_rel*(10.0*giga*year/time_scale()))**(-0.5)
 print('b_min, au =', b_min*length_scale()/au)
 #Maximum impact parameter for impulse approximation
-b_max = 0.1 * v_rel * np.sqrt(a**3.0/(G()*(m1+m2)))
+b_max = v_rel * np.sqrt(a**3.0/(G()*(m1+m2)))
 print('b_max, au =', b_max*length_scale()/au)
 
 #Impact parameter
-b = np.min([10.0*a])
+b = 10.0**8.0 * au / length_scale()
 print('b, au =', b*length_scale()/au)
 #Number of encounters
-N_enc = 100
+N_enc = 1000
 print('N_enc =', N_enc)
 #Simulation parameters
-delta=10.0**(-6.0)
-eta=0.02
+delta=10.0**(-9.0)
+eta=0.000002
 
 #
 E_frac_avg = 0.0
@@ -95,5 +95,5 @@ print('Average fractional error on energy change =', E_frac_error_avg)
 print('Error on mean of fractional error on energy change =', E_frac_error_var**0.5/(N_enc-1)**0.5)
 
 print('Saving data')
-np.savez('impulse_nbody_energy_changes_b10e6au_Nenc10e2.npz', E_ini=E_ini, E_thr=E_thr, E_imp=E_imp)
+np.savez('impulse_nbody_energy_changes_b10e8au_Nenc10e3.npz', E_ini=E_ini, E_thr=E_thr, E_imp=E_imp)
 print('Finished')

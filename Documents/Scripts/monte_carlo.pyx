@@ -10,7 +10,9 @@ from encounters import calc_b_max, encounter, encounterRate, impulseEncounter, B
 from scipy.stats import maxwell
 from orbital_elements import orbitalElements
 from random_binary import setupRandomBinary
-from scipy.constants import G, parsec, au, mega, year
+from scipy.constants import parsec, au, mega, year
+from internal_units import *
+G = G()
 
 #Draw velocities from a Maxwellian distribution
 #Uses rejection method from Numerical Recipes, Press et al. section 7.3.6
@@ -81,12 +83,14 @@ def MCEncounters_new(double v_rms, double n_p, double T, double m1, double m2, d
         cdef double b_min = 0.0
         #Maximum maximum impact parameter
         cdef double b_max_max = calc_b_max(M_p, v_rms, a_T, m1, m2, prefactor=prefactor)
+        print('b_max_max, pc =', b_max_max*length_scale()/parsec)
         #Minimum velocity
         cdef double v_min = 10.0**(-2.0)*v_rms
         #Maximum velocity
         cdef double v_max = 10.0**2.0*v_rms
         #Mean number of encounters in time T 
         N_mean = T*encounterRate(n_p, v_rms, b_min, b_max_max, v_min, v_max)
+        #print('N_mean =', N_mean)
         #Number of encounters
         cdef np.ndarray N_enc = np.random.poisson(N_mean, size=N_bin)
         #cdef np.ndarray N_enc_actual = np.zeros(N_bin, dtype=int)
@@ -109,7 +113,7 @@ def MCEncounters_new(double v_rms, double n_p, double T, double m1, double m2, d
                                 #Draw velocity
                                 v = draw_vmaxwellian(v_rms, v_min, v_max, 1)[0]
                                 #Encounter
-                                (notBound, a[i], e[i]) = BHTEncounter(m1, m2, v, b[j], a[i], e[i], M_p)
+                                (notBound, a[i], e[i]) = impulseEncounter(m1, m2, v, b[j], a[i], e[i], M_p)
                                 #N_enc_actual[i] += 1
                                 if (notBound or a[i]>=a_T):
                                         N_broken += 1
