@@ -22,8 +22,8 @@ def encounterRate(double n_p, double v_rms, double b0, double b1, double v0, dou
 
 #To find b_max
 def calc_b_max(double M_p, double v_rel, double a, double m1, double m2, double delta = 10.0**(-3.0), double prefactor = 1.0):
-        #cdef double b_max = prefactor * 0.1*parsec * (delta/(10.0**(-3.0)))**(-0.5) * (M_p/(2.0*10.0**30.0))**0.5 * ((m1+m2)/(4.0*10.0**30.0))**(-0.25) * (a/(10.0**4.0*au))**0.75 * (v_rel/(2.2*10.0**5.0))**(-0.5)
-        cdef double b_max = prefactor * v_rel * np.sqrt(a**3.0/(G*(m1+m2)))
+        cdef double b_max = prefactor * 0.1*parsec * (delta/(10.0**(-3.0)))**(-0.5) * (M_p/(2.0*10.0**30.0))**0.5 * ((m1+m2)/(4.0*10.0**30.0))**(-0.25) * (a/(10.0**4.0*au))**0.75 * (v_rel/(2.2*10.0**5.0))**(-0.5)
+        #cdef double b_max = prefactor * v_rel * np.sqrt(a**3.0/(G*(m1+m2)))
         return b_max
 
 #Evolve binary without encounters

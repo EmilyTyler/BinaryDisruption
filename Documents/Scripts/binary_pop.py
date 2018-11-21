@@ -14,7 +14,7 @@ from internal_units import *
 m1 = 1.0*10.0**30.0 / mass_scale()
 m2 = 1.0*10.0**30.0 / mass_scale()
 #Mass of perturbers
-M_p = 100.0 * 2.0*10.0**30.0 / mass_scale()
+M_p = 10.0 * 2.0*10.0**30.0 / mass_scale()
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 220.0 * 1000.0 /length_scale() * time_scale()
 #Density of dark matter halo solar masses/pc**3
@@ -64,7 +64,7 @@ e_ini = (np.random.random(N_bin))**(1.0/3.0)
 
 #Evolve distribution in time
 print('Evolving population')
-a_fin, e_fin, N_broken = MCEncounters_new(v_rms, n_p, T, m1, m2, M_p, a_ini, e_ini, N_bin, a_T=5.0*parsec/length_scale(), prefactor=0.001)
+a_fin, e_fin, N_broken = MCEncounters_new(v_rms, n_p, T, m1, m2, M_p, a_ini, e_ini, N_bin, a_T=1.0*parsec/length_scale(), prefactor=0.001)
 a_fin = a_fin[np.where(a_fin!=-1.0)]
 e_fin = e_fin[np.where(e_fin!=-1.0)]
 
@@ -121,7 +121,7 @@ for i in range(1, N_bins):
         N_a_ini[i] = np.size(np.where(a_ini <= a_bins[i]))
 #Normalise
 N_a_ini /= N_bins
-N_a_fin /= N_bins
+N_a_fin /= np.size(a_fin)
 plt.semilogx(a_bins*length_scale()/au, N_a_ini, label='Initial')
 plt.semilogx(a_bins*length_scale()/au, N_a_fin, label='Final')
 plt.xlabel(r'Semimajor axis $a$, au')

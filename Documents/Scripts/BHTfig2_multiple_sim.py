@@ -64,8 +64,6 @@ for k in range(N_sim):
         a = a_0 + np.zeros(N_bin)
         e = e_0 + np.zeros(N_bin)
         N_broken = np.zeros(N_t)
-        #Time array
-        t = np.array([i*dt for i in range(N_t)])
         #Run simulations
         for i in range(1,N_t):
                 a, e, N_broken[i] = MCEncounters_new(v_rel, n_p, t[i]-t[i-1], m1, m2, M_p, a, e, np.size(a), a_T=a_T, prefactor=1.0)
