@@ -48,14 +48,14 @@ b_max = v_rel * np.sqrt(a**3.0/(G()*(m1+m2)))
 print('b_max, au =', b_max*length_scale()/au)
 
 #Impact parameter
-b = 10.0**8.0 * au / length_scale()
+b = 10.0**3.5 * au / length_scale()
 print('b, au =', b*length_scale()/au)
 #Number of encounters
-N_enc = 1000
+N_enc = 10**5
 print('N_enc =', N_enc)
 #Simulation parameters
-delta=10.0**(-9.0)
-eta=0.000002
+delta=10.0**(-4.0)
+eta=0.02
 
 #
 E_frac_avg = 0.0
@@ -95,5 +95,5 @@ print('Average fractional error on energy change =', E_frac_error_avg)
 print('Error on mean of fractional error on energy change =', E_frac_error_var**0.5/(N_enc-1)**0.5)
 
 print('Saving data')
-np.savez('impulse_nbody_energy_changes_b10e8au_Nenc10e3.npz', E_ini=E_ini, E_thr=E_thr, E_imp=E_imp)
+np.savez('impulse_nbody_energy_changes_b10e3_5au_Nenc10e5.npz', E_ini=E_ini, E_thr=E_thr, E_imp=E_imp)
 print('Finished')

@@ -127,6 +127,53 @@ def MCEncounters_new(double v_rms, double n_p, double T, double m1, double m2, d
                         #print('N_enc =', N_enc_actual[i])
         return (a, e, N_broken)
 
+#Monte Carlo simulation of encounters of N_bin binaries over time T
+def MCEncounters_t(double v_rms, double n_p, double T, double m1, double m2, double M_p, np.ndarray[double, ndim=1] a_0, np.ndarray[double, ndim=1] e_0, int N_bin, double prefactor = 1.0):
+        #Minimum impact parameter
+        cdef double b_min = 0.0
+        #Minimum velocity
+        cdef double v_min = 10.0**(-2.0)*v_rms
+        #Maximum velocity
+        cdef double v_max = 10.0**2.0*v_rms
+        #Implement encounters
+        cdef bool notBound = False
+        cdef int i, j
+        cdef int N_broken = 0
+        cdef double b_max, v, t, E_fin
+        cdef np.ndarray b
+        cdef np.ndarray a = np.array([a_0[i] for i in range(N_bin)])
+        cdef np.ndarray e = np.array([e_0[i] for i in range(N_bin)])
+        for i in range(N_bin):
+                #Maximum impact parameter
+                b_max = calc_b_max(M_p, v_rms, a[i], m1, m2, prefactor=prefactor)
+                #Time passed
+                t = 0.0
+                #Implement encounters
+                while t <= T:
+                        #Encounter rate 
+                        rate = encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max)
+                        #Increment time passed
+                        t += np.random.exponential(1.0/rate)
+                        #print('t =', t)
+                        #print('T =', T)
+                        print('t/T =', t/T)
+                        print('t<=T =', t<=T)
+                        #Draw velocity
+                        v = draw_vmaxwellian(v_rms, v_min, v_max, 1)[0]
+                        #Draw impact parameter
+                        b = draw_b(b_max, 1)
+                        #Encounter
+                        (notBound, a[i], e[i], E_fin) = BHTEncounter(m1, m2, v, b, a[i], e[i], M_p)
+                        if (notBound):
+                                N_broken += 1
+                                #print('Binary broken!')
+                                a[i] = -1.0
+                                e[i] = -1.0
+                                break
+                        #Update maximum impact parameter
+                        b_max = calc_b_max(M_p, v_rms, a[i], m1, m2, prefactor=prefactor)
+        return (a, e, N_broken)
+
 #Jiang and Tremaine simulation of encounters of N_bin binaries over time T
 def JTEncounters(double v_rms, double n_p, double T, double m1, double m2, double M_p, np.ndarray[double, ndim=1] a_0, np.ndarray[double, ndim=1] e_0, int N_bin, double prefactor = 1.0, double a_T=10.0**10.0*au):
         cdef double rho = M_p * n_p
