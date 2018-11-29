@@ -1,5 +1,6 @@
 //Functions for basic vector operations
 #include <array>
+#include <math.h>
 using namespace std;
 
 

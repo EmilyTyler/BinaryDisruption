@@ -1,6 +1,7 @@
 // Set of functions to generate binaries and to find their orbital elements
 #include <array>
 #include <math.h>
+#include <iostream>
 #include "constants.h"
 #include "vector_maths.h"
 #include "random_numbers.h"
@@ -40,16 +41,19 @@ double eccentricAnomaly(double e, double M){
 //Return the semi-major axis and eccentricity of a binary and whether or not it is bound from the positions and velocities of the stars
 tuple<double, double, bool> orbitalElements(array<double,(4,3)> X, double m1, double m2){
 	// Separation vector
-	array<double, 3> r = X[0] - X[1];
+	array<double, 3> r = {X[0,0] - X[1,0], X[0,1] - X[1,1], X[0,2] - X[1,2]};
 	// Relative velocity vector
-	array<double, 3> v = X[2] - X[3];
+	array<double, 3> v = {X[2,0] - X[3,0], X[2,1] - X[3,1], X[2,2] - X[3,2]};
 	// Magnitudes of the above vectors
 	double R = norm(r);
 	double V = norm(v);
 	// Total energy
 	double E = m1*m2*(V*V/(2.0*(m1+m2)) - G/R);
 	// Total angular momentum
-	array<double, 3> L = m1*m2/(m1+m2) * cross(r, v);
+	array<double, 3> L = cross(r, v);
+	L[0] *= m1*m2/(m1+m2);
+	L[0] *= m1*m2/(m1+m2);
+	L[0] *= m1*m2/(m1+m2);
 	double L_norm = norm(L);
 	// Semi-major axis
 	double a = G*m1*m2/(2.0*abs(E));
