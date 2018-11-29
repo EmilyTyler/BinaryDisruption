@@ -2,7 +2,7 @@
 #include "random_numbers.h"
 #include "constants.h"
 #include "vector_maths.h"
-#include <math.h>
+#include <cmath>
 #include <array>
 using namespace std;
 

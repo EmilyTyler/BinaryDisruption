@@ -1,7 +1,8 @@
 // Set of functions to generate binaries and to find their orbital elements
 #include <array>
-#include <math.h>
+#include <cmath>
 #include <iostream>
+#include <tuple>
 #include "constants.h"
 #include "vector_maths.h"
 #include "random_numbers.h"
@@ -65,7 +66,7 @@ tuple<double, double, bool> orbitalElements(array<double,(4,3)> X, double m1, do
 }
 
 // Open a binary: find the position and velocity vectors given the semi-major axis and eccentricity
-array<double,(4,3)> setupRandomBinary(double a, double e, double m1, double m2){
+array<array<double, 3>, 4> setupRandomBinary(double a, double e, double m1, double m2){
 	// Randomise mean anomaly
 	double M = randomUniformDoubleOpen(0.0, 2.0*pi);
 	// Find eccentric anomaly
@@ -77,25 +78,25 @@ array<double,(4,3)> setupRandomBinary(double a, double e, double m1, double m2){
 	// Mean motion
 	double n = sqrt(G*(m1+m2)/(pow(a,3.0)));
 	// Position and velocity vectors
-	array<double, (4,3)> = {
+	array<array<double, 3>, 4> X = { {
 		{0.0, 0.0, 0.0},
 		{r*cos(f), r*sin(f), 0.0},
 		{0.0, 0.0, 0.0}, 
-		{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}};
+		{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
 	// Centre of mass position vector
 	array<double, 3> R;
 	// Centre of mass velocity vector
 	array<double,3> V;
-	for (i=0, i<3, i++){
-		R[i] = (m1*X[0,i] + m2*X[1,i])/(m1 + m2);
-		V[i] = (m1*X[2,i] + m2*X[3,i])/(m1 + m2);
+	for (int i=0; i<3; i++){
+		R[i] = (m1*X[0][i] + m2*X[1][i])/(m1 + m2);
+		V[i] = (m1*X[2][i] + m2*X[3][i])/(m1 + m2);
 	}
 	// Move into centre of mass rest frame
-	for (i=0, i<3, i++){
-		X[0,i] -= R[i];
-		X[1,i] -= R[i];
-		X[2,i] -= V[i];
-		X[3,i] -= V[i];
+	for (int i=0; i<3; i++){
+		X[0][i] -= R[i];
+		X[1][i] -= R[i];
+		X[2][i] -= V[i];
+		X[3][i] -= V[i];
 	}
 	return X;
 }

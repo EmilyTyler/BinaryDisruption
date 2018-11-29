@@ -7,4 +7,6 @@ array<double, 3> cross(array<double,3> x, array<double,3> y);
 
 double norm(array<double,3> x);
 
+array<double, 3> normalise(array<double, 3> x);
+
 #endif

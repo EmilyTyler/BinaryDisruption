@@ -1,5 +1,5 @@
 // Set of functions required to simulate encounters between binary stars and a sea of perturbers
-#include <math.h>
+#include <cmath>
 #include <array>
 #include <tuple>
 #include "constants.h"
@@ -24,12 +24,16 @@ using namespace std;
  tuple<array<double,3>, array<double,3>> impactAndVelocityVectors(double b, double v)
  {
  	// Velocity vector
- 	array<double, 3> v_vec = v * randomDirection();
+ 	array<double, 3> v_vec = randomDirection();
+    for (int i = 0; i < 3; i++)
+        v_vec[i] *= v;
  	// Other random vector
  	array<double, 3> n = randomDirection();
  	// Impact parameter vector
  	array<double, 3> b_vec = cross(v_vec, n);
  	// Correct magnitude of impact parameter vector
- 	b_vec = b * normalise(b_vec);
+    b_vec = normalise(b_vec);
+ 	for (int i = 0; i < 3; i++)
+        b_vec[i] *= b;
   return make_tuple(b_vec, v_vec);
  }

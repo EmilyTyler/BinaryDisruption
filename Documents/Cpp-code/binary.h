@@ -12,6 +12,6 @@ double eccentricAnomaly(double e, double M);
 tuple<double, double, bool> orbitalElements(array<double,(4,3)> X, double m1, double m2);
 
 // Open a binary: find the position and velocity vectors given the semi-major axis and eccentricity
-array<double,(4,3)> setupRandomBinary(double a, double e, double m1, double m2);
+array<array<double, 3>, 4> setupRandomBinary(double a, double e, double m1, double m2);
 
 #endif

@@ -1,6 +1,6 @@
 //Functions for basic vector operations
 #include <array>
-#include <math.h>
+#include <cmath>
 using namespace std;
 
 
