@@ -4,7 +4,7 @@ import numpy as np
 import os
 os.system("python setup.py build_ext --inplace")
 
-from monte_carlo import MCEncounters_new, JTEncounters, WSWEncounters, ClosestEncounters
+from monte_carlo import MCEncounters_t, JTEncounters, WSWEncounters, ClosestEncounters
 import matplotlib.pyplot as plt
 from scipy.constants import au, year, mega, giga, parsec, kilo
 from frequency import calcFrequency
@@ -14,7 +14,7 @@ from internal_units import *
 m1 = 1.0*10.0**30.0 / mass_scale()
 m2 = 1.0*10.0**30.0 / mass_scale()
 #Mass of perturbers
-M_p = 100.0 * 2.0*10.0**30.0 / mass_scale()
+M_p = 1000.0 * 2.0*10.0**30.0 / mass_scale()
 #RMS of Maxwellian velocity distribution, m/s
 v_rms = 220.0 * 1000.0 /length_scale() * time_scale()
 #Density of dark matter halo solar masses/pc**3
@@ -30,7 +30,7 @@ T = 10.0 * giga * year / time_scale()
 
 #Number of binary pairs
 #TAKES 25-40 minutes TO RUN 1000 for T=10Gyr
-N_bin = 10**3
+N_bin = 10**1
 
 print('Initial number of binaries =', N_bin)
 
@@ -64,13 +64,15 @@ e_ini = (np.random.random(N_bin))**(1.0/3.0)
 
 #Evolve distribution in time
 print('Evolving population')
-a_fin, e_fin, N_broken = MCEncounters_new(v_rms, n_p, T, m1, m2, M_p, a_ini, e_ini, N_bin, a_T=5.0*parsec/length_scale(), prefactor=0.001)
+a_fin, e_fin, N_broken = MCEncounters_t(v_rms, n_p, T, m1, m2, M_p, a_ini, e_ini, N_bin, prefactor=1.0)
 a_fin = a_fin[np.where(a_fin!=-1.0)]
 e_fin = e_fin[np.where(e_fin!=-1.0)]
 
+'''
 #Save data
 print('Saving data')
 np.savez('simulation_test_{}Msol_{}e{}.npz'.format(int(M_p*mass_scale()/(2.0*10.0**30.0)), int(N_bin/10**int(np.floor(np.log10(N_bin)))), int(np.floor(np.log10(N_bin)))), a_fin=a_fin, e_fin=e_fin, N_broken=N_broken)
+'''
 
 #Load data
 #print('Loading data')
@@ -121,7 +123,7 @@ for i in range(1, N_bins):
         N_a_ini[i] = np.size(np.where(a_ini <= a_bins[i]))
 #Normalise
 N_a_ini /= N_bins
-N_a_fin /= N_bins
+N_a_fin /= np.size(a_fin)
 plt.semilogx(a_bins*length_scale()/au, N_a_ini, label='Initial')
 plt.semilogx(a_bins*length_scale()/au, N_a_fin, label='Final')
 plt.xlabel(r'Semimajor axis $a$, au')

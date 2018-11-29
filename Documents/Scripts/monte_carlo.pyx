@@ -143,35 +143,36 @@ def MCEncounters_t(double v_rms, double n_p, double T, double m1, double m2, dou
         cdef np.ndarray b
         cdef np.ndarray a = np.array([a_0[i] for i in range(N_bin)])
         cdef np.ndarray e = np.array([e_0[i] for i in range(N_bin)])
+        cdef double a_MW = 1000*parsec/length_scale()
         for i in range(N_bin):
-                #Maximum impact parameter
-                b_max = calc_b_max(M_p, v_rms, a[i], m1, m2, prefactor=prefactor)
                 #Time passed
                 t = 0.0
                 #Implement encounters
                 while t <= T:
+                        #Maximum impact parameter
+                        b_max = calc_b_max(M_p, v_rms, a[i], m1, m2, prefactor=prefactor)
+                        #print('b_max, pc =', b_max*length_scale()/parsec)
                         #Encounter rate 
                         rate = encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max)
                         #Increment time passed
                         t += np.random.exponential(1.0/rate)
-                        #print('t =', t)
-                        #print('T =', T)
-                        print('t/T =', t/T)
-                        print('t<=T =', t<=T)
+                        #print('t/T =', t/T)
                         #Draw velocity
                         v = draw_vmaxwellian(v_rms, v_min, v_max, 1)[0]
                         #Draw impact parameter
                         b = draw_b(b_max, 1)
                         #Encounter
-                        (notBound, a[i], e[i], E_fin) = BHTEncounter(m1, m2, v, b, a[i], e[i], M_p)
-                        if (notBound):
+                        #print('a[i], pc =', a[i]*length_scale()/parsec)
+                        (notBound, a[i], e[i], E_fin) = impulseEncounter(m1, m2, v, b, a[i], e[i], M_p)
+                        #print('E_fin =', E_fin)
+                        #print('notBound =', notBound)
+                        if (notBound or a[i]>a_MW):
                                 N_broken += 1
                                 #print('Binary broken!')
                                 a[i] = -1.0
                                 e[i] = -1.0
                                 break
-                        #Update maximum impact parameter
-                        b_max = calc_b_max(M_p, v_rms, a[i], m1, m2, prefactor=prefactor)
+                        
         return (a, e, N_broken)
 
 #Jiang and Tremaine simulation of encounters of N_bin binaries over time T

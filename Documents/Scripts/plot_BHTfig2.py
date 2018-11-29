@@ -25,6 +25,11 @@ N_broken_sim = np.load('BHTfig2_1000bin_mysim_0.npz')['N_broken']
 t_sim = np.load('BHTfig2_1000bin_mysim_0.npz')['t']
 plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='My sim, 1000 binaries', color='red')
 
+#My simulation t method
+N_broken_sim = np.load('BHTfig2_1000bin_mysim_tmethod_0.npz')['N_broken']
+t_sim = np.load('BHTfig2_1000bin_my sim_tmethod_0.npz')['t']
+plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='My sim, t method, 1000 binaries', color='gold')
+
 
 #Encounters with dv given by equations in BHT   
 #My simulation data
@@ -32,12 +37,17 @@ N_broken_sim = np.load('BHTfig2_1000bin_mysim_BHTenc_0.npz')['N_broken']
 t_sim = np.load('BHTfig2_1000bin_mysim_BHTenc_0.npz')['t']
 plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='BHT encounters, 1000 binaries', color='darkorange')
 
-#Encounters with dv given by equations in BHT   
+#Encounters with dv given by double equations in BHT   
 #My simulation data
 N_broken_sim = np.load('BHTfig2_1000bin_2BHT_0.npz')['N_broken']
 t_sim = np.load('BHTfig2_1000bin_2BHT_0.npz')['t']
 plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='2x BHT encounters, 1000 binaries', color='violet')
-
+'''
+#Encounters with change in relative star speed given by equations in BHT   
+N_broken_sim = np.load('BHTfig2_1000bin_BHTenc_changev_tmethod_0.npz')['N_broken']
+t_sim = np.load('BHTfig2_1000bin_BHTenc_changev_tmethod_0.npz')['t']
+plt.plot(t_sim/(giga*year), 1-N_broken_sim, label='BHT new, 1000 binaries', color='gold')
+'''
 '''
 #Different separations
 #Average separation

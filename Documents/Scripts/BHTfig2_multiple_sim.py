@@ -37,7 +37,7 @@ a_0 = 0.1*parsec / length_scale()
 #Eccentricity
 e_0 = 0.7
 #Number of binaries per simulation
-N_bin = 1
+N_bin = 1000
 print('N_bin =', N_bin)
 #Number of simulations
 N_sim = 1
@@ -58,7 +58,7 @@ v_max = 10.0**2.0*v_rel
 rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max)
 print('rate =', rate)
 #Timestep
-dt = 0.1/rate
+dt = 0.5/rate
 #Number of timesteps
 N_t = int(T/dt) + 1
 print('N_t =', N_t)
@@ -77,6 +77,8 @@ for k in range(N_sim):
         t = np.array([i*dt for i in range(N_t)])
         #Run simulations
         for i in range(1,N_t):
+                #print('i =', i)
+                #print('N_t =', N_t)
                 a, e, N_broken[i] = MCEncounters_t(v_rel, n_p, t[i]-t[i-1], m1, m2, M_p, a, e, np.size(a), prefactor=1.0)
                 e = e[np.where(a>0.0)]
                 a = a[np.where(a>0.0)]
@@ -104,7 +106,7 @@ for k in range(N_sim):
         N_broken /= N_bin
         #Save data
         print('Saving')
-        np.savez('BHTfig2_{}bin_BHTenc_changev_tmethod_{}.npz'.format(N_bin, i_start+k), N_broken=N_broken, t=t)
+        np.savez('BHTfig2_{}bin_mysim_tmethod_{}.npz'.format(N_bin, i_start+k), N_broken=N_broken, t=t)
 
 
 

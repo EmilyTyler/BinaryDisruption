@@ -50,8 +50,8 @@ def setupRandomBinary(double a, double e, double m1, double m2):
         #Centre of mass velocity vector
         V = (m1*v1 + m2*v2)/(m1 + m2)
         #Move into centre of mass rest frame
-        x1 -= R
-        x2 -= R
+        #x1 -= R
+        #x2 -= R
         v1 -= V
         v2 -= V
         

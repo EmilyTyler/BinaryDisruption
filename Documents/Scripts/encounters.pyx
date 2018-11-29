@@ -327,30 +327,32 @@ def impulseValid():
 def BHTEncounter(double m1, double m2, double v, double b, double a, double e, double M_p):
         #Open binary
         cdef np.ndarray X = setupRandomBinary(a, e, m1, m2)
-        #Relative speed of binary stars
-        cdef double v_stars = np.linalg.norm(X[2] - X[3])
-        #Initial energy of binary
-        cdef double E_ini = -G*m1*m2/(2.0*a)
-        #Relative velocity change
-        cdef double dv = 0.0
-        if (b<a):
-                dv = G*M_p/(b*v)
-        else:
-                dv = G*M_p*a/(b**2.0*v)
-        #Energy change
-        cdef double dE = m1*m2/(2.0*(m1+m2))*(2.0*v_stars*dv + dv**2.0)
-        #Final semimajor axis
-        cdef double a_fin = -G*m1*m2/(2.0*(E_ini + dE))
-        return (((E_ini+dE) >= 0.0), a_fin, e, E_ini+dE)
-
-        
-        
-
-
-
-
-
-
-
-
-
+        #print('X = ', X)    
+        #Find impact parameter vector and velocity vector
+        cdef np.ndarray b_vec
+        cdef np.ndarray v_vec
+        b_vec, v_vec = impactAndVelocityVectors(b, v)
+        #print('b_vec =', b_vec)
+        #print('v_vec = ', v_vec)
+        #Implement encounter for both stars  
+        cdef int i
+        cdef np.ndarray b_star, v_perp
+        cdef double b_star_norm
+        for i in range(2):
+                #print('i = ', i)
+                #Calculate impact parameter for this star
+                b_star = dot_3d(X[i],v_vec)/v**2.0 * v_vec + b_vec - X[i]
+                #print('b_star = ', b_star)
+                b_star_norm = np.sqrt(b_star[0]**2.0 + b_star[1]**2.0 + b_star[2]**2.0)
+                #print('b_star_norm = ', b_star_norm)
+                #Calculate velocity change in b direction
+                if b > a:
+                        v_perp = G*M_p*a/(b_star_norm**2.0*v) * (b_star/b_star_norm)
+                else:
+                        v_perp = G*M_p/(b_star_norm*v) * (b_star/b_star_norm)
+                #print('v_perp = ', v_perp)
+                #Change velocity
+                X[i+2] += v_perp
+        #print('X_new = ', X)
+        #Close binary
+        return orbitalElements(X, m1, m2)
