@@ -40,11 +40,11 @@ double eccentricAnomaly(double e, double M){
 }
 
 //Return the semi-major axis and eccentricity of a binary and whether or not it is bound from the positions and velocities of the stars
-tuple<double, double, bool> orbitalElements(array<double,(4,3)> X, double m1, double m2){
+tuple<double, double, bool> orbitalElements(array<array<double,3>, 4> X, double m1, double m2){
 	// Separation vector
-	array<double, 3> r = {X[0,0] - X[1,0], X[0,1] - X[1,1], X[0,2] - X[1,2]};
+	array<double, 3> r = {X[0][0] - X[1][0], X[0][1] - X[1][1], X[0][2] - X[1][2]};
 	// Relative velocity vector
-	array<double, 3> v = {X[2,0] - X[3,0], X[2,1] - X[3,1], X[2,2] - X[3,2]};
+	array<double, 3> v = {X[2][0] - X[3][0], X[2][1] - X[3][1], X[2][2] - X[3][2]};
 	// Magnitudes of the above vectors
 	double R = norm(r);
 	double V = norm(v);

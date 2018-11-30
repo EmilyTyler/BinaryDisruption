@@ -9,4 +9,6 @@ double norm(array<double,3> x);
 
 array<double, 3> normalise(array<double, 3> x);
 
+double dot(array<double,3> x, array<double,3> y);
+
 #endif
