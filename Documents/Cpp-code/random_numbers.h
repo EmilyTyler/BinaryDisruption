@@ -5,4 +5,6 @@ double randomUniformDoubleClosed(double min=0.0, double max=1.0);
 
 double randomUniformDoubleOpen(double min=0.0, double max=1.0);
 
+double randomExponential(double rate);
+
 #endif

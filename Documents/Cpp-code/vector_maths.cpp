@@ -10,7 +10,7 @@ array<double, 3> cross(array<double,3> x, array<double,3> y)
 	return z;
 }
 
-inline double norm(array<double,3> x)
+double norm(array<double,3> x)
 {
 	return sqrt(pow(x[0], 2.0) + pow(x[1], 2.0) + pow(x[2], 2.0));
 }
@@ -24,7 +24,7 @@ array<double, 3> normalise(array<double, 3> x)
 	return x;
 }
 
-inline double dot(array<double,3> x, array<double,3> y)
+double dot(array<double,3> x, array<double,3> y)
 {
 	return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);
 }

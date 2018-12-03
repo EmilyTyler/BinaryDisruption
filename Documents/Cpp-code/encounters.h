@@ -3,6 +3,7 @@
 #define ENCOUNTERS_H
 #include <array>
 #include <tuple>
+#include <vector>
 using namespace std;
 
 // Rate of encounters between impact parameters b0 and b1 and between relative speeds of v0 and v1 in a sea of particles with number density n_p and relative velocity dispersion v_rel
@@ -19,5 +20,11 @@ array<double,3> calcBStar(array<double, 3> x, array<double, 3> v_vec, array<doub
 
 // Implements an encounter at impact parameter b and relative speed v
 tuple<double, double, bool> impulseEncounter(double m1, double m2, double M_p, double a, double e, double b, double v);
+
+//Draw an impact parameter from a distribution linear in b up to b_max
+double drawB(double b_max);
+
+//Evolves a population of binaries (a,e) forwards by time T
+tuple<vector<double>, vector<double>> MCEncounters(double v_rel, double n_p, double T, double m1, double m2, double M_p, vector<double> a, vector<double> e);
 
 #endif

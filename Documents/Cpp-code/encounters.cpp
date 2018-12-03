@@ -2,10 +2,13 @@
 #include <cmath>
 #include <array>
 #include <tuple>
+#include <vector>
 #include "constants.h"
 #include "random_direction.h"
 #include "vector_maths.h"
 #include "binary.h"
+#include "random_numbers.h"
+#include "MC_velocity.h"
 using namespace std;
 
 // Rate of encounters between impact parameters b0 and b1 and between relative speeds of v0 and v1 in a sea of particles with number density n_p and relative velocity dispersion v_rel
@@ -82,4 +85,56 @@ tuple<double, double, bool> impulseEncounter(double m1, double m2, double M_p, d
 	}
 	//Close binary
 	return orbitalElements(X, m1, m2);
+}
+
+double drawB(double b_max)
+{
+	return b_max*sqrt(randomUniformDoubleOpen());
+}
+
+tuple<vector<double>, vector<double>> MCEncounters(double v_rel, double n_p, double T, double m1, double m2, double M_p, vector<double> a, vector<double> e)
+{
+	//Minimum impact parameter
+	double b_min = 0.0;
+	//Minimum relative velocity of encounter
+	double v_min = 0.01 * v_rel;
+	//Maximum relative velocity of encounter
+	double v_max = 100.0 * v_rel;
+	//Maximum semimajor axis
+	double a_T = 1000.0 * parsec/length_scale;
+	//Number of binaries
+	int N_bin = static_cast<int>(a.size());
+	//Declare variable types
+	double t, b_max, rate, v, b;
+	tuple<double, double, bool> result;
+	bool notBound;
+	//Iterate over binaries
+	for (int i=0; i<N_bin; i++){
+		//Time passed
+		t = 0.0;
+		//Implement encounters
+		while (t<=T){
+			//Maximum impact parameter
+			b_max = calc_b_max(M_p, v_rel, a[i], m1, m2);
+			//Encounter rate
+			rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
+			//Increment time passed
+			t += randomExponential(rate);
+			//Draw velocity from distribution
+			v = drawVMaxwellian(v_rel, v_min, v_max);
+			//Draw impact parameter from distribution
+			b = drawB(b_max);
+			//Encounter
+			result = impulseEncounter(m1, m2, M_p, a[i], e[i], b, v);
+			a[i] = get<0>(result);
+			e[i] = get<1>(result);
+			notBound = get<2>(result);
+			if(notBound or (a[i]>=a_T)){
+				a[i] = -1.0;
+				e[i] = -1.0;
+				break;
+			}
+		}
+	}
+	return make_tuple(a, e);
 }
