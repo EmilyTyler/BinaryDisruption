@@ -332,7 +332,9 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #print('delta_E_BHT =', delta_E_BHT)
                 #print('E_frac =', E_frac)
                 
-        return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac, E_frac_error, E_ini, E_thr, E_imp)
+                b_star_norm_min = np.min(np.linalg.norm(b_star, axis=1))
+                
+        return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac, E_frac_error, E_ini, E_thr, E_imp, b_star_norm_min)
         
         
 def encounterGrid(double m1, double m2, double v_rms, double e, double M_p, double a_min, double a_max, int N_a, double b_min, double b_max, int N_b, int N_enc):

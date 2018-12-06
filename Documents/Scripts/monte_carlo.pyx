@@ -6,7 +6,7 @@ import numpy as np
 cimport numpy as np
 from cpython cimport bool
 
-from encounters import calc_b_max, encounter, encounterRate, impulseEncounter, BHTEncounter
+from encounters import calc_b_max, encounter, encounterRate, impulseEncounter, BHTEncounter, BHTcalc_b_max
 from scipy.stats import maxwell
 from orbital_elements import orbitalElements
 from random_binary import setupRandomBinary
@@ -83,7 +83,7 @@ def MCEncounters_new(double v_rms, double n_p, double T, double m1, double m2, d
         cdef double b_min = 0.0
         #Maximum maximum impact parameter
         cdef double b_max_max = calc_b_max(M_p, v_rms, a_T, m1, m2, prefactor=prefactor)
-        print('b_max_max, pc =', b_max_max*length_scale()/parsec)
+        #print('b_max_max, pc =', b_max_max*length_scale()/parsec)
         #Minimum velocity
         cdef double v_min = 10.0**(-2.0)*v_rms
         #Maximum velocity
@@ -93,7 +93,6 @@ def MCEncounters_new(double v_rms, double n_p, double T, double m1, double m2, d
         #print('N_mean =', N_mean)
         #Number of encounters
         cdef np.ndarray N_enc = np.random.poisson(N_mean, size=N_bin)
-        #cdef np.ndarray N_enc_actual = np.zeros(N_bin, dtype=int)
         #Implement encounters
         cdef bool notBound = False
         cdef int i, j
@@ -113,7 +112,7 @@ def MCEncounters_new(double v_rms, double n_p, double T, double m1, double m2, d
                                 #Draw velocity
                                 v = draw_vmaxwellian(v_rms, v_min, v_max, 1)[0]
                                 #Encounter
-                                (notBound, a[i], e[i]) = impulseEncounter(m1, m2, v, b[j], a[i], e[i], M_p)
+                                (notBound, a[i], e[i], E_fin) = impulseEncounter(m1, m2, v, b[j], a[i], e[i], M_p)
                                 #N_enc_actual[i] += 1
                                 if (notBound or a[i]>=a_T):
                                         N_broken += 1

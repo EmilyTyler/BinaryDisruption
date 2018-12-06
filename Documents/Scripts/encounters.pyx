@@ -26,6 +26,12 @@ def calc_b_max(double M_p, double v_rel, double a, double m1, double m2, double 
         #cdef double b_max = prefactor * v_rel * np.sqrt(a**3.0/(G*(m1+m2)))
         return b_max
 
+def BHTcalc_b_max(double M_p, double v_rel, double a, double m1, double m2, double prefactor = 1.0, double e=0.7):
+        cdef double v_c = np.sqrt(G*m1*m2*(m1+m2+M_p)/(M_p*(m1+m2)*a))
+        v_rel /= v_c
+        cdef double b_max = prefactor * (8/v_rel + 0.6*(1.0+e)) * a
+        return b_max
+
 #Evolve binary without encounters
 def noEncounters(int N_t, np.ndarray t, np.ndarray X, np.ndarray A, double m1, double m2):
         cdef int i

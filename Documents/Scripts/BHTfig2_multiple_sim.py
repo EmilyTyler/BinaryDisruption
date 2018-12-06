@@ -4,7 +4,7 @@ os.system("python setup.py build_ext --inplace")
 import matplotlib.pyplot as plt
 
 from encounters import calc_b_max, encounterRate
-from monte_carlo import MCEncounters_t
+from monte_carlo import MCEncounters_t, MCEncounters_new
 from scipy.constants import parsec, au, giga, year
 from internal_units import *
 G = G()
@@ -37,7 +37,7 @@ a_0 = 0.1*parsec / length_scale()
 #Eccentricity
 e_0 = 0.7
 #Number of binaries per simulation
-N_bin = 1000
+N_bin = 10
 print('N_bin =', N_bin)
 #Number of simulations
 N_sim = 1
@@ -79,7 +79,7 @@ for k in range(N_sim):
         for i in range(1,N_t):
                 #print('i =', i)
                 #print('N_t =', N_t)
-                a, e, N_broken[i] = MCEncounters_t(v_rel, n_p, t[i]-t[i-1], m1, m2, M_p, a, e, np.size(a), prefactor=1.0)
+                a, e, N_broken[i] = MCEncounters_new(v_rel, n_p, t[i]-t[i-1], m1, m2, M_p, a, e, np.size(a), a_T=1.0*parsec/length_scale(), prefactor=1.0)
                 e = e[np.where(a>0.0)]
                 a = a[np.where(a>0.0)]
         print('Filtering')
@@ -106,7 +106,7 @@ for k in range(N_sim):
         N_broken /= N_bin
         #Save data
         print('Saving')
-        np.savez('BHTfig2_{}bin_mysim_tmethod_{}.npz'.format(N_bin, i_start+k), N_broken=N_broken, t=t)
+        np.savez('BHTfig2_{}bin_mysim_aT10pc_pref1_{}.npz'.format(N_bin, i_start+k), N_broken=N_broken, t=t)
 
 
 
