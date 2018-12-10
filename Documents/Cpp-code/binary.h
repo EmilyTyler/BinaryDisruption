@@ -8,9 +8,9 @@
 double eccentricAnomaly(double e, double M);
 
 //Return the semi-major axis and eccentricity of a binary and whether or not it is bound from the positions and velocities of the stars
-tuple<double, double, bool> orbitalElements(array<array<double, 3>, 4> X, double m1, double m2);
+std::tuple<double, double, bool> orbitalElements(std::array<std::array<double, 3>, 4> X, double m1, double m2);
 
 // Open a binary: find the position and velocity vectors given the semi-major axis and eccentricity
-array<array<double, 3>, 4> setupRandomBinary(double a, double e, double m1, double m2);
+std::array<std::array<double, 3>, 4> setupRandomBinary(double a, double e, double m1, double m2);
 
 #endif
