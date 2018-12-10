@@ -1,14 +1,13 @@
 #ifndef VECTOR_MATHS_H
 #define VECTOR_MATHS_H
 #include <array>
-using namespace std;
 
-array<double, 3> cross(array<double,3> x, array<double,3> y);
+std::array<double, 3> cross(std::array<double,3> x, std::array<double,3> y);
 
-double norm(array<double,3> x);
+double norm(std::array<double,3> x);
 
-array<double, 3> normalise(array<double, 3> x);
+std::array<double, 3> normalise(std::array<double, 3> x);
 
-double dot(array<double,3> x, array<double,3> y);
+double dot(std::array<double,3> x, std::array<double,3> y);
 
 #endif

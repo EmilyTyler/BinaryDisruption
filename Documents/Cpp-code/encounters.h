@@ -4,7 +4,6 @@
 #include <array>
 #include <tuple>
 #include <vector>
-using namespace std;
 
 // Rate of encounters between impact parameters b0 and b1 and between relative speeds of v0 and v1 in a sea of particles with number density n_p and relative velocity dispersion v_rel
 double encounterRate(double n_p, double v_rel, double b0, double b1, double v0, double v1);

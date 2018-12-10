@@ -3,7 +3,6 @@
 #define BINARY_H
 #include <array>
 #include <tuple>
-using namespace std;
 
 // Find the eccentric anomaly of a binary given its eccentricity e and mean anomaly M
 double eccentricAnomaly(double e, double M);
