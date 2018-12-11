@@ -5,6 +5,7 @@ using namespace std;
 
 const double DBL_MAX = numeric_limits<double>::max();
 
+//Indirectly tested through random_direction
 double randomUniformDoubleClosed(double min=0.0, double max=1.0)
 {
 	random_device rd;
@@ -13,6 +14,7 @@ double randomUniformDoubleClosed(double min=0.0, double max=1.0)
 	return distribution(gen);
 }
 
+//Indirectly tested through random_direction
 double randomUniformDoubleOpen(double min=0.0, double max=1.0)
 {
 	random_device rd;
@@ -21,7 +23,8 @@ double randomUniformDoubleOpen(double min=0.0, double max=1.0)
 	return distribution(gen);
 }
 
-double randomExponential(double rate)
+//Tested
+double randomExponential(double rate = 1.0)
 {
 	random_device rd;
 	mt19937 gen(rd());

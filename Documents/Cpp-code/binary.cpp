@@ -8,7 +8,7 @@
 #include "random_numbers.h"
 using namespace std;
 
-
+//Tested
 // Find the eccentric anomaly of a binary given its eccentricity e and mean anomaly M
 double eccentricAnomaly(double e, double M){
 	// Solves Kepler's equation E-esinE=M to find eccentric anomaly E given eccentricity e and mean anomaly M.
@@ -39,6 +39,7 @@ double eccentricAnomaly(double e, double M){
 	return E;
 }
 
+//Tested with setupRandomBinary
 //Return the semi-major axis and eccentricity of a binary and whether or not it is bound from the positions and velocities of the stars
 tuple<double, double, bool> orbitalElements(array<array<double,3>, 4> X, double m1, double m2){
 	// Separation vector
@@ -53,8 +54,8 @@ tuple<double, double, bool> orbitalElements(array<array<double,3>, 4> X, double 
 	// Total angular momentum
 	array<double, 3> L = cross(r, v);
 	L[0] *= m1*m2/(m1+m2);
-	L[0] *= m1*m2/(m1+m2);
-	L[0] *= m1*m2/(m1+m2);
+	L[1] *= m1*m2/(m1+m2);
+	L[2] *= m1*m2/(m1+m2);
 	double L_norm = norm(L);
 	// Semi-major axis
 	double a = G*m1*m2/(2.0*abs(E));
@@ -65,6 +66,7 @@ tuple<double, double, bool> orbitalElements(array<array<double,3>, 4> X, double 
 	return make_tuple(a, e, notBound);
 }
 
+//Tested with orbitalElements
 // Open a binary: find the position and velocity vectors given the semi-major axis and eccentricity
 array<array<double, 3>, 4> setupRandomBinary(double a, double e, double m1, double m2){
 	// Randomise mean anomaly
