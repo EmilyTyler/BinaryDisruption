@@ -70,7 +70,7 @@ tuple<double, double, bool> orbitalElements(array<array<double,3>, 4> X, double 
 // Open a binary: find the position and velocity vectors given the semi-major axis and eccentricity
 array<array<double, 3>, 4> setupRandomBinary(double a, double e, double m1, double m2){
 	// Randomise mean anomaly
-	double M = randomUniformDoubleOpen(0.0, 2.0*pi);
+	double M = randomUniformDoubleOpen() * 2.0*pi;
 	// Find eccentric anomaly
 	double E = eccentricAnomaly(e, M);
 	// Find true anomaly

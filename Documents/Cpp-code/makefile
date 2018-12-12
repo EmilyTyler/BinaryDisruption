@@ -1,5 +1,5 @@
 CC = g++
-CXXFLAGS = -std=c++11
+CXXFLAGS = -std=c++11 -pg
 
 program     = binary_disruption
 objects     = binary.o encounters.o MC_velocity.o random_direction.o random_numbers.o vector_maths.o main.o

@@ -4,8 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-
-v_rel = 50.0
+b_max = 3.086*10.0**16.0
 data = np.zeros(1000000, dtype=float)
 
 with open('test_data.csv') as csvfile:
@@ -19,7 +18,7 @@ N_bins = 100
 
 d_min = np.min(data)
 d_max = np.max(data)
-dd = (d_max - d_min)/(N_bins-1.0)
+dd = (d_max - d_min)/(N_bins-1)
 d_bins = np.array([d_min + i*dd for i in range(N_bins)])
 N_d = np.zeros(N_bins)
 for i in range(np.size(data)):
@@ -27,7 +26,7 @@ for i in range(np.size(data)):
 	N_d[j] += 1
 N_d /= np.size(data)
 plt.plot(d_bins, N_d/dd)
-plt.plot(d_bins, (d_bins+0.5*dd)**3.0/(2.0*v_rel**4.0)*np.exp(-(d_bins+0.5*dd)**2.0/(2.0*v_rel**2.0)))
+plt.plot(d_bins, 2.0*(d_bins+0.5*dd)/(b_max**2.0))
 plt.show()
 
 

@@ -21,9 +21,11 @@ std::tuple<std::array<double,3>, std::array<double,3>> impactAndVelocityVectors(
 //Finds the impact parameter for a star in a binary given the impact parameter b_vec, velocity of perturber v_vec, and star position x
 std::array<double,3> calcBStar(std::array<double, 3> x, std::array<double, 3> v_vec, std::array<double, 3> b_vec);
 
+//Tested
 // Implements an encounter at impact parameter b and relative speed v
 std::tuple<double, double, bool> impulseEncounter(double m1, double m2, double M_p, double a, double e, double b, double v);
 
+//Tested
 //Draw an impact parameter from a distribution linear in b up to b_max
 double drawB(double b_max);
 

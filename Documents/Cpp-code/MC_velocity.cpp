@@ -32,9 +32,9 @@ double drawVMaxwellian(double v_rel, double v_min, double v_max)
 	//Total area under comparison function
 	double area = (v_max - v_min) * VMaxwellianPdf(x_max, v_rel);
 	while (true){
-		double u = randomUniformDoubleOpen(0.0, area);
+		double u = randomUniformDoubleOpen()*area;
 		double x = VMaxwellianXFromArea(u, v_rel, v_min, x_max);
-		double y = randomUniformDoubleOpen(0.0, VMaxwellianComparison(x, v_rel, v_min, v_max, x_max));
+		double y = randomUniformDoubleOpen() *VMaxwellianComparison(x, v_rel, v_min, v_max, x_max);
 		if (y < VMaxwellianPdf(x, v_rel)){
 			return x;
 		}

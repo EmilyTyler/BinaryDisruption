@@ -50,80 +50,55 @@ return make_tuple(b_vec, v_vec);
 
 //Tested
 //Finds the impact parameter for a star in a binary given the impact parameter b_vec, velocity of perturber v_vec, and star position x
-array<double,3> calcBStar(array<double, 3> x, array<double, 3> v_vec, array<double, 3> b_vec)
+array<double,3> calcBStar(array<double, 3> x, array<double, 3> v_vec, double v_norm, array<double, 3> b_vec)
 {
 	array<double,3> b_star;
-	double v = norm(v_vec);
 	for (int i=0; i<3; i++){
-		b_star[i] = dot(x,v_vec)/(v*v) * v_vec[i] + b_vec[i] - x[i];
+		b_star[i] = dot(x,v_vec)/(v_norm*v_norm) * v_vec[i] + b_vec[i] - x[i];
 	}
 	return b_star;
 }
 
+//Tested
 // Implements an encounter at impact parameter b and relative speed v
 tuple<double, double, bool> impulseEncounter(double m1, double m2, double M_p, double a, double e, double b, double v)
 {
 	//Star masses
-	array<double, 2> m = {{m1, m2}};
+	array<double, 2> m = {m1, m2};
 	//Open binary
 	array<array<double, 3>, 4> X = setupRandomBinary(a, e, m1, m2);
-
-	cout << "X = ";
-	for(int i=0; i<4; i++){
-		for(int j=0; j<3; j++){
-			cout << " " << X[i][j];
-		}
-		cout << endl;
-	}
-
 	//Find impact parameter and velocity vectors
 	tuple<array<double,3>, array<double,3>> bvvectors = impactAndVelocityVectors(b, v);
 	array<double,3> b_vec = get<0>(bvvectors);
 	array<double,3> v_vec = get<1>(bvvectors);
-
-	cout << "b_vec = " << b_vec[0] << ", " << b_vec[1] << ", " << b_vec[2] << endl;
-	cout << "v_vec = " << v_vec[0] << ", " << v_vec[1] << ", " << v_vec[2] << endl;
-
 	//Declare variables
 	double b_90, b_star_norm, v_perp, v_para;
 	array<double,3> b_star;
 	for (int i=0; i<2; i++){
 		//90 degree deflection radius
 		b_90 = G*(M_p + m[i])/(v*v);
-		cout << "b_90 = " << b_90 << endl;
 		//Calculate impact parameter for this star
-		b_star = calcBStar(X[i], v_vec, b_vec);
-		cout << "b_star = " << b_star[0] << ", " << b_star[1] << ", " << b_star[2] << endl;
+		b_star = calcBStar(X[i], v_vec, v, b_vec);
 		//Calculate norm of b_star
 		b_star_norm = norm(b_star);
-		cout << "norm b_star = " << b_star_norm << endl;
 		//Calculate speed change in b_star direction
 		v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90)/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
-		cout << "v_perp = " << v_perp << endl;
 		//Calculate speed change in -v_vec direction
 		v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
-		cout << "v_para = " << v_para << endl;
 		//Change star velocity
 		for (int j=0; j<3; j++){
 			X[i+2][j] += v_perp * b_star[j]/b_star_norm - v_para * v_vec[j]/v;
 		}
 	}
-
-	cout << "X = ";
-	for(int i=0; i<4; i++){
-		for(int j=0; j<3; j++){
-			cout << " " << X[i][j];
-		}
-		cout << endl;
-	}
-
 	//Close binary
 	return orbitalElements(X, m1, m2);
 }
 
+//Tested
+//Draw an impact parameter from a distribution linear in b up to b_max
 double drawB(double b_max)
 {
-	return b_max*sqrt(randomUniformDoubleOpen());
+	return b_max*sqrt(randomUniformDoubleClosed());
 }
 
 tuple<vector<double>, vector<double>> MCEncounters(double v_rel, double n_p, double T, double m1, double m2, double M_p, vector<double> a, vector<double> e)
@@ -147,7 +122,7 @@ tuple<vector<double>, vector<double>> MCEncounters(double v_rel, double n_p, dou
 		//Time passed
 		t = 0.0;
 		//Implement encounters
-		while (t<=T){
+		while (t<T){
 			//Maximum impact parameter
 			b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 			//Encounter rate

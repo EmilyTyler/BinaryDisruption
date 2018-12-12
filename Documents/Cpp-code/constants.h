@@ -5,7 +5,10 @@
 
 const double pi = 3.14159265359;
 const double G_SI = 6.67 * pow(10.0, -11.0);
+const double giga = pow(10.0, 9.0);
 
+const double year = 365.25*24*60*60;
+const double au = 149597870700;
 const double parsec = 3.0856775813057292 * pow(10.0, 16.0);
 const double msol = 2.0 * pow(10.0, 30.0);
 

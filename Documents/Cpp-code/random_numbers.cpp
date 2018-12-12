@@ -5,29 +5,25 @@ using namespace std;
 
 const double DBL_MAX = numeric_limits<double>::max();
 
-//Indirectly tested through random_direction
-double randomUniformDoubleClosed(double min=0.0, double max=1.0)
+random_device rd;
+mt19937 gen(rd());
+uniform_real_distribution<double> closed_distribution(0.0, nextafter(1.0, DBL_MAX));
+uniform_real_distribution<double> open_distribution(0.0, 1.0);
+
+
+double randomUniformDoubleClosed()
 {
-	random_device rd;
-	mt19937 gen(rd());
-	uniform_real_distribution<double> distribution(min, nextafter(max, DBL_MAX));
-	return distribution(gen);
+	return closed_distribution(gen);
 }
 
-//Indirectly tested through random_direction
-double randomUniformDoubleOpen(double min=0.0, double max=1.0)
+
+double randomUniformDoubleOpen()
 {
-	random_device rd;
-	mt19937 gen(rd());
-	uniform_real_distribution<double> distribution(min, max);
-	return distribution(gen);
+	return open_distribution(gen);
 }
 
-//Tested
-double randomExponential(double rate = 1.0)
+double randomExponential(double rate)
 {
-	random_device rd;
-	mt19937 gen(rd());
-	exponential_distribution<double> distribution(rate);
-	return distribution(gen);
+	exponential_distribution<double> exp_distribution(rate);
+	return exp_distribution(gen);
 }
