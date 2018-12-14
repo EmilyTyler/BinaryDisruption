@@ -23,11 +23,11 @@ tuple<vector<double>, vector<double>> initialDistributions(int N_bin, double a_m
 	double c;
 	if (alpha == 2.0){
 		c = log(a_min)/log(a_max/a_min);
-		for (int i=0; i<N_bin; i++){
+		for (int i=0; i<N_bin; ++i){
 			a[i] = pow(a_max/a_min, (randomUniformDoubleClosed() + c));
 		}
 	} else {
-		for (int i=0; i<N_bin; i++){
+		for (int i=0; i<N_bin; ++i){
 			a[i] = pow((randomUniformDoubleClosed()*(pow(a_max, 2.0-alpha) - pow(a_min, 2.0-alpha)) + pow(a_min, 2.0-alpha)), 1.0/(2.0 - alpha));
 		}
 	}
@@ -37,7 +37,7 @@ tuple<vector<double>, vector<double>> initialDistributions(int N_bin, double a_m
 	e.resize(N_bin);
 	//Reduce capacity
 	e.shrink_to_fit();
-	for (int i=0; i<N_bin; i++){
+	for (int i=0; i<N_bin; ++i){
 		e[i] = pow(randomUniformDoubleClosed(), 1.0/3.0);
 	}
 	return make_tuple(a, e);
@@ -54,7 +54,7 @@ void evolvePopulation(string filename, int N_bin, double a_min, double a_max, do
 	//Save results to file
 	ofstream myfile;
 	myfile.open(filename);
-	for (int i; i<N_bin; i++){
+	for (int i; i<N_bin; ++i){
 		myfile << a_fin[i] << ", " << e_fin[i] << endl; 
 	}
     myfile.close();

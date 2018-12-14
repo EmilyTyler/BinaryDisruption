@@ -35,7 +35,7 @@ tuple<array<double,3>, array<double,3>> impactAndVelocityVectors(double b, doubl
 {
 	// Velocity vector
 	array<double, 3> v_vec = randomDirection();
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 3; ++i)
     	v_vec[i] *= v;
 	// Other random vector
 	array<double, 3> n = randomDirection();
@@ -43,7 +43,7 @@ tuple<array<double,3>, array<double,3>> impactAndVelocityVectors(double b, doubl
 	array<double, 3> b_vec = cross(v_vec, n);
 	// Correct magnitude of impact parameter vector
 	b_vec = normalise(b_vec);
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 3; ++i)
     	b_vec[i] *= b;
 return make_tuple(b_vec, v_vec);
 }
@@ -53,7 +53,7 @@ return make_tuple(b_vec, v_vec);
 array<double,3> calcBStar(array<double, 3> x, array<double, 3> v_vec, double v_norm, array<double, 3> b_vec)
 {
 	array<double,3> b_star;
-	for (int i=0; i<3; i++){
+	for (int i=0; i<3; ++i){
 		b_star[i] = dot(x,v_vec)/(v_norm*v_norm) * v_vec[i] + b_vec[i] - x[i];
 	}
 	return b_star;
@@ -74,7 +74,7 @@ tuple<double, double, bool> impulseEncounter(double m1, double m2, double M_p, d
 	//Declare variables
 	double b_90, b_star_norm, v_perp, v_para;
 	array<double,3> b_star;
-	for (int i=0; i<2; i++){
+	for (int i=0; i<2; ++i){
 		//90 degree deflection radius
 		b_90 = G*(M_p + m[i])/(v*v);
 		//Calculate impact parameter for this star
@@ -86,7 +86,7 @@ tuple<double, double, bool> impulseEncounter(double m1, double m2, double M_p, d
 		//Calculate speed change in -v_vec direction
 		v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
 		//Change star velocity
-		for (int j=0; j<3; j++){
+		for (int j=0; j<3; ++j){
 			X[i+2][j] += v_perp * b_star[j]/b_star_norm - v_para * v_vec[j]/v;
 		}
 	}
@@ -118,7 +118,7 @@ tuple<vector<double>, vector<double>> MCEncounters(double v_rel, double n_p, dou
 	tuple<double, double, bool> result;
 	bool notBound;
 	//Iterate over binaries
-	for (int i=0; i<N_bin; i++){
+	for (int i=0; i<N_bin; ++i){
 		//Time passed
 		t = 0.0;
 		//Implement encounters

@@ -89,12 +89,12 @@ array<array<double, 3>, 4> setupRandomBinary(double a, double e, double m1, doub
 	array<double, 3> R;
 	// Centre of mass velocity vector
 	array<double,3> V;
-	for (int i=0; i<3; i++){
+	for (int i=0; i<3; ++i){
 		R[i] = (m1*X[0][i] + m2*X[1][i])/(m1 + m2);
 		V[i] = (m1*X[2][i] + m2*X[3][i])/(m1 + m2);
 	}
 	// Move into centre of mass rest frame
-	for (int i=0; i<3; i++){
+	for (int i=0; i<3; ++i){
 		X[0][i] -= R[i];
 		X[1][i] -= R[i];
 		X[2][i] -= V[i];

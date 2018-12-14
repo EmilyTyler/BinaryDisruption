@@ -20,7 +20,7 @@ double norm(array<double,3> x)
 array<double, 3> normalise(array<double, 3> x)
 {
 	double x_norm = norm(x);
-	for (int i=0; i<3; i++){
+	for (int i=0; i<3; ++i){
 		x[i] /= x_norm;
 	}
 	return x;

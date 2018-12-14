@@ -21,12 +21,14 @@ double VMaxwellianComparison(double x, double v_rel, double v_min, double v_max,
 
 //Indirectly tested through drawVMaxwellian
 double VMaxwellianXFromArea(double A, double v_rel, double v_min, double x_max){
-	return v_min + A/VMaxwellianPdf(x_max, v_rel);
+	return v_min + A/(VMaxwellianPdf(x_max, v_rel));
 }
 
 //Tested
 double drawVMaxwellian(double v_rel, double v_min, double v_max)
 {
+	return v_rel;
+	/*
 	//Value of x for which the pdf is maximum
 	double x_max = sqrt(3.0)*v_rel;
 	//Total area under comparison function
@@ -39,4 +41,5 @@ double drawVMaxwellian(double v_rel, double v_min, double v_max)
 			return x;
 		}
 	}
+	*/
 }
