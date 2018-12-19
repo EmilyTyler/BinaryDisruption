@@ -20,6 +20,9 @@ from internal_units import *
 G = G()
 from scipy.constants import parsec, au, giga, year
 
+def dot_3d(np.ndarray[double, ndim=1] a, np.ndarray[double, ndim=1] b):
+        return a[0]*b[0] + a[1]*b[1] + a[2]*b[2]
+
 def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, double e, double M_p, double delta=10.0**(-6.0), double eta=0.02):
         '''
         print('ENCOUNTER!')
@@ -71,6 +74,8 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 t_imp = np.array([0.0])
                 #Initial positions and velocities
                 x_imp = np.array([X])
+                delta_v_imp_i = np.zeros((2,3))
+                v_initial_i = np.zeros((2,3))
                 #Initialise counter
                 j = 1
                 while t_imp[j-1] <= w:
@@ -81,6 +86,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         j += 1
                 for i in range(2):
                         #print('i =', i)
+                        v_initial_i[i] = x_imp[j-1,i+2]
                         #Calculate impact parameter for this star
                         b_star[i] = (np.dot(x_imp[j-1,i],v_vec) - np.dot(b_vec,v_vec))/V_0**2.0 * v_vec + b_vec - x_imp[j-1,i]
                         #print('b_star = ', b_star)
@@ -94,6 +100,7 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         #print('v_parr =', v_parr)
                         #New velocity
                         x_imp[j-1,i+2] += v_perp + v_parr
+                        delta_v_imp_i[i] = v_perp+v_parr 
                 #print('V_imp =', V_imp)
                 while t_imp[j-1] < t_end:
                         (x_imp_new, dt) = integrateBinary(2, x_imp[j-1], m, n=10, dt_max=w/100.0, eta=eta)
@@ -103,6 +110,10 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                         j += 1
                 N_t_imp = np.size(t_imp)
                 #print('t_imp =', t_imp)
+                v_initial = v_initial_i[0] - v_initial_i[1]
+                delta_v_imp = delta_v_imp_i[0] - delta_v_imp_i[1]
+                print('v dot delta v term =', m1*m2/(m1+m2)*np.dot(v_initial, delta_v_imp))
+                print('delta v squared term =', m1*m2/(m1+m2)*np.dot(delta_v_imp, delta_v_imp))
                 
                 '''
                 #Impulse approximation, Bahcall et al.:            
@@ -327,15 +338,55 @@ def impulseTestEncounter(double m1, double m2, double V_0, double b, double a, d
                 #delta_E_BHT = E_BHT - E_ini
                 E_frac = delta_E_thr/E_ini
                 E_frac_error = (delta_E_imp - delta_E_thr)/delta_E_thr
-                #print('delta_E_imp =', delta_E_imp)
-                #print('delta_E_thr =', delta_E_thr)
+                print('delta_E_imp =', delta_E_imp)
+                print('delta_E_thr =', delta_E_thr)
                 #print('delta_E_BHT =', delta_E_BHT)
                 #print('E_frac =', E_frac)
+                
                 
                 b_star_norm_min = np.min(np.linalg.norm(b_star, axis=1))
                 
         return (notBound_thr, a_thr, e_thr, a_frac, e_diff, E_frac, E_frac_error, E_ini, E_thr, E_imp, b_star_norm_min)
         
+def justImpulseTestEncounter(double m1, double m2, double v, double b, double a, double e, double M_p):
+        #Star masses
+        cdef np.ndarray m = np.array([m1, m2])
+        #90 degree deflection radius
+        cdef np.ndarray b_90 = G*(M_p+m)/v**2.0   
+        #Open binary
+        cdef np.ndarray X = setupRandomBinary(a, e, m1, m2) 
+        #print('X =', X)
+        #Find impact parameter vector and velocity vector
+        cdef np.ndarray b_vec
+        cdef np.ndarray v_vec
+        b_vec, v_vec = impactAndVelocityVectors(b, v)
+        #print('b_vec =', b_vec)
+        #print('v_vec =', v_vec)
+        #Implement encounter for both stars  
+        cdef int i
+        cdef np.ndarray b_star, v_perp, v_parr
+        cdef np.ndarray b_star_norm = np.zeros(2, dtype=float)
+        cdef np.ndarray v_initial = X[2]-X[3]
+        cdef np.ndarray delta_v_i = np.zeros((2,3), dtype=float)
+        for i in range(2):
+                #Calculate impact parameter for this star
+                b_star = dot_3d(X[i],v_vec)/v**2.0 * v_vec + b_vec - X[i]
+                #print('b_star = ', b_star)
+                b_star_norm[i] = np.sqrt(b_star[0]**2.0 + b_star[1]**2.0 + b_star[2]**2.0)
+                #Calculate velocity change in b direction
+                v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm[i]/b_90[i])/(1.0 + b_star_norm[i]**2.0/b_90[i]**2.0) * (b_star/b_star_norm[i])
+                #Calculate velocity change in -v direction
+                v_parr = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm[i]**2.0/b_90[i]**2.0) * (-v_vec/v)
+                #Change velocity
+                delta_v_i[i] = v_perp + v_parr 
+                X[i+2] += v_perp + v_parr
+        cdef np.ndarray delta_v = delta_v_i[0] - delta_v_i[1]
+        cdef double E_ini = -G*m1*m2/(2.0*a)
+        notBound, a, e, E_imp = orbitalElements(X, m1, m2)
+        #print('v dot delta v term =', m1*m2/(m1+m2)*np.dot(v_initial, delta_v))
+        #print('delta v squared term =', m1*m2/(m1+m2)*np.dot(delta_v, delta_v))
+        #print('delta E =', E_imp-E_ini)
+        return (notBound, a, e, E_ini, E_imp, np.min(b_star_norm))
         
 def encounterGrid(double m1, double m2, double v_rms, double e, double M_p, double a_min, double a_max, int N_a, double b_min, double b_max, int N_b, int N_enc):
         #Set up logarithmic a bins

@@ -9,7 +9,7 @@ from matplotlib import ticker
 import matplotlib.colors as colors
 from scipy.constants import au, parsec, giga, year
 
-from impulse_test_encounter import impulseTestEncounter, impulseTestEquations
+from impulse_test_encounter import justImpulseTestEncounter, impulseTestEncounter, impulseTestEquations
 from encounters import calc_b_max
 from random_direction import randomDirection
 from random_binary import setupRandomBinary
@@ -48,14 +48,15 @@ b_max = v_rel * np.sqrt(a**3.0/(G()*(m1+m2)))
 print('b_max, au =', b_max*length_scale()/au)
 
 #Impact parameter
-b = 10.0**5.5 * au / length_scale()
+b = 10.0**8.0 * au / length_scale()
 print('b, au =', b*length_scale()/au)
 #Number of encounters
-N_enc = 6*10**4
+N_enc = 10**6
 print('N_enc =', N_enc)
 #Simulation parameters
 delta=10.0**(-6.0)
 eta=0.02
+
 
 #
 E_frac_avg = 0.0
@@ -68,6 +69,7 @@ E_thr = np.zeros(N_enc)
 E_imp = np.zeros(N_enc)
 bs = np.zeros(N_enc)
 
+'''
 for i in range(N_enc):
         notBound, a_thr, e_thr, a_frac, e_diff, E_frac, E_frac_error, E_ini[i], E_thr[i], E_imp[i], bs[i] = impulseTestEncounter(m1, m2, v_rel, b, a, e, M_p, delta=delta, eta=eta)
         E_frac_avg += E_frac
@@ -96,6 +98,24 @@ print('Error on mean of fractional energy change =', E_frac_var**0.5/(N_enc-1)**
 print('Average fractional error on energy change =', E_frac_error_avg)
 print('Error on mean of fractional error on energy change =', E_frac_error_var**0.5/(N_enc-1)**0.5)
 
+
 print('Saving data')
 np.savez('impulse_nbody_energy_changes_b10e5_5au_Nenc60000_record_b.npz', E_ini=E_ini, E_thr=E_thr, E_imp=E_imp, b=bs)
 print('Finished')
+
+'''
+#Just impulse
+
+for i in range(N_enc): 
+        notBound, a_fin, e_fin, E_ini[i], E_imp[i], bs[i] = justImpulseTestEncounter(m1, m2, v_rel, b, a, e, M_p)
+
+#Convert to SI
+E_ini *= mass_scale()*(length_scale()/time_scale())**2.0
+E_imp *= mass_scale()*(length_scale()/time_scale())**2.0
+print('Saving data')
+np.savez('impulse_WSW_energy_changes_b10e8au_Nenc10e6_record_b.npz', E_ini=E_ini, E_imp=E_imp, b=bs)
+print('Finished')
+
+
+
+
