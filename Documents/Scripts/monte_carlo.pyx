@@ -48,14 +48,16 @@ def maxwellianX_from_area(double A, double v_rms, double v_min):
 def draw_vmaxwellian(double v_rms, double v_min, double v_max, int N):
         #Accepted points
         cdef np.ndarray accepted = np.array([])
-        #Total area under comparison function
-        cdef double area = (v_max - v_min)*3.0**(3.0/2.0)/(2.0*v_rms)*np.exp(-3.0/2.0)
         
+        cdef x_max = 3.0**0.5*v_rms
+        
+        #Total area under comparison function
+        cdef double area = (v_max - v_min) * vmaxwellianPdf(x_max, v_rms)
         cdef double u, x, y
         while accepted.size < N:
                 u = random.uniform(0.0, area)
-                x = vmaxwellianX_from_area(u, v_rms, v_min)
-                y = random.uniform(0.0, vmaxwellianComparison(x, v_rms, v_min, v_max))
+                x = vmaxwellianX_from_area(u, v_rms, v_min, x_max)
+                y = random.uniform(0.0, vmaxwellianComparison(x, v_rms, v_min, v_max, x_max))
                 if y < vmaxwellianPdf(x, v_rms):
                         accepted = np.append(accepted, x)
         return accepted
@@ -63,14 +65,25 @@ def draw_vmaxwellian(double v_rms, double v_min, double v_max, int N):
 def vmaxwellianPdf(double x, double v_rms):
         return x**3.0/(2.0*v_rms**4.0)*np.exp(-x**2.0/(2.0*v_rms**2.0))
 
-def vmaxwellianComparison(double x, double v_rms, double v_min, double v_max):
+def vmaxwellianComparison(double x, double v_rms, double v_min, double v_max, double x_max):
+        #cdef double answer = 0.0
+        #if v_min<x<v_max:
+        #        answer = vmaxwellianPdf(x_max, v_rms)
+        #return answer
         cdef double answer = 0.0
-        if v_min<x<v_max:
-                answer = 3.0**(3.0/2.0)/(2.0*v_rms)*np.exp(-3.0/2.0)
+        cdef double gamma = v_max/v_rms
+        if 0.0<x<v_max:
+                if x<v_rms:
+                        answer = 3.0**1.5/(2.0*v_rms**4.0)*np.exp(-1.5)*x**3.0
+                else:
+                        if x<3.0*v_rms:
+                                answer = vmaxwellianPdf(x_max, v_rms)
+                        else:
+                                answer = 3.0**1.5/(2.0*v_rms)*np.exp(3.0)*np.exp(-x**2.0/(2.0*v_rms**2.0))
         return answer
 
-def vmaxwellianX_from_area(double A, double v_rms, double v_min):
-        return v_min + 2.0*v_rms*A*np.exp(3.0/2.0)/3.0**(3.0/2.0)
+def vmaxwellianX_from_area(double A, double v_rms, double v_min, double x_max):
+        return v_min + A/(vmaxwellianPdf(x_max, v_rms))
 
 
 #Draw impact parameter from a distribution linear in b

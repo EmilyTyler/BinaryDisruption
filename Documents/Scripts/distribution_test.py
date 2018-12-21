@@ -4,9 +4,9 @@ import os
 os.system("python setup.py build_ext --inplace")
 
 import matplotlib.pyplot as plt
-from scipy.constants import giga, year, parsec
+from scipy.constants import mega, giga, year, parsec
 from scipy.stats import maxwell
-from monte_carlo import draw_b, maxwellianPdf, draw_maxwellian, draw_vmaxwellian
+from monte_carlo import draw_b, vmaxwellianPdf, draw_maxwellian, draw_vmaxwellian, vmaxwellianComparison
 from encounters import calc_b_max, encounterRate
 from frequency import calcFrequency
 
@@ -23,7 +23,7 @@ rho = 0.008
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 #Simulation time
-T = 1000.0*giga*year
+T = 10000.0*year
 #print('T =', T)
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0
@@ -37,7 +37,7 @@ b_min = (np.pi*n_p*v_rms*T)**(-0.5)
 #Maximum impact parameter
 b_max = calc_b_max(M_p, v_rms, a, m1, m2)
 #Minimum velocity
-v_min = 10.0**(-2.0) * v_rms
+v_min = 10.0**(-2.0) * v_rms *0.0
 #Maximum velocity
 v_max = 10.0**2.0 * v_rms
 
@@ -46,18 +46,19 @@ N_b = 1000
 
 #Monte Carlo
 #Number of encounters
-N_enc_MC = np.random.poisson(T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max))
 print('M Mean =', T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max))
+N_enc_MC = np.random.poisson(T*encounterRate(n_p, v_rms, b_min, b_max, v_min, v_max))
 #b values
-b_MC = draw_b(b_max, N_enc_MC)
+#b_MC = draw_b(b_max, N_enc_MC)
 #v values
 #v_MC = maxwell.rvs(scale=v_rms, size=N_enc_MC)
 v_MC = draw_vmaxwellian(v_rms, v_min, v_max, N_enc_MC)
 #Bin b values
-b_bins_MC, N_b_MC, db_MC = calcFrequency(b_MC, N_b)
+#b_bins_MC, N_b_MC, db_MC = calcFrequency(b_MC, N_b)
 #Bin v values
 v_bins_MC, N_v_MC, dv_MC = calcFrequency(v_MC, N_v)
 
+'''
 #Binning
 #b bins for encounter rate
 dlogb = (np.log(b_max)-np.log(b_min))/N_b
@@ -80,8 +81,9 @@ dv_B = v * (np.exp(dlogv) - 1.0)
 #dv_B = (v_max - v_min)/(N_v)
 #v = np.array([v_min + i*dv_B for i in range(N_v)])
 
-'''
+
 #Bin MC values
+
 N_b_MC = np.zeros(N_b, dtype=int)
 for val in b_MC:
         if val == b_max:
@@ -89,6 +91,7 @@ for val in b_MC:
         else:
                 i = int(np.floor(np.log(val/b_min)/dlogb))
                 N_b_MC[i] += 1
+
 N_v_MC = np.zeros(N_v, dtype=int)
 for val in v_MC:
         if val == v_max:
@@ -97,6 +100,7 @@ for val in v_MC:
                 i = int(np.floor(np.log(val/v_min)/dlogv))
                 N_v_MC[i] += 1
 
+'''
 '''
 #R[i,j] is the encounter rate for objects with impact parameter b[i] and relative velocity v[j]
 R = np.zeros([N_b,N_v], dtype=float)
@@ -146,8 +150,9 @@ for i in range(N_b):
 
 #print(np.sum(RT_b))
 #print(np.sum(RT_v))
+'''
 #Plot distributions
-
+'''
 #Plot b distributions
 plt.plot(b_bins_MC/parsec, N_b_MC/N_enc_MC/(db_MC/parsec), label='Monte Carlo')
 plt.plot(b_bins_B/parsec, N_b_B/N_enc_B/(db_B/parsec), label='Binning')
@@ -156,13 +161,17 @@ plt.xlabel('Impact parameter $b$, pc')
 plt.ylabel(r'Probability density of encounters at impact parameter $b$, pc$^{-1}$')
 plt.legend()
 plt.show()
-
+'''
 #Plot v distributions
+#Move to centre of bins
+#v_bins_MC *= np.exp(0.5*dlogv)
 plt.plot(v_bins_MC/1000.0, N_v_MC/N_enc_MC/(dv_MC/1000.0), label='Monte Carlo')
-plt.plot(v_bins_B/1000.0, N_v_B/N_enc_B/(dv_B/1000.0), label='Binning')
-plt.plot(v_bins_B/1000.0, RT_v/N_enc_B/(dv_B/1000.0), label='Binning means')
-#pdf = np.array([maxwellianPdf(x, v_rms) for x in v_bins_MC])
-#plt.plot(v_bins_MC/1000.0, pdf*1000.0, label='PDF MC')
+#plt.plot(v_bins_B/1000.0, N_v_B/N_enc_B/(dv_B/1000.0), label='Binning')
+#plt.plot(v_bins_B/1000.0, RT_v/N_enc_B/(dv_B/1000.0), label='Binning means')
+pdf = np.array([vmaxwellianPdf(x, v_rms) for x in v_bins_MC])
+plt.plot(v_bins_MC/1000.0, pdf*1000.0, label='PDF MC')
+comp = np.array([vmaxwellianComparison(x, v_rms, v_min, v_max, 3.0**0.5*v_rms) for x in v_bins_MC])
+plt.plot(v_bins_MC/1000.0, comp*1000.0, label='Comp. MC')
 #pdf = np.array([maxwellianPdf(x, v_rms) for x in v_bins_B])
 #plt.plot(v_bins_B/1000.0, pdf*1000.0, label='PDF Binning')
 plt.xlabel(r'Relative velocity $v$, kms$^{-1}$')
