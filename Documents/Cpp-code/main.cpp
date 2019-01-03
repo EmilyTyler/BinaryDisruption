@@ -12,15 +12,15 @@ using namespace std;
 
 //Draw a from distribution dN/dloga\propto a^{1-alpha}
 //Draw e from distribution uniform in e^2 between 0 and 1
-tuple<vector<double>, vector<double>> initialDistributions(int N_bin, double a_min, double a_max, double alpha){
+tuple<vector<long double>, vector<long double>> initialDistributions(int N_bin, long double a_min, long double a_max, long double alpha){
 	// Semimajor axis array
-	vector<double> a;
+	vector<long double> a;
 	//Set size
 	a.resize(N_bin);
 	//Reduce capacity
 	a.shrink_to_fit();
 	//Declare variables
-	double c;
+	long double c;
 	if (alpha == 2.0){
 		c = log(a_min)/log(a_max/a_min);
 		for (int i=0; i<N_bin; ++i){
@@ -32,7 +32,7 @@ tuple<vector<double>, vector<double>> initialDistributions(int N_bin, double a_m
 		}
 	}
 	//Eccentricity array
-	vector<double> e;
+	vector<long double> e;
 	//Set size
 	e.resize(N_bin);
 	//Reduce capacity
@@ -43,14 +43,14 @@ tuple<vector<double>, vector<double>> initialDistributions(int N_bin, double a_m
 	return make_tuple(a, e);
 }
 
-void evolvePopulation(string filename, int N_bin, double a_min, double a_max, double alpha, double v_rel, double n_p, double T, double m1, double m2, double M_p){
+void evolvePopulation(string filename, int N_bin, long double a_min, long double a_max, long double alpha, long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p){
 	//Initial semimajor axis and eccentricity distributions
-	tuple<vector<double>, vector<double>> initial_dists = initialDistributions(N_bin, a_min, a_max, alpha);
+	tuple<vector<long double>, vector<long double>> initial_dists = initialDistributions(N_bin, a_min, a_max, alpha);
 	//Final semimajor axis and eccentricity distributions
-	tuple<vector<double>, vector<double>> final_dists = MCEncounters(v_rel, n_p, T, m1, m2, M_p, get<0>(initial_dists), get<1>(initial_dists));
+	tuple<vector<long double>, vector<long double>> final_dists = MCEncounters(v_rel, n_p, T, m1, m2, M_p, get<0>(initial_dists), get<1>(initial_dists));
 	//Extract results
-	vector<double> a_fin = get<0>(final_dists);
-	vector<double> e_fin = get<1>(final_dists);
+	vector<long double> a_fin = get<0>(final_dists);
+	vector<long double> e_fin = get<1>(final_dists);
 	//Save results to file
 	ofstream myfile;
 	myfile.open(filename);
@@ -60,20 +60,24 @@ void evolvePopulation(string filename, int N_bin, double a_min, double a_max, do
     myfile.close();
 }
 
+void individualEncounterTest(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v){
+	tuple<long double, long double, long double> result = testImpulseEncounter(m1, m2, M_p, a, e, b, v);
+}
+
 
 int main() {
+	/*
+	long double m1 = msol/mass_scale;
+	long double m2 = msol/mass_scale;
+	long double M_p = msol/mass_scale;
+	long double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
+	long double n_p = rho/M_p;
+	long double v_rel = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
+	long double T = 10.0 * giga * year /time_scale;
 
-	double m1 = msol/mass_scale;
-	double m2 = msol/mass_scale;
-	double M_p = msol/mass_scale;
-	double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
-	double n_p = rho/M_p;
-	double v_rel = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
-	double T = 10.0 * giga * year /time_scale;
-
-	double alpha = 1.0;
-	double a_min = pow(10.0, 3.0) * au/length_scale;
-	double a_max = pow(10.0, 6.0) * au/length_scale;
+	long double alpha = 1.0;
+	long double a_min = pow(10.0, 3.0) * au/length_scale;
+	long double a_max = pow(10.0, 6.0) * au/length_scale;
 
 	int N_bin = 1;
 
@@ -81,9 +85,20 @@ int main() {
 
 	//Run simulation
 	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
-
+	*/
 
 	//Test MCEncounters
+
+
+	//Test impulse approx against WSW
+	long double m1 = 2.0*msol/mass_scale;
+	long double m2 = 2.0*msol/mass_scale;
+	long double M_p = 3.0*msol/mass_scale;
+	long double a = pow(10.0, 5.0) * au/length_scale;
+	long double e = 0.7;
+	long double b = pow(10.0, 4.0) * au/length_scale;
+	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
+	individualEncounterTest(m1, m2, M_p, a, e, b, v);
 
 
 }

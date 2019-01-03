@@ -3,15 +3,15 @@
 #define MC_VELOCITY_H
 
 //Tested
-double drawVMaxwellian(double v_rel, double v_min, double v_max);
+long double drawVMaxwellian(long double v_rel, long double v_min, long double v_max);
 
 //Indirectly tested through drawVMaxwellian
-double VMaxwellianPdf(double x, double v_rel);
+long double VMaxwellianPdf(long double x, long double v_rel);
 
 //Indirectly tested through drawVMaxwellian
-double VMaxwellianComparison(double x, double v_rel, double v_min, double v_max);
+long double VMaxwellianComparison(long double x, long double v_rel, long double v_min, long double v_max);
 
 //Indirectly tested through drawVMaxwellian
-double VMaxwellianXFromArea(double A, double v_rel, double v_min);
+long double VMaxwellianXFromArea(long double A, long double v_rel, long double v_min);
 
 #endif

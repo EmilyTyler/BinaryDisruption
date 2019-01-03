@@ -48,10 +48,10 @@ b_max = v_rel * np.sqrt(a**3.0/(G()*(m1+m2)))
 print('b_max, au =', b_max*length_scale()/au)
 
 #Impact parameter
-b = 10.0**3.0 * au / length_scale()
+b = 10.0**6.0 * au / length_scale()
 print('b, au =', b*length_scale()/au)
 #Number of encounters
-N_enc = 10**8
+N_enc = 10**0
 print('N_enc =', N_enc)
 #Simulation parameters
 delta=10.0**(-6.0)
@@ -112,8 +112,8 @@ for i in range(N_enc):
 #Convert to SI
 E_ini *= mass_scale()*(length_scale()/time_scale())**2.0
 E_imp *= mass_scale()*(length_scale()/time_scale())**2.0
-print('Saving data')
-np.savez('impulse_WSW_energy_changes_b10e3au_Nenc10e8_record_b.npz', E_ini=E_ini, E_imp=E_imp, b=bs)
+#print('Saving data')
+#np.savez('impulse_WSW_energy_changes_b10e3au_Nenc10e8_record_b.npz', E_ini=E_ini, E_imp=E_imp, b=bs)
 print('Finished')
 
 

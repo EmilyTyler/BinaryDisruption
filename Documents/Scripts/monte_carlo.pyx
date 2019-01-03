@@ -57,7 +57,7 @@ def draw_vmaxwellian(double v_rms, double v_min, double v_max, int N):
         while accepted.size < N:
                 u = random.uniform(0.0, area)
                 x = vmaxwellianX_from_area(u, v_rms, v_min, x_max)
-                y = random.uniform(0.0, vmaxwellianComparison(x, v_rms, v_min, v_max, x_max))
+                y = random.uniform(0.0, vmaxwellianComparison(x, v_rms, v_max, x_max))
                 if y < vmaxwellianPdf(x, v_rms):
                         accepted = np.append(accepted, x)
         return accepted
@@ -65,21 +65,18 @@ def draw_vmaxwellian(double v_rms, double v_min, double v_max, int N):
 def vmaxwellianPdf(double x, double v_rms):
         return x**3.0/(2.0*v_rms**4.0)*np.exp(-x**2.0/(2.0*v_rms**2.0))
 
-def vmaxwellianComparison(double x, double v_rms, double v_min, double v_max, double x_max):
-        #cdef double answer = 0.0
-        #if v_min<x<v_max:
-        #        answer = vmaxwellianPdf(x_max, v_rms)
-        #return answer
+def vmaxwellianComparison(double x, double v_rms, double v_max, double x_max):
         cdef double answer = 0.0
         cdef double gamma = v_max/v_rms
+        cdef double x_2 = v_rms * (6.0*np.log(gamma) + 3.0 - 3.0*np.log(3))**0.5
         if 0.0<x<v_max:
                 if x<v_rms:
-                        answer = 3.0**1.5/(2.0*v_rms**4.0)*np.exp(-1.5)*x**3.0
+                        answer = (x/v_rms)**3.0*vmaxwellianPdf(x_max, v_rms)
                 else:
-                        if x<3.0*v_rms:
+                        if x<x_2:
                                 answer = vmaxwellianPdf(x_max, v_rms)
                         else:
-                                answer = 3.0**1.5/(2.0*v_rms)*np.exp(3.0)*np.exp(-x**2.0/(2.0*v_rms**2.0))
+                                answer = gamma**3.0/(2.0*v_rms)*np.exp(gamma/2.0-gamma**2.0/2.0-x/(2.0*v_rms))
         return answer
 
 def vmaxwellianX_from_area(double A, double v_rms, double v_min, double x_max):
