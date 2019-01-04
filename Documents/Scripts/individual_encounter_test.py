@@ -48,7 +48,7 @@ b_max = v_rel * np.sqrt(a**3.0/(G()*(m1+m2)))
 print('b_max, au =', b_max*length_scale()/au)
 
 #Impact parameter
-b = 10.0**6.0 * au / length_scale()
+b = 10.0**7.0 * au / length_scale()
 print('b, au =', b*length_scale()/au)
 #Number of encounters
 N_enc = 10**0

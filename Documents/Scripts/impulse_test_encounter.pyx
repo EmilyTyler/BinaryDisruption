@@ -378,16 +378,14 @@ def justImpulseTestEncounter(double m1, double m2, double v, double b, double a,
                 #Calculate velocity change in -v direction
                 v_parr = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm[i]**2.0/b_90[i]**2.0) * (-v_vec/v)
                 #Change velocity
-                #
-                v_parr = 0.0
                 delta_v_i[i] = v_perp + v_parr 
                 X[i+2] += v_perp + v_parr
         cdef np.ndarray delta_v = delta_v_i[0] - delta_v_i[1]
         cdef double E_ini = -G*m1*m2/(2.0*a)
         notBound, a, e, E_imp = orbitalElements(X, m1, m2)
         print('v dot delta v term =', m1*m2/(m1+m2)*np.dot(v_initial, delta_v))
-        print('delta v squared term =', m1*m2/(m1+m2)*np.dot(delta_v, delta_v))
-        print('Two above added =', m1*m2/(m1+m2)*np.dot(v_initial, delta_v) + m1*m2/(m1+m2)*np.dot(delta_v, delta_v))
+        print('delta v squared term =', 0.5*m1*m2/(m1+m2)*np.dot(delta_v, delta_v))
+        print('Two above added =', m1*m2/(m1+m2)*np.dot(v_initial, delta_v) + 0.5*m1*m2/(m1+m2)*np.dot(delta_v, delta_v))
         print('delta E =', E_imp-E_ini)
         return (notBound, a, e, E_ini, E_imp, np.min(b_star_norm))
         

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <iostream>
+#include <iomanip>
 
 #include "constants.h"
 #include "random_direction.h"
@@ -156,10 +157,10 @@ tuple<long double, long double, long double> testImpulseEncounter(long double m1
 	//Open binary
 	array<array<long double, 3>, 4> X = setupRandomBinary(a, e, m1, m2);
 	//Initial relative velocity of stars
-	array<long double, 3> v_initial;
-	for (int i=0; i<3; i++){
-		v_initial[i] = X[2][i] - X[3][i];
-	}
+	//array<long double, 3> v_initial;
+	//for (int i=0; i<3; i++){
+		//v_initial[i] = X[2][i] - X[3][i];
+	//}
 	//Find impact parameter and velocity vectors
 	tuple<array<long double,3>, array<long double,3>> bvvectors = impactAndVelocityVectors(b, v);
 	array<long double,3> b_vec = get<0>(bvvectors);
@@ -168,7 +169,7 @@ tuple<long double, long double, long double> testImpulseEncounter(long double m1
 	long double b_90, v_perp, v_para;
 	array<long double,3> b_star;
 	array<long double,2> b_star_norm;
-	array<array<long double, 3>, 2> delta_v_i; 
+	//array<array<long double, 3>, 2> delta_v_i; 
 	for (int i=0; i<2; ++i){
 		//90 degree deflection radius
 		b_90 = G*(M_p + m[i])/(v*v);
@@ -179,19 +180,18 @@ tuple<long double, long double, long double> testImpulseEncounter(long double m1
 		//Calculate speed change in b_star direction
 		v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm[i]/b_90)/(1.0 + b_star_norm[i]*b_star_norm[i]/(b_90*b_90));
 		//Calculate speed change in -v_vec direction
-		//v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm[i]*b_star_norm[i]/(b_90*b_90));
-		v_para = 0.0;
+		v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm[i]*b_star_norm[i]/(b_90*b_90));
 		//Change star velocity
 		for (int j=0; j<3; ++j){
-			delta_v_i[i][j] = v_perp * b_star[j]/b_star_norm[i] - v_para * v_vec[j]/v;
+			//delta_v_i[i][j] = v_perp * b_star[j]/b_star_norm[i] - v_para * v_vec[j]/v;
 			X[i+2][j] += v_perp * b_star[j]/b_star_norm[i] - v_para * v_vec[j]/v;
 		}
 	}
 	//Relative velocity change
-	array<long double,3> delta_v;
-	for(int i=0; i<3; i++){
-		delta_v[i] = delta_v_i[0][i] - delta_v_i[1][i];
-	}
+	//array<long double,3> delta_v;
+	//for(int i=0; i<3; i++){
+		//delta_v[i] = delta_v_i[0][i] - delta_v_i[1][i];
+	//}
 	//Initial energy
 	long double E_ini = -G*m1*m2/(2.0*a);
 	//Close binary
@@ -201,9 +201,10 @@ tuple<long double, long double, long double> testImpulseEncounter(long double m1
 	//Effective impact parameter
 	long double b_star_norm_min = min(b_star_norm[0], b_star_norm[1]);
 	//Print accuracy testing terms
-	cout << "v dot delta v term = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) << endl;
-	cout << "delta v squared term = " << m1*m2/(m1+m2)*dot(delta_v, delta_v) << endl;
-	cout << "two above added = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) + m1*m2/(m1+m2)*dot(delta_v, delta_v) << endl;
-	cout << "delta E = " << E_fin - E_ini << endl;
+	//cout << setprecision(16) << "v dot delta v term = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) << endl;
+	//cout << setprecision(16) << "delta v squared term = " << 0.5*m1*m2/(m1+m2)*dot(delta_v, delta_v) << endl;
+	//cout << setprecision(16) << "two above added = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) + 0.5*m1*m2/(m1+m2)*dot(delta_v, delta_v) << endl;
+	//cout << setprecision(16) << "delta E = " << E_fin - E_ini << endl;
+	//cout << setprecision(16) << "difference between energy changes = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) + 0.5*m1*m2/(m1+m2)*dot(delta_v, delta_v) - (E_fin - E_ini) << endl;
 	return make_tuple(E_ini, E_fin, b_star_norm_min);
 }

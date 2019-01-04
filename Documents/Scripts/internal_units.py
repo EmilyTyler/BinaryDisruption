@@ -8,7 +8,7 @@ def time_scale():
         #return 1.0
 
 def mass_scale():
-        return 2.0*10.0**30.0 /1000.0
+        return 2.0*10.0**30.0
         #return 1.0
 
 def G():
