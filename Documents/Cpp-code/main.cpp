@@ -63,48 +63,38 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	int N_enc = pow(10.0, 4.0);
+	const int N_enc = 5.0*pow(10.0, 7.0);
 	//b's to run encounters
-	int N_b = 11;
-	array<long double,11> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
+	const int N_b = 11;
+	array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
 	for(int i=0; i<N_b; ++i){
 		b[i] = pow(10.0,b[i])*au/length_scale;
 	}
-	//Initial energies
-	array<long double, 110000> E_ini;
-	//Final energies
-	array<long double, 110000> E_fin;
-	//Actual impact parameters
-	array<long double, 110000> b_star;
-	//Run encounters
+	//Declare variables
 	tuple<long double, long double, long double> result;
-	cout << "Simulating encounters" << endl;
+	long double E_ini, E_fin, b_star;
+	cout << "Simulating encounters" << endl;	
+	ofstream myfile;
+	myfile.open(filename);
 	for(int i=0; i<N_b; ++i){
 		for(int j=0; j<N_enc; ++j){
 			result = testImpulseEncounter(m1, m2, M_p, a, e, b[i], v);
-			E_ini[i*N_enc + j] = get<0>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-			E_fin[i*N_enc + j] = get<1>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-			b_star[i*N_enc + j] = get<2>(result) * length_scale;
-			if (get<2>(result) == 0.0){
-				cout << "here" << endl;
-			}
-
+			//Convert to SI units
+			E_ini = get<0>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
+			E_fin = get<1>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
+			b_star = get<2>(result) * length_scale;
+			//Write to file
+			myfile << setprecision(16) << E_ini << ", " << E_fin << ", " << b_star << endl;
 		}
 	}
-	//Write to file
-	cout << "Writing to file" << endl;
-	ofstream myfile;
-	myfile.open(filename);
-	for (int i=0; i<N_b*N_enc; ++i){
-		myfile << setprecision(16) << E_ini[i] << ", " << E_fin[i] << ", " << b_star[i] << endl; 
-	}
-    myfile.close();
+	myfile.close();
     cout << "Finished" << endl;
 }
 
 
 int main() {
-	/*
+	
+	
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
 	long double M_p = msol/mass_scale;
@@ -123,13 +113,15 @@ int main() {
 
 	//Run simulation
 	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
-	*/
+	
 
+	//To do
 	//Test MCEncounters
-
-
+	//Re-test MC_velocity
+	
+	/*
 	//Test impulse approx against WSW
-	string filename = "WSW_encounters.csv";
+	string filename = "WSW_encounters_5x10e7.csv";
 
 	long double m1 = 2.0*msol/mass_scale;
 	long double m2 = 2.0*msol/mass_scale;
@@ -139,7 +131,7 @@ int main() {
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
 	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
-
+	*/
 
 }
 

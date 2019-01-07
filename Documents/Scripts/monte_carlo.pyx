@@ -52,7 +52,8 @@ def draw_vmaxwellian(double v_rms, double v_min, double v_max, int N):
         cdef x_max = 3.0**0.5*v_rms
         
         #Total area under comparison function
-        cdef double area = (v_max - v_min) * vmaxwellianPdf(x_max, v_rms)
+        cdef double gamma = v_max/v_rms
+        cdef double area = vmaxwellianPdf(x_max, v_rms)*v_rms*(5.0/4.0 + 2.0**0.5 - 2.0**0.5*np.exp(2.0**0.5 - gamma/(2.0**0.5)))
         cdef double u, x, y
         while accepted.size < N:
                 u = random.uniform(0.0, area)
@@ -68,7 +69,7 @@ def vmaxwellianPdf(double x, double v_rms):
 def vmaxwellianComparison(double x, double v_rms, double v_max, double x_max):
         cdef double answer = 0.0
         cdef double gamma = v_max/v_rms
-        cdef double x_2 = v_rms * (6.0*np.log(gamma) + 3.0 - 3.0*np.log(3))**0.5
+        cdef double x_2 = 2.0*v_rms
         if 0.0<x<v_max:
                 if x<v_rms:
                         answer = (x/v_rms)**3.0*vmaxwellianPdf(x_max, v_rms)
@@ -76,11 +77,25 @@ def vmaxwellianComparison(double x, double v_rms, double v_max, double x_max):
                         if x<x_2:
                                 answer = vmaxwellianPdf(x_max, v_rms)
                         else:
-                                answer = gamma**3.0/(2.0*v_rms)*np.exp(gamma/2.0-gamma**2.0/2.0-x/(2.0*v_rms))
+                                answer = vmaxwellianPdf(x_max, v_rms)*np.exp(-(x-x_2)/(2.0**0.5*v_rms))
         return answer
 
 def vmaxwellianX_from_area(double A, double v_rms, double v_min, double x_max):
-        return v_min + A/(vmaxwellianPdf(x_max, v_rms))
+        cdef double x
+        cdef double f_max = vmaxwellianPdf(x_max, v_rms)
+        if A > f_max*v_rms/4.0:
+                #x>v_rms
+                if A > f_max*5.0*v_rms/4.0:
+                        #x>2*v_rms
+                        x = 2.0*v_rms + 2.0**0.5*v_rms*np.log(2.0**0.5) - 2.0**0.5*v_rms*np.log(-A/(f_max*v_rms)+5.0/4.0+2.0**0.5)
+                else:
+                        #x<2*v_rms
+                        x = A/f_max + 3.0*v_rms/4.0
+                
+        else:
+                #x<=v_rms
+                x = (4.0*v_rms**3.0*A/(f_max))**0.25
+        return x
 
 
 #Draw impact parameter from a distribution linear in b

@@ -3,43 +3,52 @@
 #include "random_numbers.h"
 using namespace std;
 
-//Indirectly tested through drawVMaxwellian
+
 long double VMaxwellianPdf(long double x, long double v_rel)
 {
 	return pow(x,3.0)/(2.0*pow(v_rel,4.0))*exp(-x*x/(2.0*v_rel*v_rel));
 }
 
-//Indirectly tested through drawVMaxwellian
-long double VMaxwellianComparison(long double x, long double v_rel, long double v_min, long double v_max, long double x_max)
+
+long double VMaxwellianComparison(long double x, long double v_rel,long double v_max, long double f_max)
 {
-	if (v_min<x<v_max){
-		return VMaxwellianPdf(x_max, v_rel);
+	if(x < v_rel){
+		return pow(x/v_rel, 3.0)*f_max;
 	} else{
-		return 0.0;
+		if(x < 2.0*v_rel) {
+			return f_max;
+		} else {
+			return f_max * exp(-(x-2.0*v_rel)/(sqrt(2.0)*v_rel));
+		}
 	}
 }
 
-//Indirectly tested through drawVMaxwellian
-long double VMaxwellianXFromArea(long double A, long double v_rel, long double v_min, long double x_max){
-	return v_min + A/(VMaxwellianPdf(x_max, v_rel));
+
+long double VMaxwellianXFromArea(long double A, long double v_rel, long double f_max){
+	if (A < f_max*v_rel/4.0){
+		return pow((4.0*pow(v_rel, 3.0)*A)/f_max, 0.25);
+	} else {
+		if (A < f_max*v_rel*5.0/4.0){
+			return A/f_max + 3.0*v_rel/4.0;
+		} else {
+			return 2.0*v_rel + sqrt(2.0)*v_rel*log(sqrt(2.0)) - sqrt(2.0)*v_rel*log(-A/(f_max*v_rel) + 5.0/4.0 + sqrt(2.0));
+		}
+	}
 }
 
-//Tested
-long double drawVMaxwellian(long double v_rel, long double v_min, long double v_max)
+
+long double drawVMaxwellian(long double v_rel, long double v_max)
 {
-	return v_rel;
-	/*
-	//Value of x for which the pdf is maximum
-	double x_max = sqrt(3.0)*v_rel;
+	//Maximum of pdf
+	long double f_max = VMaxwellianPdf(sqrt(3.0)*v_rel, v_rel);
 	//Total area under comparison function
-	double area = (v_max - v_min) * VMaxwellianPdf(x_max, v_rel);
+	long double area = f_max*v_rel*(5.0/4.0 + sqrt(2.0) - sqrt(2.0)*exp(sqrt(2.0) - v_max/v_rel/(sqrt(2.0))));
 	while (true){
-		double u = randomUniformDoubleOpen()*area;
-		double x = VMaxwellianXFromArea(u, v_rel, v_min, x_max);
-		double y = randomUniformDoubleOpen() *VMaxwellianComparison(x, v_rel, v_min, v_max, x_max);
+		long double u = randomUniformDoubleOpen()*area;
+		long double x = VMaxwellianXFromArea(u, v_rel, f_max);
+		long double y = randomUniformDoubleOpen() *VMaxwellianComparison(x, v_rel, v_max, f_max);
 		if (y < VMaxwellianPdf(x, v_rel)){
 			return x;
 		}
 	}
-	*/
 }

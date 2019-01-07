@@ -23,7 +23,7 @@ rho = 0.008
 #Convert to SI
 rho = rho * 2.0*10.0**30.0/(parsec**3.0)
 #Simulation time
-T = 10000.0*year
+T = 10.0**7.0 *year
 #print('T =', T)
 #Mass of perturbers
 M_p = 3.0 * 2.0*10.0**30.0
@@ -164,7 +164,7 @@ plt.show()
 '''
 #Plot v distributions
 #Move to centre of bins
-#v_bins_MC *= np.exp(0.5*dlogv)
+v_bins_MC += 0.5*dv_MC
 plt.plot(v_bins_MC/1000.0, N_v_MC/N_enc_MC/(dv_MC/1000.0), label='Monte Carlo')
 #plt.plot(v_bins_B/1000.0, N_v_B/N_enc_B/(dv_B/1000.0), label='Binning')
 #plt.plot(v_bins_B/1000.0, RT_v/N_enc_B/(dv_B/1000.0), label='Binning means')

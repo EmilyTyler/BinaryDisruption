@@ -107,7 +107,7 @@ tuple<vector<long double>, vector<long double>> MCEncounters(long double v_rel, 
 	//Minimum impact parameter
 	long double b_min = 0.0;
 	//Minimum relative velocity of encounter
-	long double v_min = 0.01 * v_rel;
+	long double v_min = 0.0;
 	//Maximum relative velocity of encounter
 	long double v_max = 100.0 * v_rel;
 	//Maximum semimajor axis
@@ -131,7 +131,7 @@ tuple<vector<long double>, vector<long double>> MCEncounters(long double v_rel, 
 			//Increment time passed
 			t += randomExponential(rate);
 			//Draw velocity from distribution
-			v = drawVMaxwellian(v_rel, v_min, v_max);
+			v = drawVMaxwellian(v_rel, v_max);
 			//Draw impact parameter from distribution
 			b = drawB(b_max);
 			//Encounter
@@ -206,5 +206,7 @@ tuple<long double, long double, long double> testImpulseEncounter(long double m1
 	//cout << setprecision(16) << "two above added = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) + 0.5*m1*m2/(m1+m2)*dot(delta_v, delta_v) << endl;
 	//cout << setprecision(16) << "delta E = " << E_fin - E_ini << endl;
 	//cout << setprecision(16) << "difference between energy changes = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) + 0.5*m1*m2/(m1+m2)*dot(delta_v, delta_v) - (E_fin - E_ini) << endl;
+	//cout << "b_star_norm = " << b_star_norm[0] << " , " << b_star_norm[1] << endl;
+	//cout << "b_star_norm_min = " << b_star_norm_min << endl;
 	return make_tuple(E_ini, E_fin, b_star_norm_min);
 }
