@@ -55,8 +55,8 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	//Save results to file
 	ofstream myfile;
 	myfile.open(filename);
-	for (int i; i<N_bin; ++i){
-		myfile << a_fin[i] << ", " << e_fin[i] << endl; 
+	for (int i=0; i<N_bin; ++i){
+		myfile << setprecision(16) << a_fin[i]*length_scale << ", " << e_fin[i] << endl; 
 	}
     myfile.close();
 }
@@ -101,7 +101,7 @@ int main() {
 	long double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
 	long double n_p = rho/M_p;
 	long double v_rel = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
-	long double T = 10.0 * giga * year /time_scale;
+	long double T = 1.0 * giga * year /time_scale;
 
 	long double alpha = 1.0;
 	long double a_min = pow(10.0, 3.0) * au/length_scale;

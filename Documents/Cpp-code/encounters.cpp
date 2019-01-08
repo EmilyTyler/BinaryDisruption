@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <ctime>
 
 #include "constants.h"
 #include "random_direction.h"
@@ -118,8 +119,13 @@ tuple<vector<long double>, vector<long double>> MCEncounters(long double v_rel, 
 	long double t, b_max, rate, v, b;
 	tuple<long double, long double, bool> result;
 	bool notBound;
+	double t_start;
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
+		cout << "Binary " << i+1 << " of " << N_bin << endl;
+		//Start time
+		clock_t t_start;
+		t_start = clock();
 		//Time passed
 		t = 0.0;
 		//Implement encounters
@@ -145,6 +151,8 @@ tuple<vector<long double>, vector<long double>> MCEncounters(long double v_rel, 
 				break;
 			}
 		}
+		//Print how long it took
+		cout << "Time taken = " << (clock() - t_start)/(double)(CLOCKS_PER_SEC) << " s" << endl;
 	}
 	return make_tuple(a, e);
 }
