@@ -1,0 +1,153 @@
+#To plot the energy change against WSW average energy
+import numpy as np
+from matplotlib import pyplot as plt
+import csv
+from scipy.constants import au, G
+
+plt.rc('font', family='serif')
+
+#Parameters
+a = 10.0**5.0 * au
+e = 0.7
+M_p = 3.0 * 2.0*10.0**30.0
+v_rel = 220.0 * 1000.0
+m1 = 2.0*10.0**30.0
+m2 = 2.0*10.0**30.0
+
+
+'''
+#Impact parameter bins
+N_b = 10
+b_min = 10.0**(0.0)*au
+print('b_min =', b_min)
+b_max = 10.0**8.5*au
+print('b_max =', b_max)
+dlogb = (np.log(b_max)-np.log(b_min))/(N_b)
+b_bins = np.array([b_min*np.exp(dlogb*i) for i in range(N_b)])
+print('b_bins =', b_bins)
+N_b_bins = np.zeros(N_b, dtype=int)
+
+dE_sum = np.zeros(N_b)
+dE2_sum = np.zeros(N_b)
+
+#Import data function
+def loadData(filename):
+        with open(filename) as csvfile:
+                reader = csv.reader(csvfile, delimiter=',')
+                row_number = 0
+                for row in reader:
+                        E_ini = float(row[0])
+                        E_fin = float(row[1])
+                        b_star = float(row[2])
+                        row_number += 1
+                        j = int(np.floor(np.log(b_star/b_min)/dlogb))
+                        if (b_min > b_star) or (b_star > b_max):
+                                print('Out of range:', b_star)
+                                print('b_min =', b_min)
+                                print('b_max =', b_max)
+                        print('Added part = ', E_fin-E_ini)
+                        print('Average before addition = ', dE_sum[j])
+                        dE_sum[j] += (E_fin - E_ini)
+                        print('Average after addition  = ', dE_sum[j])
+                        dE2_sum[j] += (E_fin - E_ini)**2.0
+                        N_b_bins[j] += 1
+
+
+#Choose which files to load
+loadData('WSW_encounters_10e5.csv')
+
+
+loadData('WSW_encounters_10e7.csv')
+loadData('WSW_encounters_10e7_1.csv')
+loadData('WSW_encounters_3x10e7.csv')
+loadData('WSW_encounters_5x10e7.csv')
+
+
+print('N_b_bins =', N_b_bins)
+#Normalise
+dE_sum /= N_b_bins
+dE2_sum /= N_b_bins
+#Mean
+dE_mean = dE_sum
+#Standard deviation
+dE_mean_error = np.sqrt(dE2_sum - dE_mean**2.0)
+
+
+
+#Move to the centre of the bins for calculations and plotting
+b_bins *= np.exp(0.5*dlogb)
+
+#Analytical prediction for average energy change (Weinberg et al.)
+dE_avg_analytic = np.zeros(N_b)
+for i in range(N_b):
+        if b_bins[i] < a:
+                dE_avg_analytic[i] = 2.0*(G*M_p/(b_bins[i]*v_rel))**2.0
+        else:
+                dE_avg_analytic[i] = 4.0/3.0 * (G*M_p/(b_bins[i]*v_rel))**2.0 * (a/b_bins[i])**2.0 * (1.0 + 3.0*e**2.0/2.0)
+#Errors
+dE_error_analytic = np.zeros(N_b)
+for i in range(N_b):
+        if b_bins[i] < a:
+                variance = 4.0/3.0*G*(m1+m2)/a*(G*M_p/(b_bins[i]*v_rel))**2.0
+        else:
+                variance = 4.0/5.0*G*(m1+m2)/a*(G*M_p/(b_bins[i]*v_rel))**2.0*(a/b_bins[i])**2.0*(1.0 - e**2.0/3.0) + 16.0/45.0*(G*M_p/(b_bins[i]*v_rel))**4.0*(a/b_bins[i])**4.0*(1.0 +15.0*e**2.0)
+        dE_error_analytic[i] = np.sqrt(variance)
+#Change from reduced energy to total energy
+dE_avg_analytic *= m1*m2/(m1+m2)
+dE_error_analytic *= m1*m2/(m1+m2)
+
+
+#Plot
+plt.xlabel('Impact parameter, au')
+ax = plt.gca()
+ax.set_xscale('log')
+plt.ylabel('Mean energy change due to an encounter, J')
+ax.set_yscale('symlog')
+plt.scatter(b_bins[np.where(dE_mean!=0.0)]/au, (dE_mean[np.where(dE_mean!=0.0)]), label='Impulse', marker='^')
+plt.scatter(b_bins/au, dE_avg_analytic, label='Analytic', marker='x')
+plt.axis([10.0**0.0, 10.0**8.5, -10.0**(42.0), 10.0**42.0])
+plt.legend()
+plt.title(r'$10^7$ encounters')
+plt.show()
+
+plt.xlabel('Impact parameter, au')
+ax = plt.gca()
+ax.set_xscale('log')
+plt.ylabel('Standard deviation of energy change due to an encounter, J')
+ax.set_yscale('symlog')
+plt.scatter(b_bins[np.where(dE_mean_error!=0.0)]/au, (dE_mean_error[np.where(dE_mean_error!=0.0)]), label='Impulse', marker='^')
+plt.scatter(b_bins/au, dE_error_analytic, label='Analytic', marker='x')
+plt.axis([10.0**0.0, 10.0**8.5, 10.0**23.0, 10.0**39.0])
+plt.legend()
+plt.title(r'$10^7$ encounters')
+plt.show()
+
+'''
+
+
+#Plot average against number of encounters
+N_enc_min = 10**5
+N_enc_max = 10**8
+b = 10.0**5.0*au
+with open("WSW_encounters_N_enc.csv") as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        row_number = 0
+        for row in reader:
+                dE_mean = float(row[0])
+                std_dev = float(row[1])
+                N_enc = float(row[2])
+                row_number += 1
+                plt.scatter(N_enc, dE_mean, marker='x', color='dodgerblue')
+N_encs = np.linspace(N_enc_min, N_enc_max, num = 2)
+if b < a:
+        dE_avg_analytic = 2.0*(G*M_p/(b*v_rel))**2.0
+else:
+        dE_avg_analytic = 4.0/3.0 * (G*M_p/(b*v_rel))**2.0 * (a/b)**2.0 * (1.0 + 3.0*e**2.0/2.0)
+        #Change from reduced energy to total energy
+dE_avg_analytic *= m1*m2/(m1+m2)
+plt.plot(N_encs, [dE_avg_analytic]*2, color='darkorange')
+ax = plt.gca()
+ax.set_xscale('log')
+ax.set_yscale('symlog')
+plt.title(r'b = $10^{}$ au'.format(int(np.floor(np.log10(b/au)))))
+plt.show()
