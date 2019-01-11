@@ -124,12 +124,12 @@ plt.show()
 
 '''
 
-
+'''
 #Plot average against number of encounters
-N_enc_min = 10**5
+N_enc_min = 10**0
 N_enc_max = 10**8
-b = 10.0**5.0*au
-with open("WSW_encounters_N_enc.csv") as csvfile:
+b = 10.0**4.0*au
+with open("WSW_encounters_N_enc_log.csv") as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0
         for row in reader:
@@ -150,4 +150,53 @@ ax = plt.gca()
 ax.set_xscale('log')
 ax.set_yscale('symlog')
 plt.title(r'b = $10^{}$ au'.format(int(np.floor(np.log10(b/au)))))
+plt.ylabel('Average energy change, J')
+plt.xlabel('Number of encounters')
+plt.show()
+'''
+
+#Plot distribution of energy changes
+#Energy change bins
+N_bins = 5000
+dE_min = 10.0**(24.0)
+print('dE_min = ', dE_min)
+dE_max = 10.0**(33.0)
+print('dE_max = ', dE_max)
+dlogdE = (np.log(dE_max)-np.log(dE_min))/(N_bins)
+dE_bins = np.array([dE_min*np.exp(dlogdE*i) for i in range(N_bins)])
+print('dE_bins =', dE_bins)
+N_dE = np.zeros((2,N_bins), dtype=float)
+
+def loadDistData(filename):
+        with open(filename) as csvfile:
+                reader = csv.reader(csvfile, delimiter=',')
+                row_number = 0
+                for row in reader:
+                        E_ini = float(row[0])
+                        E_fin = float(row[1])
+                        b_star = float(row[2])
+                        dE = E_fin-E_ini
+                        row_number += 1
+                        j = int(np.floor(np.log(abs(dE)/dE_min)/dlogdE))
+                        if (dE_min > abs(dE)) or (abs(dE) > dE_max):
+                                print('Out of range:', dE)
+                                print('b_min =', dE_min)
+                                print('b_max =', dE_max)
+                        if (dE > 0.0):
+                                N_dE[0,j] += 1
+                        else:
+                                N_dE[1,j] += 1
+
+loadDistData('WSW_encounters_10e7_b10e5au.csv')
+
+#Move to the centre of the bins for calculations and plotting
+dE_bins *= np.exp(0.5*dlogdE)
+
+plt.plot(dE_bins, N_dE[0])
+plt.plot(dE_bins, N_dE[1])
+ax = plt.gca()
+#ax.set_yscale('log')
+ax.set_xscale('symlog')
+plt.xlabel('Energy change due to encounter, J')
+plt.ylabel('Number of encounters')
 plt.show()

@@ -63,7 +63,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 8);
+	const unsigned int N_enc = pow(10, 7);
 	//b's to run encounters
 	const int N_b = 1;
 	array<long double, N_b> b = {5.0};
@@ -78,7 +78,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	ofstream myfile;
 	myfile.open(filename);
 	int N_enc_so_far = 0;
-	int N_enc_since_last_print = 0;
+	int counter = 0;
 	long double dE_mean = 0.0;
 	long double dE2_mean = 0.0;
 	long double std_dev; 
@@ -88,21 +88,23 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 			//Convert to SI units
 			E_ini = get<0>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 			E_fin = get<1>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-			/*
+			
 			b_star = get<2>(result) * length_scale;
 			//Write to file
 			myfile << setprecision(16) << E_ini << ", " << E_fin << ", " << b_star << endl;
-			*/
+			
+			/*
 			N_enc_so_far += 1;
-			N_enc_since_last_print += 1;
 			dE_mean = dE_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)/N_enc_so_far;
 			dE2_mean = dE2_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)*(E_fin-E_ini)/N_enc_so_far;
-			if (N_enc_since_last_print > 99999){
+			if (N_enc_so_far > pow(10.0, counter*0.25)-1){
 				std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
 				cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 				myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
-				N_enc_since_last_print = 0;
+				counter += 1;
+			
 			}
+			*/
 
 		}
 	}
@@ -140,7 +142,7 @@ int main() {
 	
 	
 	//Test impulse approx against WSW
-	string filename = "WSW_encounters_N_enc.csv";
+	string filename = "WSW_encounters_10e7_b10e5au.csv";
 
 	long double m1 = 2.0*msol/mass_scale;
 	long double m2 = 2.0*msol/mass_scale;
