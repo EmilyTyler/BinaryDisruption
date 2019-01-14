@@ -107,7 +107,7 @@ plt.scatter(b_bins[np.where(dE_mean!=0.0)]/au, (dE_mean[np.where(dE_mean!=0.0)])
 plt.scatter(b_bins/au, dE_avg_analytic, label='Analytic', marker='x')
 plt.axis([10.0**0.0, 10.0**8.5, -10.0**(42.0), 10.0**42.0])
 plt.legend()
-plt.title(r'$10^7$ encounters')
+plt.title(r'$10^5$ encounters')
 plt.show()
 
 plt.xlabel('Impact parameter, au')
@@ -119,10 +119,10 @@ plt.scatter(b_bins[np.where(dE_mean_error!=0.0)]/au, (dE_mean_error[np.where(dE_
 plt.scatter(b_bins/au, dE_error_analytic, label='Analytic', marker='x')
 plt.axis([10.0**0.0, 10.0**8.5, 10.0**23.0, 10.0**39.0])
 plt.legend()
-plt.title(r'$10^7$ encounters')
+plt.title(r'$10^5$ encounters')
 plt.show()
-
 '''
+
 
 '''
 #Plot average against number of encounters
@@ -155,6 +155,7 @@ plt.xlabel('Number of encounters')
 plt.show()
 '''
 
+'''
 #Plot distribution of energy changes
 #Energy change bins
 N_bins = 5000
@@ -200,3 +201,4 @@ ax.set_xscale('symlog')
 plt.xlabel('Energy change due to encounter, J')
 plt.ylabel('Number of encounters')
 plt.show()
+'''

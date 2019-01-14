@@ -63,7 +63,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 7);
+	const unsigned int N_enc = pow(10, 8);
 	//b's to run encounters
 	const int N_b = 1;
 	array<long double, N_b> b = {5.0};
@@ -75,12 +75,22 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	tuple<long double, long double, long double> result;
 	long double E_ini, E_fin, b_star;
 	cout << "Simulating encounters" << endl;	
-	ofstream myfile;
-	myfile.open(filename);
+	//ofstream myfile;
+	//myfile.open(filename);
+	//Theoretical average energy change
+	long double dE_avg_analytic;
+	if (b[0] < a){
+		dE_avg_analytic = 2.0*(G*M_p/(b[0]*v))*(G*M_p/(b[0]*v));
+	} else{
+		dE_avg_analytic = 4.0/3.0 * (G*M_p/(b[0]*v))*(G*M_p/(b[0]*v)) * (a/b[0])*(a/b[0]) * (1.0 + 3.0*e*e/2.0);
+	}
+	//Maximum energy change
+	long double dE_max = m1*m2/(m1+m2)*(sqrt(G*(m1+m2)*(1.0+e)/(a*(1.0-e)))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)) + 0.5*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)));
 	int N_enc_so_far = 0;
 	int counter = 0;
 	long double dE_mean = 0.0;
 	long double dE2_mean = 0.0;
+	long double dE_mean_old = 0.0;
 	long double std_dev; 
 	for(int i=0; i<N_b; ++i){
 		for(int j=0; j<N_enc; ++j){
@@ -91,24 +101,40 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 			
 			b_star = get<2>(result) * length_scale;
 			//Write to file
-			myfile << setprecision(16) << E_ini << ", " << E_fin << ", " << b_star << endl;
+			//myfile << setprecision(16) << E_ini << ", " << E_fin << ", " << b_star << endl;
 			
-			/*
+			
 			N_enc_so_far += 1;
 			dE_mean = dE_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)/N_enc_so_far;
 			dE2_mean = dE2_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)*(E_fin-E_ini)/N_enc_so_far;
+			/*
 			if (N_enc_so_far > pow(10.0, counter*0.25)-1){
 				std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
 				cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 				myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 				counter += 1;
-			
+				
 			}
 			*/
+			if (copysign(1, dE_mean) != copysign(1, dE_mean_old)){
+				cout << "Number of encounters so far = " << N_enc_so_far << endl;
+				cout << "Old mean energy change = " << dE_mean_old << endl;
+				cout << "Energy change = " << E_fin-E_ini << endl;
+				cout << "Maximum energy change = " << dE_max* mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
+				cout << "New mean energy change = " << dE_mean << endl;
+				cout << "New standard deviation = " << sqrt(dE2_mean - dE_mean*dE_mean) << endl;
+				cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
+				cout << endl;
+			}
+			
+			dE_mean_old = dE_mean;
+			
+			
+			
 
 		}
 	}
-	myfile.close();
+	//myfile.close();
     cout << "Finished" << endl;
 }
 
