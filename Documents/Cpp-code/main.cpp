@@ -9,7 +9,38 @@
 #include "constants.h"
 #include "random_numbers.h"
 #include "encounters.h"
+#include "vector_maths.h"
 using namespace std;
+
+void testBAndVVectors(){
+	long double b = pow(10.0, 5.0)*au/length_scale;
+	long double v = pow(10.0, 5.0)*2.2/length_scale*time_scale;
+	tuple<array<long double,3>, array<long double,3>> result;
+	array<long double,3> b_vec, v_vec;
+	long double b_norm, v_norm;
+	ofstream myfile;
+	myfile.open("test_data.csv");
+	for (int i=0; i<pow(10, 6); ++i){
+		result = impactAndVelocityVectors(b, v);
+		b_vec = get<0>(result);
+		v_vec = get<1>(result);
+		b_norm = norm(b_vec);
+		v_norm = norm(v_vec);
+		if (abs((b_norm - b)/b) > pow(10.0, -16.0)){
+			cout << "Wrong magnitude! b = " << b << " , b_norm = " << b_norm << endl; 
+		}
+		if (abs((v_norm - v)/v) > pow(10.0, -16.0)){
+			cout << "Wrong magnitude! v = " << v << " , v_norm = " << v_norm << endl; 
+		}
+		if (abs(dot(b_vec, v_vec)) > pow(10.0,-14.0)){
+			cout << "Dot product not equal to zero! b dot v = " << dot(b_vec, v_vec) << endl;
+		}
+		b_vec = normalise(b_vec);
+		v_vec = normalise(v_vec);
+		myfile << setprecision(16) << v_vec[0] << " , " << v_vec[1] << " , " << v_vec[2] << endl;
+	} 
+	myfile.close();
+}
 
 //Draw a from distribution dN/dloga\propto a^{1-alpha}
 //Draw e from distribution uniform in e^2 between 0 and 1
@@ -66,7 +97,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	const unsigned int N_enc = pow(10, 8);
 	//b's to run encounters
 	const int N_b = 1;
-	array<long double, N_b> b = {5.0};
+	array<long double, N_b> b = {7.0};
 	//array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
 	for(int i=0; i<N_b; ++i){
 		b[i] = pow(10.0,b[i])*au/length_scale;
@@ -75,8 +106,8 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	tuple<long double, long double, long double> result;
 	long double E_ini, E_fin, b_star;
 	cout << "Simulating encounters" << endl;	
-	//ofstream myfile;
-	//myfile.open(filename);
+	ofstream myfile;
+	myfile.open(filename);
 	//Theoretical average energy change
 	long double dE_avg_analytic;
 	if (b[0] < a){
@@ -86,55 +117,65 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	}
 	//Maximum energy change
 	long double dE_max = m1*m2/(m1+m2)*(sqrt(G*(m1+m2)*(1.0+e)/(a*(1.0-e)))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)) + 0.5*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)));
-	int N_enc_so_far = 0;
+	unsigned int N_enc_so_far = 0;
 	int counter = 0;
 	long double dE_mean = 0.0;
 	long double dE2_mean = 0.0;
 	long double dE_mean_old = 0.0;
 	long double std_dev; 
+	long double b_star_min = 100.0*b[0]*length_scale;
+	long double b_star_max = 0.0; 
 	for(int i=0; i<N_b; ++i){
-		for(int j=0; j<N_enc; ++j){
+		while(N_enc_so_far < N_enc){
 			result = testImpulseEncounter(m1, m2, M_p, a, e, b[i], v);
 			//Convert to SI units
 			E_ini = get<0>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 			E_fin = get<1>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 			
 			b_star = get<2>(result) * length_scale;
+			//cout << "b_star = " << b_star/au << endl;
+
+			//cout << "Minimum impact parameter, au = " << b_star_min/au << endl;
+			//cout << "Maximum impact parameter, au = " << b_star_max/au << endl;
 			//Write to file
 			//myfile << setprecision(16) << E_ini << ", " << E_fin << ", " << b_star << endl;
 			
-			
-			N_enc_so_far += 1;
-			dE_mean = dE_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)/N_enc_so_far;
-			dE2_mean = dE2_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)*(E_fin-E_ini)/N_enc_so_far;
-			/*
-			if (N_enc_so_far > pow(10.0, counter*0.25)-1){
-				std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
-				cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
-				myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
-				counter += 1;
+			if ((0.9*b[0] < b_star/length_scale) && (b_star/length_scale < 1.1*b[0])){
+				N_enc_so_far += 1;
+				dE_mean = dE_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)/N_enc_so_far;
+				dE2_mean = dE2_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)*(E_fin-E_ini)/N_enc_so_far;
 				
+				if (N_enc_so_far > pow(10.0, counter*0.1)-1){
+					std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
+					cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
+					myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
+					counter += 1;
+					
+				}
+				b_star_min = min(b_star_min, b_star);
+				b_star_max = max(b_star_max, b_star);
+				dE_mean_old = dE_mean;
+
+				if (copysign(1, dE_mean) != copysign(1, dE_mean_old)){
+					cout << endl;
+					cout << "Number of encounters so far = " << N_enc_so_far << endl;
+					cout << "Old mean energy change = " << dE_mean_old << endl;
+					cout << "Energy change = " << E_fin-E_ini << endl;
+					cout << "Maximum energy change = " << dE_max* mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
+					cout << "New mean energy change = " << dE_mean << endl;
+					cout << "New standard deviation = " << sqrt(dE2_mean - dE_mean*dE_mean) << endl;
+					cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
+					cout << endl;
+				}
+
 			}
-			*/
-			if (copysign(1, dE_mean) != copysign(1, dE_mean_old)){
-				cout << "Number of encounters so far = " << N_enc_so_far << endl;
-				cout << "Old mean energy change = " << dE_mean_old << endl;
-				cout << "Energy change = " << E_fin-E_ini << endl;
-				cout << "Maximum energy change = " << dE_max* mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
-				cout << "New mean energy change = " << dE_mean << endl;
-				cout << "New standard deviation = " << sqrt(dE2_mean - dE_mean*dE_mean) << endl;
-				cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
-				cout << endl;
-			}
-			
-			dE_mean_old = dE_mean;
-			
-			
 			
 
 		}
 	}
-	//myfile.close();
+	myfile.close();
+	cout << "Minimum impact parameter, au = " << b_star_min/au << endl;
+	cout << "Maximum impact parameter, au = " << b_star_max/au << endl;
     cout << "Finished" << endl;
 }
 
@@ -165,10 +206,12 @@ int main() {
 	//To do
 	//Test MCEncounters
 	//Re-test MC_velocity
-	
+
+	//testBAndVVectors();
+		
 	
 	//Test impulse approx against WSW
-	string filename = "WSW_encounters_10e7_b10e5au.csv";
+	string filename = "WSW_encounters_N_enc_log_b10e7au.csv";
 
 	long double m1 = 2.0*msol/mass_scale;
 	long double m2 = 2.0*msol/mass_scale;

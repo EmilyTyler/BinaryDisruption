@@ -124,12 +124,12 @@ plt.show()
 '''
 
 
-'''
+
 #Plot average against number of encounters
 N_enc_min = 10**0
-N_enc_max = 10**8
-b = 10.0**4.0*au
-with open("WSW_encounters_N_enc_log.csv") as csvfile:
+N_enc_max = 4*10**8
+b = 10.0**6.0*au
+with open("WSW_encounters_N_enc_log_b10e6au.csv") as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0
         for row in reader:
@@ -139,21 +139,29 @@ with open("WSW_encounters_N_enc_log.csv") as csvfile:
                 row_number += 1
                 plt.scatter(N_enc, dE_mean, marker='x', color='dodgerblue')
 N_encs = np.linspace(N_enc_min, N_enc_max, num = 2)
-if b < a:
-        dE_avg_analytic = 2.0*(G*M_p/(b*v_rel))**2.0
+dE_avg_analytic = np.zeros(2, dtype=float)
+b_min = 0.9*b
+b_max = 1.1*b
+if b_min < a:
+        dE_avg_analytic[0] = 2.0*(G*M_p/(b_min*v_rel))**2.0
 else:
-        dE_avg_analytic = 4.0/3.0 * (G*M_p/(b*v_rel))**2.0 * (a/b)**2.0 * (1.0 + 3.0*e**2.0/2.0)
+        dE_avg_analytic[0] = 4.0/3.0 * (G*M_p/(b_min*v_rel))**2.0 * (a/b_min)**2.0 * (1.0 + 3.0*e**2.0/2.0)
+if b_max < a:
+        dE_avg_analytic[1] = 2.0*(G*M_p/(b_max*v_rel))**2.0
+else:
+        dE_avg_analytic[1] = 4.0/3.0 * (G*M_p/(b_max*v_rel))**2.0 * (a/b_max)**2.0 * (1.0 + 3.0*e**2.0/2.0)
         #Change from reduced energy to total energy
 dE_avg_analytic *= m1*m2/(m1+m2)
-plt.plot(N_encs, [dE_avg_analytic]*2, color='darkorange')
+plt.plot(N_encs, [dE_avg_analytic[0]]*2, color='darkorange')
+plt.plot(N_encs, [dE_avg_analytic[1]]*2, color='darkorange')
 ax = plt.gca()
 ax.set_xscale('log')
 ax.set_yscale('symlog')
-plt.title(r'b = $10^{}$ au'.format(int(np.floor(np.log10(b/au)))))
+plt.title(r'b = $10^{}$ au $\pm10\%$'.format(int(np.floor(np.log10(b/au)))))
 plt.ylabel('Average energy change, J')
 plt.xlabel('Number of encounters')
 plt.show()
-'''
+
 
 '''
 #Plot distribution of energy changes

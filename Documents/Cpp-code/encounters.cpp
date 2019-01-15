@@ -186,9 +186,11 @@ tuple<long double, long double, long double> testImpulseEncounter(long double m1
 		//Calculate norm of b_star
 		b_star_norm[i] = norm(b_star);
 		//Calculate speed change in b_star direction
-		v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm[i]/b_90)/(1.0 + b_star_norm[i]*b_star_norm[i]/(b_90*b_90));
+		//v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm[i]/b_90)/(1.0 + b_star_norm[i]*b_star_norm[i]/(b_90*b_90));
+		v_perp = 2.0*G*M_p/(v*b_star_norm[i]);
 		//Calculate speed change in -v_vec direction
-		v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm[i]*b_star_norm[i]/(b_90*b_90));
+		//v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm[i]*b_star_norm[i]/(b_90*b_90));
+		v_para = 0.0;
 		//Change star velocity
 		for (int j=0; j<3; ++j){
 			//delta_v_i[i][j] = v_perp * b_star[j]/b_star_norm[i] - v_para * v_vec[j]/v;
