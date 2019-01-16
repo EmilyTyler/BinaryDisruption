@@ -127,9 +127,9 @@ plt.show()
 
 #Plot average against number of encounters
 N_enc_min = 10**0
-N_enc_max = 4*10**8
-b = 10.0**6.0*au
-with open("WSW_encounters_N_enc_log_b10e6au.csv") as csvfile:
+N_enc_max = 10**7
+b = 10.0**4.0*au
+with open("WSW_encounters_N_enc_log_b10e4au.csv") as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0
         for row in reader:

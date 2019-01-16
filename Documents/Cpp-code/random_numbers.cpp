@@ -7,18 +7,18 @@ const long double DBL_MAX = numeric_limits<long double>::max();
 
 random_device rd;
 mt19937 gen(rd());
-uniform_real_distribution<long double> closed_distribution(0.0, nextafter(1.0, DBL_MAX));
-uniform_real_distribution<long double> open_distribution(0.0, 1.0);
 
 
-long double randomUniformDoubleClosed()
+long double randomUniformDoubleClosed(long double min, long double max)
 {
+	uniform_real_distribution<long double> closed_distribution(min, nextafter(max, DBL_MAX));
 	return closed_distribution(gen);
 }
 
 
-long double randomUniformDoubleOpen()
+long double randomUniformDoubleOpen(long double min, long double max)
 {
+	uniform_real_distribution<long double> open_distribution(min, max);
 	return open_distribution(gen);
 }
 

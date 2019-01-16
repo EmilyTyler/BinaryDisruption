@@ -44,9 +44,9 @@ long double drawVMaxwellian(long double v_rel, long double v_max)
 	//Total area under comparison function
 	long double area = f_max*v_rel*(5.0/4.0 + sqrt(2.0) - sqrt(2.0)*exp(sqrt(2.0) - v_max/v_rel/(sqrt(2.0))));
 	while (true){
-		long double u = randomUniformDoubleOpen()*area;
+		long double u = randomUniformDoubleOpen(0.0, area);
 		long double x = VMaxwellianXFromArea(u, v_rel, f_max);
-		long double y = randomUniformDoubleOpen() *VMaxwellianComparison(x, v_rel, v_max, f_max);
+		long double y = randomUniformDoubleOpen(0.0, VMaxwellianComparison(x, v_rel, v_max, f_max));
 		if (y < VMaxwellianPdf(x, v_rel)){
 			return x;
 		}

@@ -56,11 +56,11 @@ tuple<vector<long double>, vector<long double>> initialDistributions(int N_bin, 
 	if (alpha == 2.0){
 		c = log(a_min)/log(a_max/a_min);
 		for (int i=0; i<N_bin; ++i){
-			a[i] = pow(a_max/a_min, (randomUniformDoubleClosed() + c));
+			a[i] = pow(a_max/a_min, (randomUniformDoubleClosed(0.0, 1.0) + c));
 		}
 	} else {
 		for (int i=0; i<N_bin; ++i){
-			a[i] = pow((randomUniformDoubleClosed()*(pow(a_max, 2.0-alpha) - pow(a_min, 2.0-alpha)) + pow(a_min, 2.0-alpha)), 1.0/(2.0 - alpha));
+			a[i] = pow((randomUniformDoubleClosed(0.0, 1.0)*(pow(a_max, 2.0-alpha) - pow(a_min, 2.0-alpha)) + pow(a_min, 2.0-alpha)), 1.0/(2.0 - alpha));
 		}
 	}
 	//Eccentricity array
@@ -70,7 +70,7 @@ tuple<vector<long double>, vector<long double>> initialDistributions(int N_bin, 
 	//Reduce capacity
 	e.shrink_to_fit();
 	for (int i=0; i<N_bin; ++i){
-		e[i] = pow(randomUniformDoubleClosed(), 1.0/3.0);
+		e[i] = pow(randomUniformDoubleClosed(0.0, 1.0), 1.0/3.0);
 	}
 	return make_tuple(a, e);
 }
@@ -94,10 +94,10 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 8);
+	const unsigned int N_enc = pow(10, 9);
 	//b's to run encounters
 	const int N_b = 1;
-	array<long double, N_b> b = {7.0};
+	array<long double, N_b> b = {6.0};
 	//array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
 	for(int i=0; i<N_b; ++i){
 		b[i] = pow(10.0,b[i])*au/length_scale;
@@ -110,10 +110,14 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	myfile.open(filename);
 	//Theoretical average energy change
 	long double dE_avg_analytic;
+	//Theoretical standard deviation
+	long double std_dev_analytic;
 	if (b[0] < a){
 		dE_avg_analytic = 2.0*(G*M_p/(b[0]*v))*(G*M_p/(b[0]*v));
+		std_dev_analytic = sqrt(4.0/3.0*G*(m1+m2)/a*(G*M_p/(b[0]*v))*(G*M_p/(b[0]*v)));
 	} else{
 		dE_avg_analytic = 4.0/3.0 * (G*M_p/(b[0]*v))*(G*M_p/(b[0]*v)) * (a/b[0])*(a/b[0]) * (1.0 + 3.0*e*e/2.0);
+		std_dev_analytic = sqrt(4.0/5.0*G*(m1+m2)/a*(G*M_p/(b[0]*v))*(G*M_p/(b[0]*v))*(a/b[0])*(a/b[0])*(1.0 - e*e/3.0) + 16.0/45.0*pow(G*M_p/(b[0]*v), 4.0)*pow(a/b[0], 4.0)*(1.0 +15.0*e*e));
 	}
 	//Maximum energy change
 	long double dE_max = m1*m2/(m1+m2)*(sqrt(G*(m1+m2)*(1.0+e)/(a*(1.0-e)))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)) + 0.5*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)));
@@ -152,6 +156,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					counter += 1;
 					
 				}
+				/*
 				b_star_min = min(b_star_min, b_star);
 				b_star_max = max(b_star_max, b_star);
 				dE_mean_old = dE_mean;
@@ -165,8 +170,11 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					cout << "New mean energy change = " << dE_mean << endl;
 					cout << "New standard deviation = " << sqrt(dE2_mean - dE_mean*dE_mean) << endl;
 					cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
+					cout << "Analytical standard deviation = " << std_dev_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
+					cout << "Number required for convergence = " << pow(std_dev_analytic/(0.1*dE_avg_analytic) ,2.0) << endl;
 					cout << endl;
 				}
+				*/
 
 			}
 			
@@ -174,8 +182,11 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 		}
 	}
 	myfile.close();
-	cout << "Minimum impact parameter, au = " << b_star_min/au << endl;
-	cout << "Maximum impact parameter, au = " << b_star_max/au << endl;
+	cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
+	cout << "Analytical standard deviation = " << std_dev_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
+	cout << "Number required for convergence = " << pow(std_dev_analytic/(0.1*dE_avg_analytic) ,2.0) << endl;
+	//cout << "Minimum impact parameter, au = " << b_star_min/au << endl;
+	//cout << "Maximum impact parameter, au = " << b_star_max/au << endl;
     cout << "Finished" << endl;
 }
 
@@ -211,7 +222,7 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
-	string filename = "WSW_encounters_N_enc_log_b10e7au.csv";
+	string filename = "WSW_encounters_N_enc_log_b10e6au.csv";
 
 	long double m1 = 2.0*msol/mass_scale;
 	long double m2 = 2.0*msol/mass_scale;
@@ -222,6 +233,5 @@ int main() {
 
 	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
 	
-
 }
 
