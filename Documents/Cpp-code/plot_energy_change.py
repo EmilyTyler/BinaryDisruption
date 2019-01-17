@@ -166,37 +166,57 @@ plt.show()
 '''
 #Plot distribution of energy changes
 #Energy change bins
-N_bins = 5000
-dE_min = 10.0**(24.0)
-print('dE_min = ', dE_min)
+N_bins = 600
+dE_min = 10.0**(22.0)
+print('dE_min =', dE_min)
 dE_max = 10.0**(33.0)
-print('dE_max = ', dE_max)
+print('dE_max =', dE_max)
 dlogdE = (np.log(dE_max)-np.log(dE_min))/(N_bins)
 dE_bins = np.array([dE_min*np.exp(dlogdE*i) for i in range(N_bins)])
-print('dE_bins =', dE_bins)
+#print('dE_bins =', dE_bins)
 N_dE = np.zeros((2,N_bins), dtype=float)
+N_dE_v_dv = np.zeros((2,N_bins), dtype=float)
+N_dE_dv_dv = np.zeros((2,N_bins), dtype=float)
 
-def loadDistData(filename):
-        with open(filename) as csvfile:
-                reader = csv.reader(csvfile, delimiter=',')
-                row_number = 0
-                for row in reader:
-                        E_ini = float(row[0])
-                        E_fin = float(row[1])
-                        b_star = float(row[2])
-                        dE = E_fin-E_ini
-                        row_number += 1
-                        j = int(np.floor(np.log(abs(dE)/dE_min)/dlogdE))
-                        if (dE_min > abs(dE)) or (abs(dE) > dE_max):
-                                print('Out of range:', dE)
-                                print('b_min =', dE_min)
-                                print('b_max =', dE_max)
-                        if (dE > 0.0):
-                                N_dE[0,j] += 1
-                        else:
-                                N_dE[1,j] += 1
+filename = 'WSW_encounters_dE_b10e5au.csv'
+with open(filename) as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        row_number = 0
+        for row in reader:
+                dE = float(row[0])
+                dE_v_dv = float(row[1])
+                dE_dv_dv = float(row[2])
+                row_number += 1
 
-loadDistData('WSW_encounters_10e7_b10e5au.csv')
+                j = int(np.floor(np.log(abs(dE)/dE_min)/dlogdE))
+                if (dE_min > abs(dE)) or (abs(dE) > dE_max):
+                        print('Out of range:', dE)
+                        print('dE_min =', dE_min)
+                        print('dE_max =', dE_max)
+                if (dE > 0.0):
+                        N_dE[0,j] += 1
+                else:
+                        N_dE[1,j] += 1
+
+                j = int(np.floor(np.log(abs(dE_v_dv)/dE_min)/dlogdE))
+                if (dE_min > abs(dE_v_dv)) or (abs(dE_v_dv) > dE_max):
+                        print('Out of range:', dE_v_dv)
+                        print('dE_min =', dE_min)
+                        print('dE_max =', dE_max)
+                if (dE_v_dv > 0.0):
+                        N_dE_v_dv[0,j] += 1
+                else:
+                        N_dE_v_dv[1,j] += 1
+
+                j = int(np.floor(np.log(abs(dE_dv_dv)/dE_min)/dlogdE))
+                if (dE_min > abs(dE_dv_dv)) or (abs(dE_dv_dv) > dE_max):
+                        print('Out of range:', dE_dv_dv)
+                        print('dE_min =', dE_min)
+                        print('dE_max =', dE_max)
+                if (dE_dv_dv > 0.0):
+                        N_dE_dv_dv[0,j] += 1
+                else:
+                        N_dE_dv_dv[1,j] += 1
 
 #Move to the centre of the bins for calculations and plotting
 dE_bins *= np.exp(0.5*dlogdE)
@@ -205,8 +225,26 @@ plt.plot(dE_bins, N_dE[0])
 plt.plot(dE_bins, N_dE[1])
 ax = plt.gca()
 #ax.set_yscale('log')
-ax.set_xscale('symlog')
+ax.set_xscale('symlog', linthreshx=dE_min)
 plt.xlabel('Energy change due to encounter, J')
+plt.ylabel('Number of encounters')
+plt.show()
+
+plt.plot(dE_bins, N_dE_v_dv[0])
+plt.plot(dE_bins, N_dE_v_dv[1])
+ax = plt.gca()
+#ax.set_yscale('log')
+ax.set_xscale('symlog', linthreshx=dE_min)
+plt.xlabel('Energy change due to encounter, vdv, J')
+plt.ylabel('Number of encounters')
+plt.show()
+
+plt.plot(dE_bins, N_dE_dv_dv[0])
+plt.plot(-dE_bins, N_dE_dv_dv[1])
+ax = plt.gca()
+#ax.set_yscale('log')
+ax.set_xscale('symlog', linthreshx=dE_min)
+plt.xlabel('Energy change due to encounter, dvdv, J')
 plt.ylabel('Number of encounters')
 plt.show()
 '''

@@ -94,17 +94,17 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 9);
+	const unsigned int N_enc = pow(10, 8);
 	//b's to run encounters
 	const int N_b = 1;
-	array<long double, N_b> b = {6.0};
+	array<long double, N_b> b = {5.0};
 	//array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
 	for(int i=0; i<N_b; ++i){
 		b[i] = pow(10.0,b[i])*au/length_scale;
 	}
 	//Declare variables
-	tuple<long double, long double, long double> result;
-	long double E_ini, E_fin, b_star;
+	tuple<long double, long double, long double, long double, long double> result;
+	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv, b_input;
 	cout << "Simulating encounters" << endl;	
 	ofstream myfile;
 	myfile.open(filename);
@@ -129,14 +129,21 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	long double std_dev; 
 	long double b_star_min = 100.0*b[0]*length_scale;
 	long double b_star_max = 0.0; 
-	for(int i=0; i<N_b; ++i){
-		while(N_enc_so_far < N_enc){
-			result = testImpulseEncounter(m1, m2, M_p, a, e, b[i], v);
+	long double b_max = calcBMax(M_p, v, a, m1, m2);
+	while(N_enc_so_far < N_enc){
+		for(int i=0; i<N_b; ++i){
+			
+			b_input = randomUniformDoubleClosed(b[0], 10.0*b[0]);
+			result = testImpulseEncounter(m1, m2, M_p, a, e, b_input, v);
 			//Convert to SI units
 			E_ini = get<0>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 			E_fin = get<1>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 			
 			b_star = get<2>(result) * length_scale;
+
+			//dE_v_dv = get<3>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
+			//dE_dv_dv = get<4>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
+
 			//cout << "b_star = " << b_star/au << endl;
 
 			//cout << "Minimum impact parameter, au = " << b_star_min/au << endl;
@@ -146,6 +153,9 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 			
 			if ((0.9*b[0] < b_star/length_scale) && (b_star/length_scale < 1.1*b[0])){
 				N_enc_so_far += 1;
+				//myfile << setprecision(16) << E_fin-E_ini << " , " << dE_v_dv << " , " << dE_dv_dv << endl;
+
+				
 				dE_mean = dE_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)/N_enc_so_far;
 				dE2_mean = dE2_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)*(E_fin-E_ini)/N_enc_so_far;
 				
@@ -156,6 +166,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					counter += 1;
 					
 				}
+				
 				/*
 				b_star_min = min(b_star_min, b_star);
 				b_star_max = max(b_star_max, b_star);
@@ -222,7 +233,7 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
-	string filename = "WSW_encounters_N_enc_log_b10e6au.csv";
+	string filename = "WSW_encounters_N_enc_log_b10e5au_0.csv";
 
 	long double m1 = 2.0*msol/mass_scale;
 	long double m2 = 2.0*msol/mass_scale;

@@ -33,6 +33,6 @@ long double drawB(long double b_max);
 std::tuple<std::vector<long double>, std::vector<long double>> MCEncounters(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, std::vector<long double> a, std::vector<long double> e);
 
 // Test impulse encounter
-std::tuple<long double, long double, long double> testImpulseEncounter(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v);
+std::tuple<long double, long double, long double, long double, long double> testImpulseEncounter(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v);
 
 #endif
