@@ -27,7 +27,7 @@ std::tuple<long double, long double, bool> impulseEncounter(long double m1, long
 
 //Tested
 //Draw an impact parameter from a distribution linear in b up to b_max
-long double drawB(long double b_max);
+long double drawB(long double b_max, long double b_min=0.0);
 
 //Evolves a population of binaries (a,e) forwards by time T
 std::tuple<std::vector<long double>, std::vector<long double>> MCEncounters(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, std::vector<long double> a, std::vector<long double> e);
