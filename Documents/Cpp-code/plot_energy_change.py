@@ -128,17 +128,19 @@ plt.show()
 #Plot average against number of encounters
 N_enc_min = 10**0
 N_enc_max = 10**9
-b = 10.0**4.0*au
-with open("WSW_encounters_N_enc_log_b10e4au.csv") as csvfile:
+b = 10.0**6.0*au
+N_encs = np.array([])
+with open("WSW_encounters_N_enc_b10e6au.csv") as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0
         for row in reader:
                 dE_mean = float(row[0])
                 std_dev = float(row[1])
                 N_enc = float(row[2])
+                N_encs = np.append(N_encs, N_enc)
                 row_number += 1
                 plt.scatter(N_enc, dE_mean, marker='x', color='dodgerblue')
-N_encs = np.linspace(N_enc_min, N_enc_max, num = 2)
+#N_encs = np.linspace(N_enc_min, N_enc_max, num = 2)
 dE_avg_analytic = np.zeros(2, dtype=float)
 b_min = 0.9*b
 #b_min = 10.0*au
@@ -153,20 +155,28 @@ if b_max < a:
         dE_avg_analytic[1] = 2.0*(G*M_p/(b_max*v_rel))**2.0
 else:
         dE_avg_analytic[1] = 4.0/3.0 * (G*M_p/(b_max*v_rel))**2.0 * (a/b_max)**2.0 * (1.0 + 3.0*e**2.0/2.0)
-        #Change from reduced energy to total energy
-
-
-#dE_avg_analytic[0] = (2.0*G*M_p/(b_max*v_rel))**2.0*np.log(a/b_min) + 2.0/3.0*(G*M_p*a/(b_max*v_rel))**2.0*(1.0+3.0*e**2.0/2.0)*(a**(-4.0) - b_max**(-4.0))
-
+#Change from reduced energy to total energy
 dE_avg_analytic *= m1*m2/(m1+m2)
-plt.plot(N_encs, [dE_avg_analytic[0]]*2, color='darkorange')
-plt.plot(N_encs, [dE_avg_analytic[1]]*2, color='darkorange')
+
+#Maximum energy change
+dE_max = m1*m2/(m1+m2)*(np.sqrt(G*(m1+m2)*(1.0+e)/(a*(1.0-e)))*(2.0*G*M_p*a*(1.0+e)/(b_min**2.0*v_rel)) + 0.5*(2.0*G*M_p*a*(1.0+e)/(b_min**2.0*v_rel))**2.0)
+dE_min = -G*m1*m2/a*(1.0+e)/(1.0-e)
+#Maximum negative average energy that will allow a flip
+dE_mean_min = dE_max/(1-N_encs)
+#Maximum positive energy that will allow a flip
+dE_mean_max = dE_min/(1-N_encs)
+
+plt.plot(N_encs, dE_mean_min, color='forestgreen', label='Most extreme average energy to still allow sign flip')
+plt.plot(N_encs, dE_mean_max, color='forestgreen')
+plt.plot(N_encs, [dE_avg_analytic[0]]*np.size(N_encs), color='darkorange', label='WSW average energy')
+plt.plot(N_encs, [dE_avg_analytic[1]]*np.size(N_encs), color='darkorange')
 ax = plt.gca()
-ax.set_xscale('log')
+#ax.set_xscale('log')
 ax.set_yscale('symlog')
 plt.title(r'b = $10^{}$ au $\pm10\%$'.format(int(np.floor(np.log10(b/au)))))
 plt.ylabel('Average energy change, J')
 plt.xlabel('Number of encounters')
+plt.legend()
 plt.show()
 
 
