@@ -124,13 +124,13 @@ plt.show()
 '''
 
 
-
+'''
 #Plot average against number of encounters
-N_enc_min = 10**0
-N_enc_max = 10**9
-b = 10.0**6.0*au
+#N_enc_min = 10**0
+#N_enc_max = 10**9
+b = 10.0**5.0*au
 N_encs = np.array([])
-with open("WSW_encounters_N_enc_b10e6au.csv") as csvfile:
+with open("WSW_encounters_N_enc_b10e5au.csv") as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0
         for row in reader:
@@ -160,7 +160,7 @@ dE_avg_analytic *= m1*m2/(m1+m2)
 
 #Maximum energy change
 dE_max = m1*m2/(m1+m2)*(np.sqrt(G*(m1+m2)*(1.0+e)/(a*(1.0-e)))*(2.0*G*M_p*a*(1.0+e)/(b_min**2.0*v_rel)) + 0.5*(2.0*G*M_p*a*(1.0+e)/(b_min**2.0*v_rel))**2.0)
-dE_min = -G*m1*m2/a*(1.0+e)/(1.0-e)
+dE_min = m1*m2/(m1+m2)*(-np.sqrt(G*(m1+m2)*(1.0+e)/(a*(1.0-e)))*(2.0*G*M_p*a*(1.0+e)/(b_min**2.0*v_rel)) + 0.5*(2.0*G*M_p*a*(1.0+e)/(b_min**2.0*v_rel))**2.0)
 #Maximum negative average energy that will allow a flip
 dE_mean_min = dE_max/(1-N_encs)
 #Maximum positive energy that will allow a flip
@@ -178,12 +178,12 @@ plt.ylabel('Average energy change, J')
 plt.xlabel('Number of encounters')
 plt.legend()
 plt.show()
-
-
 '''
+
+
 #Plot distribution of energy changes
 #Energy change bins
-N_bins = 600
+N_bins = 1000
 dE_min = 10.0**(22.0)
 print('dE_min =', dE_min)
 dE_max = 10.0**(33.0)
@@ -194,8 +194,13 @@ dE_bins = np.array([dE_min*np.exp(dlogdE*i) for i in range(N_bins)])
 N_dE = np.zeros((2,N_bins), dtype=float)
 N_dE_v_dv = np.zeros((2,N_bins), dtype=float)
 N_dE_dv_dv = np.zeros((2,N_bins), dtype=float)
+#Mean
+dE_mean = np.zeros(2)
+dE_v_dv_mean = np.zeros(2)
+dE_dv_dv_mean = np.zeros(2)
 
-filename = 'WSW_encounters_dE_b10e5au.csv'
+b=10.0**5.0*au
+filename = 'WSW_encounters_dists_b10e5au.csv'
 with open(filename) as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0
@@ -205,6 +210,7 @@ with open(filename) as csvfile:
                 dE_dv_dv = float(row[2])
                 row_number += 1
 
+
                 j = int(np.floor(np.log(abs(dE)/dE_min)/dlogdE))
                 if (dE_min > abs(dE)) or (abs(dE) > dE_max):
                         print('Out of range:', dE)
@@ -212,18 +218,22 @@ with open(filename) as csvfile:
                         print('dE_max =', dE_max)
                 if (dE > 0.0):
                         N_dE[0,j] += 1
+                        dE_mean[0] += dE
                 else:
                         N_dE[1,j] += 1
+                        dE_mean[1] += dE
 
-                j = int(np.floor(np.log(abs(dE_v_dv)/dE_min)/dlogdE))
                 if (dE_min > abs(dE_v_dv)) or (abs(dE_v_dv) > dE_max):
                         print('Out of range:', dE_v_dv)
                         print('dE_min =', dE_min)
                         print('dE_max =', dE_max)
+                j = int(np.floor(np.log(abs(dE_v_dv)/dE_min)/dlogdE))
                 if (dE_v_dv > 0.0):
                         N_dE_v_dv[0,j] += 1
+                        dE_v_dv_mean[0] += dE_v_dv
                 else:
                         N_dE_v_dv[1,j] += 1
+                        dE_v_dv_mean[1] += dE_v_dv
 
                 j = int(np.floor(np.log(abs(dE_dv_dv)/dE_min)/dlogdE))
                 if (dE_min > abs(dE_dv_dv)) or (abs(dE_dv_dv) > dE_max):
@@ -232,14 +242,34 @@ with open(filename) as csvfile:
                         print('dE_max =', dE_max)
                 if (dE_dv_dv > 0.0):
                         N_dE_dv_dv[0,j] += 1
+                        dE_dv_dv_mean[0] += dE_dv_dv
                 else:
                         N_dE_dv_dv[1,j] += 1
+                        dE_dv_dv_mean[1] += dE_dv_dv
+
+#Normalise means
+dE_mean[0] /= np.sum(N_dE[0])
+dE_mean[1] /= np.sum(N_dE[1])
+dE_v_dv_mean[0] /= np.sum(N_dE_v_dv[0])
+dE_v_dv_mean[1] /= np.sum(N_dE_v_dv[1])
+dE_dv_dv_mean[0] /= np.sum(N_dE_dv_dv[0])
+dE_dv_dv_mean[1] /= np.sum(N_dE_dv_dv[1])
 
 #Move to the centre of the bins for calculations and plotting
 dE_bins *= np.exp(0.5*dlogdE)
 
+#Average energy change
+if b < a:
+        dE_avg_analytic = 2.0*(G*M_p/(b*v_rel))**2.0
+else:
+        dE_avg_analytic = 4.0/3.0 * (G*M_p/(b*v_rel))**2.0 * (a/b)**2.0 * (1.0 + 3.0*e**2.0/2.0)
+dE_avg_analytic *= m1*m2/(m1+m2)
+
+
 plt.plot(dE_bins, N_dE[0])
 plt.plot(dE_bins, N_dE[1])
+plt.plot([dE_mean[0]]*np.size(N_dE[0]), N_dE[0])
+plt.plot([-dE_mean[1]]*np.size(N_dE[1]), N_dE[1])
 ax = plt.gca()
 #ax.set_yscale('log')
 ax.set_xscale('symlog', linthreshx=dE_min)
@@ -249,6 +279,8 @@ plt.show()
 
 plt.plot(dE_bins, N_dE_v_dv[0])
 plt.plot(dE_bins, N_dE_v_dv[1])
+plt.plot([dE_v_dv_mean[0]]*np.size(N_dE_v_dv[0]), N_dE_v_dv[0])
+plt.plot([-dE_v_dv_mean[1]]*np.size(N_dE_v_dv[1]), N_dE_v_dv[1])
 ax = plt.gca()
 #ax.set_yscale('log')
 ax.set_xscale('symlog', linthreshx=dE_min)
@@ -258,10 +290,12 @@ plt.show()
 
 plt.plot(dE_bins, N_dE_dv_dv[0])
 plt.plot(-dE_bins, N_dE_dv_dv[1])
+plt.plot([dE_avg_analytic]*np.size(N_dE_dv_dv[0]), N_dE_dv_dv[0], label='Analytic average')
+plt.plot([dE_dv_dv_mean[0]]*np.size(N_dE_dv_dv[0]), N_dE_dv_dv[0], label='Actual average')
+plt.plot([-dE_dv_dv_mean[1]]*np.size(N_dE_dv_dv[1]), N_dE_dv_dv[1], label='Actual average')
 ax = plt.gca()
 #ax.set_yscale('log')
 ax.set_xscale('symlog', linthreshx=dE_min)
 plt.xlabel('Energy change due to encounter, dvdv, J')
 plt.ylabel('Number of encounters')
 plt.show()
-'''
