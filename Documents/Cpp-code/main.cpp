@@ -97,7 +97,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	const unsigned int N_enc = pow(10, 7);
 	//b's to run encounters
 	const int N_b = 1;
-	array<long double, N_b> b = {5.0};
+	array<long double, N_b> b = {4.0};
 	//array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
 	for(int i=0; i<N_b; ++i){
 		b[i] = pow(10.0,b[i])*au/length_scale;
@@ -119,6 +119,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 		dE_avg_analytic = 4.0/3.0 * (G*M_p/(b[0]*v))*(G*M_p/(b[0]*v)) * (a/b[0])*(a/b[0]) * (1.0 + 3.0*e*e/2.0);
 		std_dev_analytic = sqrt(4.0/5.0*G*(m1+m2)/a*(G*M_p/(b[0]*v))*(G*M_p/(b[0]*v))*(a/b[0])*(a/b[0])*(1.0 - e*e/3.0) + 16.0/45.0*pow(G*M_p/(b[0]*v), 4.0)*pow(a/b[0], 4.0)*(1.0 +15.0*e*e));
 	}
+	dE_avg_analytic *= m1*m2/(m1+m2);
 	//Maximum energy change
 	long double dE_max = m1*m2/(m1+m2)*(sqrt(G*(m1+m2)*(1.0+e)/(a*(1.0-e)))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)) + 0.5*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)));
 	long double dE_min = m1*m2/(m1+m2)*(-sqrt(G*(m1+m2)*(1.0+e)/(a*(1.0-e)))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)) + 0.5*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)));
@@ -126,6 +127,8 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	int counter = 0;
 	long double dE_mean = 0.0;
 	long double dE2_mean = 0.0;
+	long double dE_v_dv_mean = 0.0;
+	long double dE_dv_dv_mean = 0.0;
 	long double dE_mean_old = 0.0;
 	long double std_dev; 
 	long double b_star_min = 100.0*b[0]*length_scale;
@@ -159,6 +162,8 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 				
 				dE_mean = dE_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)/N_enc_so_far;
 				dE2_mean = dE2_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)*(E_fin-E_ini)/N_enc_so_far;
+				dE_v_dv_mean = dE_v_dv_mean*(N_enc_so_far-1)/N_enc_so_far + dE_v_dv/N_enc_so_far;
+				dE_dv_dv_mean = dE_dv_dv_mean*(N_enc_so_far-1)/N_enc_so_far + dE_dv_dv/N_enc_so_far;
 				
 				//if (N_enc_so_far > pow(10.0, counter*0.1)-1){
 					std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
@@ -198,6 +203,10 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	}
 	myfile.close();
 	cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
+	cout << "Average of v dv term = " << dE_v_dv_mean << endl;
+	cout << "Average of dv dv term = " << dE_dv_dv_mean << endl;
+	cout << "Average energy change = " << dE_mean << endl;
+	cout << endl;
 	cout << "Analytical standard deviation = " << std_dev_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
 	cout << "Number required for convergence = " << pow(std_dev_analytic/(0.1*dE_avg_analytic) ,2.0) << endl;
 	cout << "Minimum impact parameter, au = " << b_star_min/au << endl;
@@ -285,7 +294,7 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
-	string filename = "WSW_encounters_dists_b10e5au.csv";
+	string filename = "WSW_encounters_dists_b10e4au.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;

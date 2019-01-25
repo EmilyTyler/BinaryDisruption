@@ -186,7 +186,7 @@ plt.show()
 N_bins = 1000
 dE_min = 10.0**(22.0)
 print('dE_min =', dE_min)
-dE_max = 10.0**(33.0)
+dE_max = 10.0**(34.0)
 print('dE_max =', dE_max)
 dlogdE = (np.log(dE_max)-np.log(dE_min))/(N_bins)
 dE_bins = np.array([dE_min*np.exp(dlogdE*i) for i in range(N_bins)])
@@ -199,8 +199,8 @@ dE_mean = np.zeros(2)
 dE_v_dv_mean = np.zeros(2)
 dE_dv_dv_mean = np.zeros(2)
 
-b=10.0**5.0*au
-filename = 'WSW_encounters_dists_b10e5au.csv'
+b=10.0**4.0*au
+filename = 'WSW_encounters_dists_b10e4au.csv'
 with open(filename) as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0
@@ -210,12 +210,11 @@ with open(filename) as csvfile:
                 dE_dv_dv = float(row[2])
                 row_number += 1
 
-
-                j = int(np.floor(np.log(abs(dE)/dE_min)/dlogdE))
                 if (dE_min > abs(dE)) or (abs(dE) > dE_max):
                         print('Out of range:', dE)
                         print('dE_min =', dE_min)
                         print('dE_max =', dE_max)
+                j = int(np.floor(np.log(abs(dE)/dE_min)/dlogdE))
                 if (dE > 0.0):
                         N_dE[0,j] += 1
                         dE_mean[0] += dE
@@ -264,6 +263,15 @@ if b < a:
 else:
         dE_avg_analytic = 4.0/3.0 * (G*M_p/(b*v_rel))**2.0 * (a/b)**2.0 * (1.0 + 3.0*e**2.0/2.0)
 dE_avg_analytic *= m1*m2/(m1+m2)
+
+#Print means
+print('Average of positive energy changes = ', dE_mean[0])
+print('Average of negative energy changes = ', dE_mean[1])
+print('Average of positive v dv term = ', dE_v_dv_mean[0])
+print('Average of negative v dv term = ', dE_v_dv_mean[1])
+print('Average of positive dv dv term = ', dE_dv_dv_mean[0])
+print('Average of negative dv dv term = ', dE_dv_dv_mean[1])
+print('Analytical average energy change = ', dE_avg_analytic)
 
 
 plt.plot(dE_bins, N_dE[0])
