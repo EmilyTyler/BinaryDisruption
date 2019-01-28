@@ -180,7 +180,7 @@ plt.legend()
 plt.show()
 '''
 
-
+'''
 #Plot distribution of energy changes
 #Energy change bins
 N_bins = 1000
@@ -307,3 +307,27 @@ ax.set_xscale('symlog', linthreshx=dE_min)
 plt.xlabel('Energy change due to encounter, dvdv, J')
 plt.ylabel('Number of encounters')
 plt.show()
+'''
+
+#Plot the average of the dv^2 term divided by the analalytical average energy against impact parameter
+N_b = 41
+
+dvdv_dEs = np.zeros(N_b)
+bs = np.zeros(N_b)
+filename = "WSW_encounters_dvdv_dE_Nenc10e6.csv"
+with open(filename) as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        row_number = 0
+        for row in reader:
+                dvdv_dEs[row_number] = float(row[0])
+                bs[row_number] = float(row[1])
+                row_number += 1
+plt.scatter(bs/au, dvdv_dEs, marker='x')
+ax=plt.gca()
+ax.set_xscale('log')
+plt.xlabel('Impact parameter, au')
+plt.ylabel(r'$\langle|\Delta\mathbf{V}|^2\rangle / \langle \Delta E \rangle$', rotation=0, labelpad=20)
+plt.title(r'Average value of $|\Delta\mathbf{V}|^2$ term divided by theoretical average energy change ($a=10^5$au)', wrap=True)
+plt.grid()
+plt.show()
+

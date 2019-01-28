@@ -94,10 +94,10 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 7);
+	const unsigned int N_enc = pow(10, 4);
 	//b's to run encounters
 	const int N_b = 1;
-	array<long double, N_b> b = {4.0};
+	array<long double, N_b> b = {3.0};
 	//array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
 	for(int i=0; i<N_b; ++i){
 		b[i] = pow(10.0,b[i])*au/length_scale;
@@ -216,46 +216,72 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 
 void WSWEncounterTest_MeanvB(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 4);
-	//b's to run encounters
-	const int N_b = 11;
-	array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
+	const unsigned int N_enc = pow(10, 6);
+	//b's to run encounters 
+	const int N_b = 41;
+	//array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
+	array<long double, N_b> b = {3.0, 3.125, 3.25, 3.375, 3.5, 3.625, 3.75, 3.875, 4.0, 4.125, 4.25, 4.375, 4.5, 4.625, 4.75, 4.875, 5.0, 5.125, 5.25, 5.375, 5.5, 5.625, 5.75, 5.875, 6.0, 6.125, 6.25, 6.375, 6.5, 6.625, 6.75, 6.875, 7.0, 7.125, 7.25, 7.375, 7.5, 7.625, 7.75, 7.875, 8.0};
 	for(int i=0; i<N_b; ++i){
 		b[i] = pow(10.0,b[i])*au/length_scale;
 	}
 	//Declare variables
 	tuple<long double, long double, long double, long double, long double> result;
-	long double E_ini, E_fin, b_star;
+	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv;
 	cout << "Simulating encounters" << endl;	
 	ofstream myfile;
 	myfile.open(filename);
 	unsigned int N_enc_so_far = 0;
 	long double dE_mean = 0.0;
 	long double dE2_mean = 0.0;
+	long double dE_v_dv_mean = 0.0;
+	long double dE_dv_dv_mean = 0.0;
 	long double std_dev; 
+	//Theoretical average energy change
+	long double dE_avg_analytic;
+	//Theoretical standard deviation
+	long double std_dev_analytic;
 	for(int i=0; i<N_b; ++i){
 		N_enc_so_far = 0;
 		dE_mean = 0.0;
 		dE2_mean = 0.0;
+		dE_v_dv_mean = 0.0;
+		dE_dv_dv_mean = 0.0;
 		while(N_enc_so_far < N_enc){
 			result = testImpulseEncounter(m1, m2, M_p, a, e, b[i], v);
 			//Convert to SI units
 			E_ini = get<0>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 			E_fin = get<1>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 			b_star = get<2>(result) * length_scale;
+			dE_v_dv = get<3>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
+			dE_dv_dv = get<4>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 			
-			if ((0.9*b[0] < b_star/length_scale) && (b_star/length_scale < 1.1*b[0])){
+			if ((0.9*b[i] < b_star/length_scale) && (b_star/length_scale < 1.1*b[i])){
 				N_enc_so_far += 1;
 				dE_mean += E_fin-E_ini;
 				dE2_mean += (E_fin-E_ini)*(E_fin-E_ini);
+				dE_v_dv_mean += dE_v_dv;
+				dE_dv_dv_mean += dE_dv_dv;
 			}
 		}
 		//Normalise
 		dE_mean /= N_enc;
 		dE2_mean /= N_enc;
+		dE_v_dv_mean /= N_enc;
+		dE_dv_dv_mean /= N_enc;
 		std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
-		cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << b[i]*length_scale << endl;
-		myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << b[i]*length_scale << endl;
+		//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << b[i]*length_scale << endl;
+		//myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << b[i]*length_scale << endl;
+
+		if (b[i] < a){
+			dE_avg_analytic = 2.0*(G*M_p/(b[i]*v))*(G*M_p/(b[i]*v));
+			std_dev_analytic = sqrt(4.0/3.0*G*(m1+m2)/a*(G*M_p/(b[i]*v))*(G*M_p/(b[i]*v)));
+		} else{
+			dE_avg_analytic = 4.0/3.0 * (G*M_p/(b[i]*v))*(G*M_p/(b[i]*v)) * (a/b[i])*(a/b[i]) * (1.0 + 3.0*e*e/2.0);
+			std_dev_analytic = sqrt(4.0/5.0*G*(m1+m2)/a*(G*M_p/(b[i]*v))*(G*M_p/(b[i]*v))*(a/b[i])*(a/b[i])*(1.0 - e*e/3.0) + 16.0/45.0*pow(G*M_p/(b[i]*v), 4.0)*pow(a/b[i], 4.0)*(1.0 +15.0*e*e));
+		}
+		dE_avg_analytic *= m1*m2/(m1+m2);
+		cout << setprecision(16) << dE_dv_dv_mean / (dE_avg_analytic* mass_scale*(length_scale*length_scale/(time_scale*time_scale))) << " , " << b[i]*length_scale << endl;
+		myfile << setprecision(16) << dE_dv_dv_mean / (dE_avg_analytic* mass_scale*(length_scale*length_scale/(time_scale*time_scale))) << " , " << b[i]*length_scale << endl;
 	}
 	myfile.close();
     cout << "Finished" << endl;
@@ -294,7 +320,7 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
-	string filename = "WSW_encounters_dists_b10e4au.csv";
+	string filename = "WSW_encounters_dvdv_dE_Nenc10e6.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
@@ -303,9 +329,9 @@ int main() {
 	long double e = 0.7;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
-	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
+	//WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
 
-	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
+	WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 	
 }
 
