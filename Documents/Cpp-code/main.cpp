@@ -94,10 +94,10 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 4);
+	const unsigned int N_enc = pow(10, 7);
 	//b's to run encounters
 	const int N_b = 1;
-	array<long double, N_b> b = {3.0};
+	array<long double, N_b> b = {5.0};
 	//array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
 	for(int i=0; i<N_b; ++i){
 		b[i] = pow(10.0,b[i])*au/length_scale;
@@ -106,8 +106,8 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	tuple<long double, long double, long double, long double, long double> result;
 	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv, b_input;
 	cout << "Simulating encounters" << endl;	
-	ofstream myfile;
-	myfile.open(filename);
+	//ofstream myfile;
+	//myfile.open(filename);
 	//Theoretical average energy change
 	long double dE_avg_analytic;
 	//Theoretical standard deviation
@@ -170,7 +170,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
-					myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
+					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					counter += 1;
 					
 				//}
@@ -201,7 +201,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 
 		}
 	}
-	myfile.close();
+	//myfile.close();
 	cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
 	cout << "Average of v dv term = " << dE_v_dv_mean << endl;
 	cout << "Average of dv dv term = " << dE_dv_dv_mean << endl;
@@ -320,7 +320,7 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
-	string filename = "WSW_encounters_dvdv_dE_Nenc10e6.csv";
+	string filename = "test.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
@@ -329,9 +329,9 @@ int main() {
 	long double e = 0.7;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
-	//WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
+	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
 
-	WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
+	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 	
 }
 
