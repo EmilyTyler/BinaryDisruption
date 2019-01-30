@@ -94,7 +94,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 7);
+	const unsigned int N_enc = pow(10, 6);
 	//b's to run encounters
 	const int N_b = 1;
 	array<long double, N_b> b = {5.0};
@@ -106,8 +106,8 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	tuple<long double, long double, long double, long double, long double> result;
 	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv, b_input;
 	cout << "Simulating encounters" << endl;	
-	//ofstream myfile;
-	//myfile.open(filename);
+	ofstream myfile;
+	myfile.open(filename);
 	//Theoretical average energy change
 	long double dE_avg_analytic;
 	//Theoretical standard deviation
@@ -170,7 +170,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
-					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
+					myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					counter += 1;
 					
 				//}
@@ -201,7 +201,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 
 		}
 	}
-	//myfile.close();
+	myfile.close();
 	cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
 	cout << "Average of v dv term = " << dE_v_dv_mean << endl;
 	cout << "Average of dv dv term = " << dE_dv_dv_mean << endl;
@@ -320,7 +320,7 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
-	string filename = "test.csv";
+	string filename = "WSW_encounters_dists_b10e5au.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;

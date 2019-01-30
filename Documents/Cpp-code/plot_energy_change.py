@@ -124,7 +124,7 @@ plt.show()
 '''
 
 
-'''
+
 #Plot average against number of encounters
 #N_enc_min = 10**0
 #N_enc_max = 10**9
@@ -178,13 +178,13 @@ plt.ylabel('Average energy change, J')
 plt.xlabel('Number of encounters')
 plt.legend()
 plt.show()
-'''
+
 
 '''
 #Plot distribution of energy changes
 #Energy change bins
 N_bins = 1000
-dE_min = 10.0**(22.0)
+dE_min = 10.0**(21.0)
 print('dE_min =', dE_min)
 dE_max = 10.0**(34.0)
 print('dE_max =', dE_max)
@@ -199,8 +199,8 @@ dE_mean = np.zeros(2)
 dE_v_dv_mean = np.zeros(2)
 dE_dv_dv_mean = np.zeros(2)
 
-b=10.0**4.0*au
-filename = 'WSW_encounters_dists_b10e4au.csv'
+b=10.0**5.0*au
+filename = 'WSW_encounters_dists_b10e5au.csv'
 with open(filename) as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0
@@ -274,41 +274,46 @@ print('Average of negative dv dv term = ', dE_dv_dv_mean[1])
 print('Analytical average energy change = ', dE_avg_analytic)
 
 
-plt.plot(dE_bins, N_dE[0])
-plt.plot(dE_bins, N_dE[1])
-plt.plot([dE_mean[0]]*np.size(N_dE[0]), N_dE[0])
-plt.plot([-dE_mean[1]]*np.size(N_dE[1]), N_dE[1])
+plt.plot(dE_bins, N_dE[0], color='dodgerblue')
+plt.plot(-dE_bins, N_dE[1], color='dodgerblue')
+#plt.plot([dE_mean[0]]*np.size(N_dE[0]), N_dE[0], color='darkorange')
+#plt.plot([dE_mean[1]]*np.size(N_dE[1]), N_dE[1], color='darkorange')
 ax = plt.gca()
 #ax.set_yscale('log')
 ax.set_xscale('symlog', linthreshx=dE_min)
 plt.xlabel('Energy change due to encounter, J')
 plt.ylabel('Number of encounters')
+plt.title('Distribution of total energy changes')
 plt.show()
 
-plt.plot(dE_bins, N_dE_v_dv[0])
-plt.plot(dE_bins, N_dE_v_dv[1])
-plt.plot([dE_v_dv_mean[0]]*np.size(N_dE_v_dv[0]), N_dE_v_dv[0])
-plt.plot([-dE_v_dv_mean[1]]*np.size(N_dE_v_dv[1]), N_dE_v_dv[1])
+plt.plot(dE_bins, N_dE_v_dv[0], color='dodgerblue')
+plt.plot(-dE_bins, N_dE_v_dv[1], color='dodgerblue')
+#plt.plot([dE_v_dv_mean[0]]*np.size(N_dE_v_dv[0]), N_dE_v_dv[0], color='darkorange')
+#plt.plot([dE_v_dv_mean[1]]*np.size(N_dE_v_dv[1]), N_dE_v_dv[1], color='darkorange')
 ax = plt.gca()
 #ax.set_yscale('log')
 ax.set_xscale('symlog', linthreshx=dE_min)
 plt.xlabel('Energy change due to encounter, vdv, J')
 plt.ylabel('Number of encounters')
+plt.title(r'Distribution of $\mathbf{V}\cdot\Delta\mathbf{V}$ term')
 plt.show()
 
-plt.plot(dE_bins, N_dE_dv_dv[0])
-plt.plot(-dE_bins, N_dE_dv_dv[1])
-plt.plot([dE_avg_analytic]*np.size(N_dE_dv_dv[0]), N_dE_dv_dv[0], label='Analytic average')
-plt.plot([dE_dv_dv_mean[0]]*np.size(N_dE_dv_dv[0]), N_dE_dv_dv[0], label='Actual average')
-plt.plot([-dE_dv_dv_mean[1]]*np.size(N_dE_dv_dv[1]), N_dE_dv_dv[1], label='Actual average')
+plt.plot(dE_bins, N_dE_dv_dv[0], color='dodgerblue')
+plt.plot(-dE_bins, N_dE_dv_dv[1], color='dodgerblue')
+plt.plot([dE_avg_analytic]*np.size(N_dE_dv_dv[0]), N_dE_dv_dv[0], color='forestgreen', label='Analytic average')
+plt.plot([dE_dv_dv_mean[0]]*np.size(N_dE_dv_dv[0]), N_dE_dv_dv[0], color='darkorange', label='Actual average')
+plt.plot([dE_dv_dv_mean[1]]*np.size(N_dE_dv_dv[1]), N_dE_dv_dv[1], color='darkorange')
 ax = plt.gca()
 #ax.set_yscale('log')
 ax.set_xscale('symlog', linthreshx=dE_min)
+plt.legend()
+plt.title(r'Distribution of $\Delta\mathbf{V}\cdot\Delta\mathbf{V}$ term')
 plt.xlabel('Energy change due to encounter, dvdv, J')
 plt.ylabel('Number of encounters')
 plt.show()
 '''
 
+'''
 #Plot the average of the dv^2 term divided by the analalytical average energy against impact parameter
 N_b = 41
 
@@ -330,4 +335,4 @@ plt.ylabel(r'$\langle|\Delta\mathbf{V}|^2\rangle / \langle \Delta E \rangle$', r
 plt.title(r'Average value of $|\Delta\mathbf{V}|^2$ term divided by theoretical average energy change ($a=10^5$au)', wrap=True)
 plt.grid()
 plt.show()
-
+'''
