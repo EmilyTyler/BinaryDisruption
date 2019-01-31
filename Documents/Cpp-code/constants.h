@@ -13,9 +13,13 @@ const long double parsec = 3.0856775813057292 * pow(10.0, 16.0);
 const long double msol = 2.0 * pow(10.0, 30.0);
 
 //Internal units
-const long double time_scale = giga*year;
-const long double mass_scale = msol;
-const long double length_scale = pow((G_SI * mass_scale * time_scale*time_scale), 1.0/3.0);
-const long double G = 1.0;
+//const long double time_scale = giga*year;
+const long double time_scale = 1.0;
+//const long double mass_scale = msol;
+const long double mass_scale = 1.0;
+//const long double length_scale = pow((G_SI * mass_scale * time_scale*time_scale), 1.0/3.0);
+const long double length_scale = 1.0;
+//const long double G = 1.0;
+const long double G = G_SI;
 
 #endif

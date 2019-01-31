@@ -124,7 +124,7 @@ plt.show()
 '''
 
 
-
+'''
 #Plot average against number of encounters
 #N_enc_min = 10**0
 #N_enc_max = 10**9
@@ -178,9 +178,9 @@ plt.ylabel('Average energy change, J')
 plt.xlabel('Number of encounters')
 plt.legend()
 plt.show()
-
-
 '''
+
+
 #Plot distribution of energy changes
 #Energy change bins
 N_bins = 1000
@@ -311,7 +311,7 @@ plt.title(r'Distribution of $\Delta\mathbf{V}\cdot\Delta\mathbf{V}$ term')
 plt.xlabel('Energy change due to encounter, dvdv, J')
 plt.ylabel('Number of encounters')
 plt.show()
-'''
+
 
 '''
 #Plot the average of the dv^2 term divided by the analalytical average energy against impact parameter
