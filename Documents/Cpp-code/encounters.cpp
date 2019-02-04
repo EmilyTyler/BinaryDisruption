@@ -158,7 +158,7 @@ tuple<vector<long double>, vector<long double>> MCEncounters(long double v_rel, 
 }
 
 // Test impulse encounter
-tuple<long double, long double, long double, long double, long double> testImpulseEncounter(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v)
+tuple<long double, long double, long double, long double, long double, array<long double,3>, array<long double,3>> testImpulseEncounter(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v)
 {
 	//Star masses
 	array<long double, 2> m = {m1, m2};
@@ -224,5 +224,5 @@ tuple<long double, long double, long double, long double, long double> testImpul
 	//cout << setprecision(16) << "difference between energy changes = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) + 0.5*m1*m2/(m1+m2)*dot(delta_v, delta_v) - (E_fin - E_ini) << endl;
 	//cout << "b_star_norm = " << b_star_norm[0] << " , " << b_star_norm[1] << endl;
 	//cout << "b_star_norm_min = " << b_star_norm_min << endl;
-	return make_tuple(E_ini, E_fin, b_star_norm_min, v_dv, dv_dv);
+	return make_tuple(E_ini, E_fin, b_star_norm_min, v_dv, dv_dv, v_initial, delta_v);
 }

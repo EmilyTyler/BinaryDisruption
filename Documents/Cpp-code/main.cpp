@@ -103,11 +103,12 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 		b[i] = pow(10.0,b[i])*au/length_scale;
 	}
 	//Declare variables
-	tuple<long double, long double, long double, long double, long double> result;
-	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv, b_input;
+	tuple<long double, long double, long double, long double, long double, array<long double, 3>, array<long double, 3>> result;
+	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv, b_input, delta_v_norm, v_initial_norm;
+	array<long double,3> v_initial, delta_v;
 	cout << "Simulating encounters" << endl;	
-	ofstream myfile;
-	myfile.open(filename);
+	//ofstream myfile;
+	//myfile.open(filename);
 	//Theoretical average energy change
 	long double dE_avg_analytic;
 	//Theoretical standard deviation
@@ -148,6 +149,18 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 			dE_v_dv = get<3>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 			dE_dv_dv = get<4>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 
+			v_initial = get<5>(result);
+			for (int j=0; i<3; i++){
+				v_initial[i] *= length_scale/time_scale;
+			}
+			v_initial_norm = norm(v_initial);
+
+			delta_v = get<6>(result);
+			for (int j=0; i<3; i++){
+				delta_v[i] *= length_scale/time_scale;
+			}
+			delta_v_norm = norm(delta_v);
+
 			//cout << "b_star = " << b_star/au << endl;
 
 			//cout << "Minimum impact parameter, au = " << b_star_min/au << endl;
@@ -170,7 +183,8 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
-					myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
+					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
+					//myfile << setprecision(16) << v_initial[0] << " , " << v_initial[1] << " , " << v_initial[2] << " , " << delta_v[0] << " , " << delta_v[1] << " , " << delta_v[2] << endl;
 					counter += 1;
 					
 				//}
@@ -179,7 +193,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 				b_star_min = min(b_star_min, b_star);
 				b_star_max = max(b_star_max, b_star);
 				
-							
+				/*			
 				if (copysign(1, dE_mean) != copysign(1, dE_mean_old)){
 					cout << endl;
 					cout << "Number of encounters so far = " << N_enc_so_far << endl;
@@ -194,14 +208,18 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					cout << "Number required for convergence = " << pow(std_dev_analytic/(0.1*dE_avg_analytic) ,2.0) << endl;
 					cout << endl;
 				}
-				
+				*/
 				dE_mean_old = dE_mean;
+
+				if (abs(E_fin-E_ini) < pow(10.0, 25.0)){
+					cout << E_fin-E_ini << " , " << dE_v_dv + dE_dv_dv -(E_fin-E_ini)<< endl;
+				}
 			}
 			
 
 		}
 	}
-	myfile.close();
+	//myfile.close();
 	cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
 	cout << "Average of v dv term = " << dE_v_dv_mean << endl;
 	cout << "Average of dv dv term = " << dE_dv_dv_mean << endl;
@@ -225,7 +243,7 @@ void WSWEncounterTest_MeanvB(string filename, long double m1, long double m2, lo
 		b[i] = pow(10.0,b[i])*au/length_scale;
 	}
 	//Declare variables
-	tuple<long double, long double, long double, long double, long double> result;
+	tuple<long double, long double, long double, long double, long double, array<long double,3>, array<long double,3>> result;
 	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv;
 	cout << "Simulating encounters" << endl;	
 	ofstream myfile;
@@ -320,7 +338,7 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
-	string filename = "WSW_encounters_dists_b10e5au.csv";
+	string filename = "WSW_encounters_V_dV_vectors.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;

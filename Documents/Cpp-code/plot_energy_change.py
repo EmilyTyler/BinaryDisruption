@@ -184,9 +184,9 @@ plt.show()
 #Plot distribution of energy changes
 #Energy change bins
 N_bins = 1000
-dE_min = 10.0**(21.0)
+dE_min = 10.0**(24.0)
 print('dE_min =', dE_min)
-dE_max = 10.0**(34.0)
+dE_max = 10.0**(32.0)
 print('dE_max =', dE_max)
 dlogdE = (np.log(dE_max)-np.log(dE_min))/(N_bins)
 dE_bins = np.array([dE_min*np.exp(dlogdE*i) for i in range(N_bins)])
@@ -233,7 +233,7 @@ with open(filename) as csvfile:
                 else:
                         N_dE_v_dv[1,j] += 1
                         dE_v_dv_mean[1] += dE_v_dv
-
+'''
                 j = int(np.floor(np.log(abs(dE_dv_dv)/dE_min)/dlogdE))
                 if (dE_min > abs(dE_dv_dv)) or (abs(dE_dv_dv) > dE_max):
                         print('Out of range:', dE_dv_dv)
@@ -245,7 +245,7 @@ with open(filename) as csvfile:
                 else:
                         N_dE_dv_dv[1,j] += 1
                         dE_dv_dv_mean[1] += dE_dv_dv
-
+'''
 #Normalise means
 dE_mean[0] /= np.sum(N_dE[0])
 dE_mean[1] /= np.sum(N_dE[1])
@@ -273,7 +273,8 @@ print('Average of positive dv dv term = ', dE_dv_dv_mean[0])
 print('Average of negative dv dv term = ', dE_dv_dv_mean[1])
 print('Analytical average energy change = ', dE_avg_analytic)
 
-
+print('dE_bins =', dE_bins[200:])
+print('N_dE = ', (N_dE[0] + N_dE[1])[200:])
 plt.plot(dE_bins, N_dE[0], color='dodgerblue')
 plt.plot(-dE_bins, N_dE[1], color='dodgerblue')
 #plt.plot([dE_mean[0]]*np.size(N_dE[0]), N_dE[0], color='darkorange')
