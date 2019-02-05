@@ -4,13 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-b_max = 3.086*10.0**16.0
-
 
 #Vector direction tests
-data = np.zeros((10**3, 6), dtype=float)
+data = np.zeros((10**6, 6), dtype=float)
 
-with open('WSW_encounters_V_dV_vectors.csv') as csvfile:
+with open('test_data.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	row_number = 0
 	for row in reader:

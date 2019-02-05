@@ -103,12 +103,12 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 		b[i] = pow(10.0,b[i])*au/length_scale;
 	}
 	//Declare variables
-	tuple<long double, long double, long double, long double, long double, array<long double, 3>, array<long double, 3>> result;
-	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv, b_input, delta_v_norm, v_initial_norm;
+	tuple<long double, long double, long double, long double, long double, array<long double, 3>, array<long double, 3>, long double> result;
+	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv, b_input, delta_v_norm, v_initial_norm, phi;
 	array<long double,3> v_initial, delta_v;
 	cout << "Simulating encounters" << endl;	
-	//ofstream myfile;
-	//myfile.open(filename);
+	ofstream myfile;
+	myfile.open(filename);
 	//Theoretical average energy change
 	long double dE_avg_analytic;
 	//Theoretical standard deviation
@@ -161,6 +161,8 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 			}
 			delta_v_norm = norm(delta_v);
 
+			phi = get<7>(result);
+
 			//cout << "b_star = " << b_star/au << endl;
 
 			//cout << "Minimum impact parameter, au = " << b_star_min/au << endl;
@@ -185,6 +187,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//myfile << setprecision(16) << v_initial[0] << " , " << v_initial[1] << " , " << v_initial[2] << " , " << delta_v[0] << " , " << delta_v[1] << " , " << delta_v[2] << endl;
+					myfile << setprecision(16) << phi << endl;
 					counter += 1;
 					
 				//}
@@ -210,16 +213,17 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 				}
 				*/
 				dE_mean_old = dE_mean;
-
+				/*
 				if (abs(E_fin-E_ini) < pow(10.0, 25.0)){
 					cout << E_fin-E_ini << " , " << dE_v_dv + dE_dv_dv -(E_fin-E_ini)<< endl;
 				}
+				*/
 			}
 			
 
 		}
 	}
-	//myfile.close();
+	myfile.close();
 	cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
 	cout << "Average of v dv term = " << dE_v_dv_mean << endl;
 	cout << "Average of dv dv term = " << dE_dv_dv_mean << endl;
@@ -243,7 +247,7 @@ void WSWEncounterTest_MeanvB(string filename, long double m1, long double m2, lo
 		b[i] = pow(10.0,b[i])*au/length_scale;
 	}
 	//Declare variables
-	tuple<long double, long double, long double, long double, long double, array<long double,3>, array<long double,3>> result;
+	tuple<long double, long double, long double, long double, long double, array<long double,3>, array<long double,3>, long double> result;
 	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv;
 	cout << "Simulating encounters" << endl;	
 	ofstream myfile;
@@ -338,7 +342,7 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
-	string filename = "WSW_encounters_V_dV_vectors.csv";
+	string filename = "test_data.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
