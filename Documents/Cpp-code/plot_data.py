@@ -20,6 +20,7 @@ N_bins = 100
 
 d_min = np.min(data)
 d_max = np.max(data)
+print('min =', d_min)
 dd = (d_max - d_min)/(N_bins-1)
 d_bins = np.array([d_min + i*dd for i in range(N_bins)])
 N_d = np.zeros(N_bins)
@@ -28,7 +29,9 @@ for i in range(np.size(data)):
 	N_d[j] += 1
 N_d /= np.size(data)
 plt.plot(d_bins, N_d/dd)
-#plt.plot(d_bins, 2.0*(d_bins+0.5*dd)/(b_max**2.0))
+#plt.plot(d_bins, 2.0*(d_bins+0.5*dd)/(b_max**2.0)
+plt.xlabel(r'$|\Delta\mathbf{V}|$, ms$^{-1}$')
+plt.ylabel(r'Probability density, m$^{-1}$s')
 plt.show()
 
 

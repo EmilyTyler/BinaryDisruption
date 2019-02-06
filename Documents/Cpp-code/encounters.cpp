@@ -230,7 +230,5 @@ tuple<long double, long double, long double, long double, long double, array<lon
 	//cout << setprecision(16) << "difference between energy changes = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) + 0.5*m1*m2/(m1+m2)*dot(delta_v, delta_v) - (E_fin - E_ini) << endl;
 	//cout << "b_star_norm = " << b_star_norm[0] << " , " << b_star_norm[1] << endl;
 	//cout << "b_star_norm_min = " << b_star_norm_min << endl;
-	v_initial = r;
-	delta_v=v_vec;
 	return make_tuple(E_ini, E_fin, b_star_norm_min, v_dv, dv_dv, v_initial, delta_v, phi);
 }

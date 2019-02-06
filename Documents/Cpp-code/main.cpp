@@ -187,7 +187,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//myfile << setprecision(16) << v_initial[0] << " , " << v_initial[1] << " , " << v_initial[2] << " , " << delta_v[0] << " , " << delta_v[1] << " , " << delta_v[2] << endl;
-					myfile << setprecision(16) << phi << endl;
+					myfile << setprecision(16) << delta_v_norm << endl;
 					counter += 1;
 					
 				//}
