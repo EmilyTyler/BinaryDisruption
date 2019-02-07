@@ -94,7 +94,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 6);
+	const unsigned int N_enc = pow(10, 7);
 	//b's to run encounters
 	const int N_b = 1;
 	array<long double, N_b> b = {5.0};
@@ -104,7 +104,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	}
 	//Declare variables
 	tuple<long double, long double, long double, long double, long double, array<long double, 3>, array<long double, 3>, long double> result;
-	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv, b_input, delta_v_norm, v_initial_norm, phi;
+	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv, b_input, delta_v_norm, v_initial_norm, theta, phi;
 	array<long double,3> v_initial, delta_v;
 	cout << "Simulating encounters" << endl;	
 	ofstream myfile;
@@ -161,7 +161,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 			}
 			delta_v_norm = norm(delta_v);
 
-			phi = get<7>(result);
+			theta = get<7>(result);
 
 			//cout << "b_star = " << b_star/au << endl;
 
@@ -187,7 +187,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//myfile << setprecision(16) << v_initial[0] << " , " << v_initial[1] << " , " << v_initial[2] << " , " << delta_v[0] << " , " << delta_v[1] << " , " << delta_v[2] << endl;
-					myfile << setprecision(16) << delta_v_norm << endl;
+					myfile << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << endl;
 					counter += 1;
 					
 				//}
@@ -342,7 +342,7 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
-	string filename = "test_data.csv";
+	string filename = "WSW_encounters_V_dV_theta.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;

@@ -5,15 +5,15 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
 b_max = 3.086*10.0**16.0
-data = np.zeros(1000000, dtype=float)
+data = np.zeros(10**7, dtype=float)
 
 
 
-with open('test_data.csv') as csvfile:
+with open('WSW_encounters_V_dV_theta.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	row_number = 0
 	for row in reader:
-		data[row_number] = float(row[0])
+		data[row_number] = float(row[2])
 		row_number += 1
 
 N_bins = 100

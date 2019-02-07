@@ -222,6 +222,7 @@ tuple<long double, long double, long double, long double, long double, array<lon
 		r[i] = X[0][i] - X[1][i];
 	}
 	long double phi = acos(dot(r, v_vec)/(norm(r)*norm(v_vec)));
+	long double theta = acos(dot(v_initial, delta_v)/(norm(v_initial)*norm(delta_v)));
 	//Print accuracy testing terms
 	//cout << setprecision(16) << "v dot delta v term = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) << endl;
 	//cout << setprecision(16) << "delta v squared term = " << 0.5*m1*m2/(m1+m2)*dot(delta_v, delta_v) << endl;
@@ -230,5 +231,5 @@ tuple<long double, long double, long double, long double, long double, array<lon
 	//cout << setprecision(16) << "difference between energy changes = " << m1*m2/(m1+m2)*dot(v_initial, delta_v) + 0.5*m1*m2/(m1+m2)*dot(delta_v, delta_v) - (E_fin - E_ini) << endl;
 	//cout << "b_star_norm = " << b_star_norm[0] << " , " << b_star_norm[1] << endl;
 	//cout << "b_star_norm_min = " << b_star_norm_min << endl;
-	return make_tuple(E_ini, E_fin, b_star_norm_min, v_dv, dv_dv, v_initial, delta_v, phi);
+	return make_tuple(E_ini, E_fin, b_star_norm_min, v_dv, dv_dv, v_initial, delta_v, theta);
 }
