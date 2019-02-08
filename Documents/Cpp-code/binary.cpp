@@ -95,8 +95,8 @@ array<array<long double, 3>, 4> setupRandomBinary(long double a, long double e, 
 	}
 	// Move into centre of mass rest frame
 	for (int i=0; i<3; ++i){
-		//X[0][i] -= R[i];
-		//X[1][i] -= R[i];
+		X[0][i] -= R[i];
+		X[1][i] -= R[i];
 		X[2][i] -= V[i];
 		X[3][i] -= V[i];
 	}

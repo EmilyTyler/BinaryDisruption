@@ -1,5 +1,6 @@
 //Functions for basic vector operations
 #include <array>
+#include <vector>
 #include <cmath>
 using namespace std;
 
@@ -51,4 +52,16 @@ double dot(array<double,3> x, array<double,3> y)
 long double dot(array<long double,3> x, array<long double,3> y)
 {
 	return (x[0]*y[0] + x[1]*y[1] + x[2]*y[2]);
+}
+
+vector<long double> where_positive(vector<long double> x)
+{
+	int N_x = static_cast<int>(x.size());
+	for (int i=0; i<N_x; i++){
+		if (x[i] <= 0.0) {
+			x.erase(x.begin() + i);
+		}
+	}
+	x.shrink_to_fit();
+	return x;
 }

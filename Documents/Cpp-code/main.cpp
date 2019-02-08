@@ -236,6 +236,125 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
     cout << "Finished" << endl;
 }
 
+void BHT_survival_probability(){
+	//Input parameters
+	//Mass of binary
+	long double m1 = msol / mass_scale;
+	long double m2 = msol / mass_scale;
+	long double M_b = m1 + m2;
+	//Perturber mass
+	long double M_p = 3.0 * msol / mass_scale;
+	//Relative velocity dispersion
+	long double v_rel = sqrt(2.0/3.0) * pow(10.0, 5.0) /length_scale*time_scale;
+	//Density of dark matter halo
+	long double rho = 0.1 *msol/(pow(parsec, 3.0)) /mass_scale*pow(length_scale, 3.0);
+	//Number density of perturbers
+	long double n_p = rho/M_p;
+	//Total simulation time
+	long double T = 10.0*giga*year / time_scale;
+	//Initial semi-major axis
+	long double a_0 = 0.1*parsec / length_scale;
+	//Eccentricity
+	long double e_0 = 0.7;
+	//Number of binaries per simulation
+	int N_bin = 1;
+	//Number of simulations
+	int N_sim = 1;
+	//Starting index in file names
+	int i_start = 0;
+
+	//Time steps
+	//Minimum impact parameter
+	long double b_min = 0.0;
+	//Maximum impact parameter
+	long double b_max = calcBMax(M_p, v_rel, a_0, m1, m2);
+	//Minimum velocity
+	long double v_min = 0.0;
+	//Maximum velocity
+	long double v_max = 100.0 * v_rel;
+	//Encounter rate
+	long double rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
+	//Time step
+	long double dt = 0.5/rate;
+	//Number of timesteps
+	int N_t = static_cast<int>(floor(T/dt)) + 1;
+	//Adjust timestep
+	dt = T/(N_t-1);
+	//Time array
+	vector<long double> t;
+	t.resize(N_t);
+	t.shrink_to_fit();
+	//Number of binaries broken array
+	vector<int> N_broken;
+	N_broken.resize(N_t);
+	N_broken.shrink_to_fit();
+
+	//Semi-major axis and eccentricity arrays
+	vector<long double> a;
+	a.resize(N_bin);
+	a.shrink_to_fit();
+	vector<long double> e;
+	e.resize(N_bin);
+	e.shrink_to_fit();
+
+	tuple<vector<long double>, vector<long double>, int> result;]
+	bool previous_number_zero;
+	//Run simulations
+	for (int i=0; i<N_sim; i++){
+		cout << "Simulation " << i+1 << " of " << N_sim << endl;
+		//Initialise semi-major axis and eccentricity arrays
+		for (int j=0; j<N_bin; j++){
+			a[j] = a_0;
+			e[j] = e_0;
+		}
+		//Initialise time and number broken arrays
+		for (int j=0; j<N_t; j++){
+			t[j] = j*dt;
+			N_broken[j] = 0;
+		}
+
+		for(int j=1; j<N_t; j++){
+			result = MCEncounters(v_rel, n_p, t[j]-t[j-1], m1, m2, M_p, a, e);
+			a = where_positive(a);
+			e = where_positive(e);
+		}
+		cout << "Filtering" << endl;
+		//Filter out zeros
+		previous_number_zero = false;
+		for (int i=N_t-1; i>0; i--){
+			if (N_broken[i] < 1){
+				if (previous_number_zero) {
+					N_broken.erase(N_broken.begin() + i);
+					t.erase(t.begin() + i);
+				}
+				previous_number_zero = true;
+			} else {
+				previous_number_zero = false;
+			}
+		}
+		int N_N_broken = static_cast<int>(N_broken.size());
+		//Make number broken cumulative
+		for (int i=2; i<N_N_broken; i++){
+			N_broken[i] += N_broken[i-1];
+		}
+		//Normalise to find fraction broken
+		for (int i=0; i<N_N_broken; i++){
+			N_broken[i] /= N_bin;
+		}
+
+		//Save data
+		int file_index = i_start+i;
+		string filename = "BHTfig2_mysim_" + N_bin + "bin_" + file_index;
+		ofstream myfile;
+		myfile.open(filename);
+		for (int i=0; i<N_N_broken; i++){
+			myfile << setprecision(16) << N_broken[i] << " , " << t[i]*time_scale << endl;
+		}
+		myfile.close();
+	}
+	
+}
+
 void WSWEncounterTest_MeanvB(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
 	const unsigned int N_enc = pow(10, 6);
@@ -342,6 +461,7 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
+	/*
 	string filename = "WSW_encounters_V_dV_theta.csv";
 
 	long double m1 = msol/mass_scale;
@@ -352,8 +472,11 @@ int main() {
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
 	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
-
+	*/
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
+
+	BHT_survival_probability();
 	
+	return 1;
 }
 

@@ -103,7 +103,7 @@ long double drawB(long double b_max, long double b_min=0.0)
 	return b_max*sqrt(randomUniformDoubleClosed(b_min*b_min/(b_max*b_max), 1.0));
 }
 
-tuple<vector<long double>, vector<long double>> MCEncounters(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
+tuple<vector<long double>, vector<long double>, int> MCEncounters(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
 {
 	//Minimum impact parameter
 	long double b_min = 0.0;
@@ -119,13 +119,15 @@ tuple<vector<long double>, vector<long double>> MCEncounters(long double v_rel, 
 	long double t, b_max, rate, v, b;
 	tuple<long double, long double, bool> result;
 	bool notBound;
-	double t_start;
+	//Number of binaries broken
+	int N_broken = 0;
+	//double t_start;
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
 		cout << "Binary " << i+1 << " of " << N_bin << endl;
 		//Start time
-		clock_t t_start;
-		t_start = clock();
+		//clock_t t_start;
+		//t_start = clock();
 		//Time passed
 		t = 0.0;
 		//Implement encounters
@@ -146,15 +148,16 @@ tuple<vector<long double>, vector<long double>> MCEncounters(long double v_rel, 
 			e[i] = get<1>(result);
 			notBound = get<2>(result);
 			if(notBound or (a[i]>=a_T)){
+				N_broken += 1;
 				a[i] = -1.0;
 				e[i] = -1.0;
 				break;
 			}
 		}
 		//Print how long it took
-		cout << "Time taken = " << (clock() - t_start)/(double)(CLOCKS_PER_SEC) << " s" << endl;
+		//cout << "Time taken = " << (clock() - t_start)/(double)(CLOCKS_PER_SEC) << " s" << endl;
 	}
-	return make_tuple(a, e);
+	return make_tuple(a, e, N_broken);
 }
 
 // Test impulse encounter
