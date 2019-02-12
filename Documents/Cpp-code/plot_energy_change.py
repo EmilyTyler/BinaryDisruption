@@ -200,7 +200,7 @@ dE_v_dv_mean = np.zeros(2)
 dE_dv_dv_mean = np.zeros(2)
 
 b=10.0**5.0*au
-filename = 'WSW_encounters_dists_b10e5au.csv'
+filename = 'WSW_encounters_dE_VdV_dVdV_dists.csv'
 with open(filename) as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0

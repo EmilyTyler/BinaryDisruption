@@ -79,7 +79,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	//Initial semimajor axis and eccentricity distributions
 	tuple<vector<long double>, vector<long double>> initial_dists = initialDistributions(N_bin, a_min, a_max, alpha);
 	//Final semimajor axis and eccentricity distributions
-	tuple<vector<long double>, vector<long double>> final_dists = MCEncounters(v_rel, n_p, T, m1, m2, M_p, get<0>(initial_dists), get<1>(initial_dists));
+	tuple<vector<long double>, vector<long double>, int> final_dists = MCEncounters(v_rel, n_p, T, m1, m2, M_p, get<0>(initial_dists), get<1>(initial_dists));
 	//Extract results
 	vector<long double> a_fin = get<0>(final_dists);
 	vector<long double> e_fin = get<1>(final_dists);
@@ -94,7 +94,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 7);
+	const unsigned int N_enc = pow(10, 5);
 	//b's to run encounters
 	const int N_b = 1;
 	array<long double, N_b> b = {5.0};
@@ -185,9 +185,9 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
-					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
+					myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//myfile << setprecision(16) << v_initial[0] << " , " << v_initial[1] << " , " << v_initial[2] << " , " << delta_v[0] << " , " << delta_v[1] << " , " << delta_v[2] << endl;
-					myfile << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << endl;
+					//myfile << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << endl;
 					counter += 1;
 					
 				//}
@@ -257,7 +257,7 @@ void BHT_survival_probability(){
 	//Eccentricity
 	long double e_0 = 0.7;
 	//Number of binaries per simulation
-	int N_bin = 1;
+	int N_bin = 25;
 	//Number of simulations
 	int N_sim = 1;
 	//Starting index in file names
@@ -297,7 +297,7 @@ void BHT_survival_probability(){
 	e.resize(N_bin);
 	e.shrink_to_fit();
 
-	tuple<vector<long double>, vector<long double>, int> result;]
+	tuple<vector<long double>, vector<long double>, int> result;
 	bool previous_number_zero;
 	//Run simulations
 	for (int i=0; i<N_sim; i++){
@@ -321,34 +321,52 @@ void BHT_survival_probability(){
 		cout << "Filtering" << endl;
 		//Filter out zeros
 		previous_number_zero = false;
-		for (int i=N_t-1; i>0; i--){
-			if (N_broken[i] < 1){
+		for (int j=N_t-1; j>0; j--){
+			if (N_broken[j] < 1){
 				if (previous_number_zero) {
-					N_broken.erase(N_broken.begin() + i);
-					t.erase(t.begin() + i);
+					N_broken[j] = -1;
+					t[j] = -1.0;
 				}
 				previous_number_zero = true;
 			} else {
 				previous_number_zero = false;
 			}
 		}
+		bool reached_the_end = false;
+		while (reached_the_end == false){
+			for (int j=0; j<static_cast<int>(N_broken.size()); j++){
+				if (j==static_cast<int>(N_broken.size()) - 1){
+					reached_the_end = true;
+				}
+				if (N_broken[j] < 0){
+					N_broken.erase(N_broken.begin() + j);
+					t.erase(t.begin() + j);
+					break;
+				}
+			}
+		}
+		N_broken.shrink_to_fit();
+		t.shrink_to_fit();
 		int N_N_broken = static_cast<int>(N_broken.size());
 		//Make number broken cumulative
-		for (int i=2; i<N_N_broken; i++){
-			N_broken[i] += N_broken[i-1];
+		for (int j=2; j<N_N_broken; j++){
+			N_broken[j] += N_broken[j-1];
 		}
 		//Normalise to find fraction broken
-		for (int i=0; i<N_N_broken; i++){
-			N_broken[i] /= N_bin;
+		for (int j=0; j<N_N_broken; j++){
+			N_broken[j] /= N_bin;
 		}
-
+		//Convert fraction broken to survival fraction
+		for (int j=0; j<N_N_broken; j++){
+			N_broken[j] = 1 - N_broken[j];
+		}
 		//Save data
 		int file_index = i_start+i;
-		string filename = "BHTfig2_mysim_" + N_bin + "bin_" + file_index;
+		string filename = "BHTfig2_mysim_" + to_string(N_bin) + "bin_" + to_string(file_index);
 		ofstream myfile;
 		myfile.open(filename);
-		for (int i=0; i<N_N_broken; i++){
-			myfile << setprecision(16) << N_broken[i] << " , " << t[i]*time_scale << endl;
+		for (int j=0; j<N_N_broken; j++){
+			myfile << setprecision(16) << N_broken[j] << " , " << t[j]*time_scale << endl;
 		}
 		myfile.close();
 	}
@@ -461,8 +479,8 @@ int main() {
 		
 	
 	//Test impulse approx against WSW
-	/*
-	string filename = "WSW_encounters_V_dV_theta.csv";
+	
+	string filename = "WSW_encounters_dE_VdV_dVdV_dists.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
@@ -471,8 +489,8 @@ int main() {
 	long double e = 0.7;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
-	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
-	*/
+	//WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
+	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 
 	BHT_survival_probability();

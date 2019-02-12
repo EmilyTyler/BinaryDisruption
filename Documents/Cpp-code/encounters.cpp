@@ -124,7 +124,7 @@ tuple<vector<long double>, vector<long double>, int> MCEncounters(long double v_
 	//double t_start;
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
-		cout << "Binary " << i+1 << " of " << N_bin << endl;
+		//cout << "Binary " << i+1 << " of " << N_bin << endl;
 		//Start time
 		//clock_t t_start;
 		//t_start = clock();
