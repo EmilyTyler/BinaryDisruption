@@ -131,17 +131,23 @@ tuple<vector<long double>, vector<long double>, int> MCEncounters(long double v_
 		//Time passed
 		t = 0.0;
 		//Implement encounters
-		while (t<T){
+		while (true){
 			//Maximum impact parameter
 			b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 			//Encounter rate
 			rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
+			//cout << rate << endl;
+			//cout << T << endl;
 			//Increment time passed
 			t += randomExponential(rate);
+			if (t>T){
+				break;
+			}
 			//Draw velocity from distribution
-			v = drawVMaxwellian(v_rel, v_max);
+			//cout << v*length_scale/time_scale << endl;
 			//Draw impact parameter from distribution
 			b = drawB(b_max);
+			//cout << b*length_scale/parsec << endl;
 			//Encounter
 			result = impulseEncounter(m1, m2, M_p, a[i], e[i], b, v);
 			a[i] = get<0>(result);

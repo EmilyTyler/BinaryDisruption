@@ -200,7 +200,7 @@ dE_v_dv_mean = np.zeros(2)
 dE_dv_dv_mean = np.zeros(2)
 
 b=10.0**5.0*au
-filename = 'WSW_encounters_dE_VdV_dVdV_dists.csv'
+filename = 'WSW_encounters_dists_b10e5au.csv'
 with open(filename) as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0
@@ -293,7 +293,7 @@ plt.plot(-dE_bins, N_dE_v_dv[1], color='dodgerblue')
 #plt.plot([dE_v_dv_mean[1]]*np.size(N_dE_v_dv[1]), N_dE_v_dv[1], color='darkorange')
 ax = plt.gca()
 #ax.set_yscale('log')
-ax.set_xscale('symlog', linthreshx=dE_min)
+#ax.set_xscale('symlog', linthreshx=dE_min)
 plt.xlabel('Energy change due to encounter, vdv, J')
 plt.ylabel('Number of encounters')
 plt.title(r'Distribution of $\mathbf{V}\cdot\Delta\mathbf{V}$ term')

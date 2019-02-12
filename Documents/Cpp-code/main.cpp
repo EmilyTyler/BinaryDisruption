@@ -276,10 +276,12 @@ void BHT_survival_probability(){
 	long double rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
 	//Time step
 	long double dt = 0.5/rate;
+	cout << dt << endl;
 	//Number of timesteps
 	int N_t = static_cast<int>(floor(T/dt)) + 1;
 	//Adjust timestep
 	dt = T/(N_t-1);
+	cout << dt << endl;
 	//Time array
 	vector<long double> t;
 	t.resize(N_t);
@@ -314,6 +316,7 @@ void BHT_survival_probability(){
 		}
 
 		for(int j=1; j<N_t; j++){
+			//cout << t[j]-t[j-1] << endl;
 			result = MCEncounters(v_rel, n_p, t[j]-t[j-1], m1, m2, M_p, a, e);
 			a = where_positive(a);
 			e = where_positive(e);
