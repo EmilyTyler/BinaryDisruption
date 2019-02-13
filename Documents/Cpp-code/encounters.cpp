@@ -92,6 +92,7 @@ tuple<long double, long double, bool> impulseEncounter(long double m1, long doub
 			X[i+2][j] += v_perp * b_star[j]/b_star_norm - v_para * v_vec[j]/v;
 		}
 	}
+
 	//Close binary
 	return orbitalElements(X, m1, m2);
 }
@@ -136,18 +137,15 @@ tuple<vector<long double>, vector<long double>, int> MCEncounters(long double v_
 			b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 			//Encounter rate
 			rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
-			//cout << rate << endl;
-			//cout << T << endl;
 			//Increment time passed
 			t += randomExponential(rate);
 			if (t>T){
 				break;
 			}
 			//Draw velocity from distribution
-			//cout << v*length_scale/time_scale << endl;
+			v = drawVMaxwellian(v_rel, v_max);
 			//Draw impact parameter from distribution
 			b = drawB(b_max);
-			//cout << b*length_scale/parsec << endl;
 			//Encounter
 			result = impulseEncounter(m1, m2, M_p, a[i], e[i], b, v);
 			a[i] = get<0>(result);

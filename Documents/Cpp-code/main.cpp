@@ -237,6 +237,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 }
 
 void BHT_survival_probability(){
+	cout << "Initialising" << endl;
 	//Input parameters
 	//Mass of binary
 	long double m1 = msol / mass_scale;
@@ -259,7 +260,7 @@ void BHT_survival_probability(){
 	//Number of binaries per simulation
 	int N_bin = 25;
 	//Number of simulations
-	int N_sim = 1;
+	int N_sim = 100;
 	//Starting index in file names
 	int i_start = 0;
 
@@ -276,18 +277,16 @@ void BHT_survival_probability(){
 	long double rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
 	//Time step
 	long double dt = 0.5/rate;
-	cout << dt << endl;
 	//Number of timesteps
 	int N_t = static_cast<int>(floor(T/dt)) + 1;
 	//Adjust timestep
 	dt = T/(N_t-1);
-	cout << dt << endl;
 	//Time array
 	vector<long double> t;
 	t.resize(N_t);
 	t.shrink_to_fit();
 	//Number of binaries broken array
-	vector<int> N_broken;
+	vector<long double> N_broken;
 	N_broken.resize(N_t);
 	N_broken.shrink_to_fit();
 
@@ -305,19 +304,25 @@ void BHT_survival_probability(){
 	for (int i=0; i<N_sim; i++){
 		cout << "Simulation " << i+1 << " of " << N_sim << endl;
 		//Initialise semi-major axis and eccentricity arrays
+		a.resize(N_bin);
+		e.resize(N_bin);
 		for (int j=0; j<N_bin; j++){
 			a[j] = a_0;
 			e[j] = e_0;
 		}
 		//Initialise time and number broken arrays
+		t.resize(N_t);
+		N_broken.resize(N_t);
 		for (int j=0; j<N_t; j++){
 			t[j] = j*dt;
 			N_broken[j] = 0;
 		}
 
 		for(int j=1; j<N_t; j++){
-			//cout << t[j]-t[j-1] << endl;
 			result = MCEncounters(v_rel, n_p, t[j]-t[j-1], m1, m2, M_p, a, e);
+			a = get<0>(result);
+			e = get<1>(result);
+			N_broken[j] = static_cast<long double>(get<2>(result));
 			a = where_positive(a);
 			e = where_positive(e);
 		}
@@ -335,21 +340,8 @@ void BHT_survival_probability(){
 				previous_number_zero = false;
 			}
 		}
-		bool reached_the_end = false;
-		while (reached_the_end == false){
-			for (int j=0; j<static_cast<int>(N_broken.size()); j++){
-				if (j==static_cast<int>(N_broken.size()) - 1){
-					reached_the_end = true;
-				}
-				if (N_broken[j] < 0){
-					N_broken.erase(N_broken.begin() + j);
-					t.erase(t.begin() + j);
-					break;
-				}
-			}
-		}
-		N_broken.shrink_to_fit();
-		t.shrink_to_fit();
+		N_broken = where_positive(N_broken);
+		t = where_positive(t);
 		int N_N_broken = static_cast<int>(N_broken.size());
 		//Make number broken cumulative
 		for (int j=2; j<N_N_broken; j++){
@@ -364,16 +356,17 @@ void BHT_survival_probability(){
 			N_broken[j] = 1 - N_broken[j];
 		}
 		//Save data
+		cout << "Saving" << endl;
 		int file_index = i_start+i;
-		string filename = "BHTfig2_mysim_" + to_string(N_bin) + "bin_" + to_string(file_index);
+		string filename = "BHTfig2_mysim_" + to_string(N_bin) + "bin_" + to_string(file_index) + ".csv";
 		ofstream myfile;
 		myfile.open(filename);
 		for (int j=0; j<N_N_broken; j++){
-			myfile << setprecision(16) << N_broken[j] << " , " << t[j]*time_scale << endl;
+			myfile << setprecision(16) << t[j]*time_scale << " , " << N_broken[j] << endl;
 		}
 		myfile.close();
 	}
-	
+	cout << "Finished" << endl;	
 }
 
 void WSWEncounterTest_MeanvB(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){

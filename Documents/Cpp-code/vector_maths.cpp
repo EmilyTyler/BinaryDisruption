@@ -56,12 +56,19 @@ long double dot(array<long double,3> x, array<long double,3> y)
 
 vector<long double> where_positive(vector<long double> x)
 {
-	int N_x = static_cast<int>(x.size());
-	for (int i=0; i<N_x; i++){
-		if (x[i] <= 0.0) {
-			x.erase(x.begin() + i);
+	int N_x;
+	bool reached_the_end = false;
+	while (reached_the_end == false){
+		N_x = static_cast<int>(x.size());
+		for (int j=0; j<N_x; j++){
+			if (j==N_x - 1){
+				reached_the_end = true;
+			}
+			if (x[j] < 0){
+				x.erase(x.begin() + j);
+				break;
+			}
 		}
 	}
-	x.shrink_to_fit();
 	return x;
 }
