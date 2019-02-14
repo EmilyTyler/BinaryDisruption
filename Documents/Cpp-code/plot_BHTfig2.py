@@ -5,7 +5,7 @@ from scipy.constants import giga, year
 plt.rc('font', family='serif')
 
 #Plot simulations of 25 binaries
-for i in range(26):
+for i in range(50):
         BHTsim = np.array([[]])
         with open('BHTfig2_mysim_25bin_{}.csv'.format(i)) as csvfile:
                 reader = csv.reader(csvfile, delimiter=',')
@@ -35,7 +35,7 @@ with open('BHTfig2simdata.csv') as csvfile:
 BHTsim = BHTsim.astype(np.float)
 BHTsim = np.reshape(BHTsim, (-1,2))
 BHTsim = BHTsim[BHTsim[:,0].argsort()]
-plt.plot(BHTsim[:,0], BHTsim[:,1], label='BHT sim.', color='forestgreen')
+plt.plot(BHTsim[:,0], BHTsim[:,1], label='Bahcall et al. simulation', color='forestgreen')
 BHTexp = np.array([[]])
 with open('BHTfig2expdecay.csv') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
@@ -44,7 +44,7 @@ with open('BHTfig2expdecay.csv') as csvfile:
 BHTexp = BHTexp.astype(np.float)
 BHTexp = np.reshape(BHTexp, (-1,2))
 BHTexp = BHTexp[BHTexp[:,0].argsort()]
-plt.plot(BHTexp[:,0], BHTexp[:,1], label='BHT exp.', color='dodgerblue')
+plt.plot(BHTexp[:,0], BHTexp[:,1], label='Bahcall et al. exponential', color='dodgerblue')
 
 #Setup axes
 plt.legend()
