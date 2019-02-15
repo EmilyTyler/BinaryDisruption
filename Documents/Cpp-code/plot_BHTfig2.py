@@ -5,7 +5,7 @@ from scipy.constants import giga, year
 plt.rc('font', family='serif')
 
 #Plot simulations of 25 binaries
-for i in range(50):
+for i in range(59):
         BHTsim = np.array([[]])
         with open('BHTfig2_mysim_25bin_{}.csv'.format(i)) as csvfile:
                 reader = csv.reader(csvfile, delimiter=',')
