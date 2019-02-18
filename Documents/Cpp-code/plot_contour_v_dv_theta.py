@@ -4,7 +4,7 @@ from matplotlib import pyplot as plt
 from matplotlib import ticker
 import matplotlib.colors as colors
 
-N_data = 10**7
+N_data = 10**6
 
 data = np.zeros((N_data,3), dtype=float)
 

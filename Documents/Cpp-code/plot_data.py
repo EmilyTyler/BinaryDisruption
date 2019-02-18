@@ -13,7 +13,7 @@ with open('WSW_encounters_V_dV_theta.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	row_number = 0
 	for row in reader:
-		data[row_number] = float(row[2])
+		data[row_number] = float(row[1])
 		row_number += 1
 
 N_bins = 100
