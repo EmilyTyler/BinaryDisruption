@@ -79,7 +79,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	//Initial semimajor axis and eccentricity distributions
 	tuple<vector<long double>, vector<long double>> initial_dists = initialDistributions(N_bin, a_min, a_max, alpha);
 	//Final semimajor axis and eccentricity distributions
-	tuple<vector<long double>, vector<long double>, int> final_dists = MCEncounters(v_rel, n_p, T, m1, m2, M_p, get<0>(initial_dists), get<1>(initial_dists));
+	tuple<vector<long double>, vector<long double>, int, int, int, int, int> final_dists = MCEncounters(v_rel, n_p, T, m1, m2, M_p, get<0>(initial_dists), get<1>(initial_dists));
 	//Extract results
 	vector<long double> a_fin = get<0>(final_dists);
 	vector<long double> e_fin = get<1>(final_dists);
@@ -185,10 +185,10 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
-					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
+					myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//myfile << setprecision(16) << v_initial[0] << " , " << v_initial[1] << " , " << v_initial[2] << " , " << delta_v[0] << " , " << delta_v[1] << " , " << delta_v[2] << endl;
-					cout << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << endl;
-					myfile << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << endl;
+					//cout << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << " , " << dE_v_dv << endl;
+					//myfile << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << " , " << dE_v_dv << endl;
 					counter += 1;
 					
 				//}
@@ -259,11 +259,11 @@ void BHT_survival_probability(){
 	//Eccentricity
 	long double e_0 = 0.7;
 	//Number of binaries per simulation
-	int N_bin = 25;
+	int N_bin = 10;
 	//Number of simulations
-	int N_sim = 100;
+	int N_sim = 1;
 	//Starting index in file names
-	int i_start = 0;
+	int i_start = 1;
 
 	//Time steps
 	//Minimum impact parameter
@@ -299,8 +299,14 @@ void BHT_survival_probability(){
 	e.resize(N_bin);
 	e.shrink_to_fit();
 
-	tuple<vector<long double>, vector<long double>, int> result;
+	tuple<vector<long double>, vector<long double>, int, int, int, int, int> result;
 	bool previous_number_zero;
+
+	int N_encounters = 0;
+	int N_encounters_close = 0;
+	int N_encounters_far = 0;
+	int N_encounters_mid = 0;
+
 	//Run simulations
 	for (int i=0; i<N_sim; i++){
 		cout << "Simulation " << i+1 << " of " << N_sim << endl;
@@ -326,6 +332,10 @@ void BHT_survival_probability(){
 			N_broken[j] = static_cast<long double>(get<2>(result));
 			a = where_positive(a);
 			e = where_positive(e);
+			N_encounters += get<3>(result);
+			N_encounters_close += get<4>(result);
+			N_encounters_far += get<5>(result);
+			N_encounters_mid += get<6>(result);
 		}
 		cout << "Filtering" << endl;
 		//Filter out zeros
@@ -367,6 +377,11 @@ void BHT_survival_probability(){
 		}
 		myfile.close();
 	}
+	cout << "Total number of encounters = " << N_encounters << endl;
+	cout << "Number of encounters at b<a = " << N_encounters_close << endl;
+	cout << "Number of encounters at b>a = " << N_encounters_far << endl;
+	cout << "Number of encounters between close and far regimes = " << N_encounters_mid << endl;
+	cout << endl;
 	cout << "Finished" << endl;	
 }
 
@@ -477,20 +492,20 @@ int main() {
 	
 	//Test impulse approx against WSW
 	
-	string filename = "WSW_encounters_V_dV_theta_e0.csv";
+	string filename = "WSW_encounters_dists_b10e5au.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
 	long double M_p = 3.0*msol/mass_scale;
 	long double a = pow(10.0, 5.0) * au/length_scale;
-	long double e = 0.0;
+	long double e = 0.7;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
-	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
+	//WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
 	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 
-	//BHT_survival_probability();
+	BHT_survival_probability();
 	
 	return 1;
 }

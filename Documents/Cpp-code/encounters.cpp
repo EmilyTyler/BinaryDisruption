@@ -104,7 +104,7 @@ long double drawB(long double b_max, long double b_min=0.0)
 	return b_max*sqrt(randomUniformDoubleClosed(b_min*b_min/(b_max*b_max), 1.0));
 }
 
-tuple<vector<long double>, vector<long double>, int> MCEncounters(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
+tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncounters(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
 {
 	//Minimum impact parameter
 	long double b_min = 0.0;
@@ -123,6 +123,12 @@ tuple<vector<long double>, vector<long double>, int> MCEncounters(long double v_
 	//Number of binaries broken
 	int N_broken = 0;
 	//double t_start;
+
+	int N_encounters = 0;
+	int N_encounters_close = 0;
+	int N_encounters_far = 0;
+	int N_encounters_mid = 0;
+
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
 		//cout << "Binary " << i+1 << " of " << N_bin << endl;
@@ -147,6 +153,16 @@ tuple<vector<long double>, vector<long double>, int> MCEncounters(long double v_
 			//Draw impact parameter from distribution
 			b = drawB(b_max);
 			//Encounter
+			if (b<a[i]){
+				N_encounters_close += 1;
+			}
+			if (b>a[i]){
+				N_encounters_far += 1;
+			}
+			if ((b>0.01*a[i]) && (b<100.0*a[i])){
+				N_encounters_mid += 1;
+			}
+			N_encounters += 1;
 			result = impulseEncounter(m1, m2, M_p, a[i], e[i], b, v);
 			a[i] = get<0>(result);
 			e[i] = get<1>(result);
@@ -161,7 +177,7 @@ tuple<vector<long double>, vector<long double>, int> MCEncounters(long double v_
 		//Print how long it took
 		//cout << "Time taken = " << (clock() - t_start)/(double)(CLOCKS_PER_SEC) << " s" << endl;
 	}
-	return make_tuple(a, e, N_broken);
+	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
 }
 
 // Test impulse encounter
