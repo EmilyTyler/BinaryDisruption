@@ -4,24 +4,22 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-b_max = 3.086*10.0**16.0
-data = np.zeros(10**7, dtype=float)
+data = np.zeros(5*10**6, dtype=float)
 
-
-
-with open('WSW_encounters_V_dV_theta.csv') as csvfile:
+with open('test_data.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	row_number = 0
 	for row in reader:
-		data[row_number] = float(row[1])
+		data[row_number] = float(row[2])/np.sqrt(float(row[0])**2.0+float(row[1])**2.0+float(row[2])**2.0)
 		row_number += 1
 
-N_bins = 100
+data = np.abs(data)
+N_bins = 50
 
-d_min = np.min(data)
-d_max = np.max(data)
+d_min = 0.0
+d_max = 1.0
 print('min =', d_min)
-dd = (d_max - d_min)/(N_bins-1)
+dd = (d_max - d_min)/(N_bins)
 d_bins = np.array([d_min + i*dd for i in range(N_bins)])
 N_d = np.zeros(N_bins)
 for i in range(np.size(data)):
@@ -29,21 +27,15 @@ for i in range(np.size(data)):
 	N_d[j] += 1
 N_d /= np.size(data)
 plt.plot(d_bins, N_d/dd)
-#plt.plot(d_bins, 2.0*(d_bins+0.5*dd)/(b_max**2.0)
-plt.xlabel(r'$|\Delta\mathbf{V}|$, ms$^{-1}$')
-plt.ylabel(r'Probability density, m$^{-1}$s')
+plt.xlabel(r'$\sin(i)$')
+plt.ylabel('Probability density')
 plt.show()
-
-
-
-
-
 
 
 '''
 
 #Vector direction tests
-data = np.zeros((10**6, 3), dtype=float)
+data = np.zeros((5*10**6, 3), dtype=float)
 
 with open('test_data.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')

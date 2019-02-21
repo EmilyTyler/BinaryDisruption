@@ -4,79 +4,100 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 
-data = np.zeros((10**6,4), dtype=float)
+e = np.array([0.0, 0.3, 0.5, 0.7, 0.9])
+N_e = np.size(e)
+N_data=5*10**6
+data = np.zeros((N_data, N_e, 4), dtype=float)
 
-with open('WSW_encounters_V_dV_theta_e0.csv') as csvfile:
-	reader = csv.reader(csvfile, delimiter=',')
-	row_number = 0
-	for row in reader:
-		#data = np.append(data, np.array([[float(row[0]), float(row[1]), float(row[2])]]), axis=0)
-		data[row_number] = np.array([float(row[0]), float(row[1]), float(row[2]), float(row[3])])
-		row_number += 1
+def load(filename, index):
+	with open(filename) as csvfile:
+		reader = csv.reader(csvfile, delimiter=',')
+		row_number = 0
+		for row in reader:
+			data[row_number, index] = np.array([float(row[0]), float(row[1]), float(row[2]), float(row[3])])
+			row_number += 1
+	return
 
-N_bins = 200
-'''
-v_min = np.min(data[:,0])
-v_max = np.max(data[:,0])
+load('WSW_encounters_V_dV_theta_e0.csv', 0)
+load('WSW_encounters_V_dV_theta_e0_3.csv', 1)
+load('WSW_encounters_V_dV_theta_e0_5.csv', 2)
+load('WSW_encounters_V_dV_theta_e0_7.csv', 3)
+load('WSW_encounters_V_dV_theta_e0_9.csv', 4)
+
+
+N_bins = 500
+
+v_min = 0.0
+v_max = np.max(data[:,:,0])
 dv = (v_max - v_min)/(N_bins-1)
 v_bins = np.array([v_min + i*dv for i in range(N_bins)])
-N_v = np.zeros(N_bins)
-for i in range(np.size(data[:,0])):
-	j = int(np.floor((data[i,0]-v_min)/dv))
-	N_v[j] += 1
-N_v /= np.size(data[:,0])
-plt.plot(v_bins, N_v/dv)
-#plt.plot(d_bins, 2.0*(d_bins+0.5*dd)/(b_max**2.0)
+N_v = np.zeros((N_e, N_bins))
+for k in range(N_e):
+	for i in range(N_data):
+		j = int(np.floor((data[i,k,0]-v_min)/dv))
+		N_v[k,j] += 1
+	plt.plot(v_bins, N_v[k], label=r'$e={}$'.format(e[k]))
 plt.xlabel(r'$|\mathbf{V}|$, ms$^{-1}$')
-plt.ylabel(r'Probability density, m$^{-1}$s')
+plt.ylabel('Number of encounters')
+plt.legend()
 plt.show()
-'''
+
+
+N_bins = 100
+
 #Energy distribution
-'''
-dE = np.zeros(10**6)
-for i in range(10**6):
-	dE[i] = data[i,0] * data[i,1] * data[i,2]
-'''
-dE_min = np.min(data[:,3])
-dE_max = np.max(data[:,3])
+dE_min = np.min(data[:,:,3])
+dE_max = np.max(data[:,:,3])
 ddE = (dE_max - dE_min)/(N_bins-1)
 dE_bins = np.array([dE_min + i*ddE for i in range(N_bins)])
-N_dE = np.zeros(N_bins)
-for i in range(np.size(data[:,3])):
-	j = int(np.floor((data[i,3]-dE_min)/ddE))
-	N_dE[j] += 1
-plt.plot(dE_bins, N_dE)
-plt.xlabel(r'$\mathbf{V}\cdot\Delta\mathbf{V}$ term J')
+N_dE = np.zeros((N_e, N_bins))
+for k in range(N_e):
+	for i in range(N_data):
+		j = int(np.floor((data[i,k,3]-dE_min)/ddE))
+		N_dE[k,j] += 1
+	plt.plot(dE_bins, N_dE[k], label=r'$e={}$'.format(e[k]))
+plt.xlabel(r'$\mathbf{V}\cdot\Delta\mathbf{V}$ term, J')
 plt.ylabel('Number of encounters')
+plt.legend()
 plt.show()
 
-dv_min = np.min(data[:,1])
-dv_max = np.max(data[:,1])
+
+N_bins = 200
+
+dv_min = 0.0
+dv_max = np.max(data[:,:,1])
 ddv = (dv_max - dv_min)/(N_bins-1)
 dv_bins = np.array([dv_min + i*ddv for i in range(N_bins)])
-N_dv = np.zeros(N_bins)
-for i in range(np.size(data[:,1])):
-	j = int(np.floor((data[i,1]-dv_min)/ddv))
-	N_dv[j] += 1
-plt.plot(dv_bins, N_dv)
+N_dv = np.zeros((N_e,N_bins))
+for k in range(N_e):
+	for i in range(N_data):
+		j = int(np.floor((data[i,k,1]-dv_min)/ddv))
+		N_dv[k,j] += 1
+	plt.plot(dv_bins, N_dv[k], label=r'$e={}$'.format(e[k]))
 plt.xlabel(r'$|\Delta\mathbf{V}|$, ms$^{-1}$')
 plt.ylabel('Number of encounters')
+plt.legend()
 plt.show()
 
-ct_min = np.min(data[:,2])
-ct_max = np.max(data[:,2])
-dct = (ct_max - ct_min)/(N_bins-1)
+
+N_bins = 25
+
+ct_min = -1.0
+ct_max = 1.0
+dct = (ct_max - ct_min)/(N_bins)
 ct_bins = np.array([ct_min + i*dct for i in range(N_bins)])
-N_ct = np.zeros(N_bins)
-for i in range(np.size(data[:,2])):
-	j = int(np.floor((data[i,2]-ct_min)/dct))
-	N_ct[j] += 1
-plt.plot(ct_bins, N_ct)
+N_ct = np.zeros((N_e,N_bins))
+for k in range(N_e):
+	for i in range(N_data):
+		j = int(np.floor((data[i,k,2]-ct_min)/dct))
+		N_ct[k,j] += 1
+	plt.plot(ct_bins, N_ct[k], label=r'$e={}$'.format(e[k]))
 plt.xlabel(r'$\cos(\theta)$')
 plt.ylabel('Number of encounters')
+plt.legend()
 plt.show()
 
-
+'''
 #Contour plot
 N_dvct = np.zeros((N_bins, N_bins))
 for i in range(np.size(data[:,1])):
@@ -91,4 +112,4 @@ cbar.ax.set_ylabel('Number of encounters')
 plt.xlabel(r'$|\Delta\mathbf{V}|$, ms$^{-1}$')
 plt.ylabel(r'$\cos(\theta)$')
 plt.show()
-
+'''
