@@ -10,6 +10,7 @@
 #include "random_numbers.h"
 #include "encounters.h"
 #include "vector_maths.h"
+#include "random_direction.h"
 using namespace std;
 
 void testBAndVVectors(){
@@ -135,6 +136,8 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	long double b_star_min = 100.0*b[0]*length_scale;
 	long double b_star_max = 0.0; 
 	long double b_max = calcBMax(M_p, v, a, m1, m2);
+
+	tuple<array<long double,3>, array<long double,3>> result2;
 	while(N_enc_so_far < N_enc){
 		for(int i=0; i<N_b; ++i){
 			
@@ -150,14 +153,14 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 			dE_dv_dv = get<4>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
 
 			v_initial = get<5>(result);
-			for (int j=0; i<3; i++){
-				v_initial[i] *= length_scale/time_scale;
+			for (int j=0; j<3; j++){
+				v_initial[j] *= length_scale/time_scale;
 			}
 			v_initial_norm = norm(v_initial);
 
 			delta_v = get<6>(result);
-			for (int j=0; i<3; i++){
-				delta_v[i] *= length_scale/time_scale;
+			for (int j=0; j<3; j++){
+				delta_v[j] *= length_scale/time_scale;
 			}
 			delta_v_norm = norm(delta_v);
 
@@ -186,9 +189,11 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					//myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
-					myfile << setprecision(16) << v_initial[0] << " , " << v_initial[1] << " , " << v_initial[2] << endl;
+					//v_initial = get<1>(impactAndVelocityVectors(b[0], v));
+					//v_initial_norm = norm(v_initial);
+					//myfile << setprecision(16) << v_initial[2]/v_initial_norm << endl;
 					//cout << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << " , " << dE_v_dv << endl;
-					//myfile << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << " , " << dE_v_dv << endl;
+					myfile << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << " , " << dE_v_dv << endl;
 					counter += 1;
 					
 				//}
@@ -492,7 +497,7 @@ int main() {
 	
 	//Test impulse approx against WSW
 	
-	string filename = "test_data.csv";
+	string filename = "WSW_encounters_V_dV_theta_e0_9.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;

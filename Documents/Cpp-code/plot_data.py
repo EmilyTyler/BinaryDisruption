@@ -10,7 +10,7 @@ with open('test_data.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	row_number = 0
 	for row in reader:
-		data[row_number] = float(row[2])/np.sqrt(float(row[0])**2.0+float(row[1])**2.0+float(row[2])**2.0)
+		data[row_number] = float(row[0])
 		row_number += 1
 
 data = np.abs(data)
