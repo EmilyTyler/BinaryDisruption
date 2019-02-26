@@ -173,7 +173,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 			//Write to file
 			//myfile << setprecision(16) << E_ini << ", " << E_fin << ", " << b_star << endl;
 			
-			if ((0.9*b[0] < b_star/length_scale) && (b_star/length_scale < 1.1*b[0])){
+			//if ((0.9*b[0] < b_star/length_scale) && (b_star/length_scale < 1.1*b[0])){
 				N_enc_so_far += 1;
 				//myfile << setprecision(16) << E_fin-E_ini << " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 
@@ -224,7 +224,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					cout << E_fin-E_ini << " , " << dE_v_dv + dE_dv_dv -(E_fin-E_ini)<< endl;
 				}
 				*/
-			}
+			//}
 			
 
 		}
@@ -497,13 +497,13 @@ int main() {
 	
 	//Test impulse approx against WSW
 	
-	string filename = "WSW_encounters_V_dV_theta_e0_9.csv";
+	string filename = "WSW_encounters_V_dV_theta_e0.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
 	long double M_p = 3.0*msol/mass_scale;
 	long double a = pow(10.0, 5.0) * au/length_scale;
-	long double e = 0.9;
+	long double e = 0.0;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
 	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);

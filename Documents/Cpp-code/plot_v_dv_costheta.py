@@ -24,7 +24,7 @@ load('WSW_encounters_V_dV_theta_e0_5.csv', 2)
 load('WSW_encounters_V_dV_theta_e0_7.csv', 3)
 load('WSW_encounters_V_dV_theta_e0_9.csv', 4)
 
-
+'''
 N_bins = 500
 
 v_min = 0.0
@@ -43,11 +43,13 @@ plt.legend()
 plt.show()
 
 
-N_bins = 100
+N_bins = 1000000
 
 #Energy distribution
 dE_min = np.min(data[:,:,3])
+print('Min vdv = ', dE_min)
 dE_max = np.max(data[:,:,3])
+print('Max vdv = ', dE_max)
 ddE = (dE_max - dE_min)/(N_bins-1)
 dE_bins = np.array([dE_min + i*ddE for i in range(N_bins)])
 N_dE = np.zeros((N_e, N_bins))
@@ -62,7 +64,7 @@ plt.legend()
 plt.show()
 
 
-N_bins = 200
+N_bins = 1000000
 
 dv_min = 0.0
 dv_max = np.max(data[:,:,1])
@@ -78,7 +80,7 @@ plt.xlabel(r'$|\Delta\mathbf{V}|$, ms$^{-1}$')
 plt.ylabel('Number of encounters')
 plt.legend()
 plt.show()
-
+'''
 
 N_bins = 25
 
