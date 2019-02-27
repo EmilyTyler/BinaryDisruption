@@ -95,7 +95,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = 5*pow(10, 6);
+	const unsigned int N_enc = pow(10, 8);
 	//b's to run encounters
 	const int N_b = 1;
 	array<long double, N_b> b = {5.0};
@@ -173,7 +173,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 			//Write to file
 			//myfile << setprecision(16) << E_ini << ", " << E_fin << ", " << b_star << endl;
 			
-			//if ((0.9*b[0] < b_star/length_scale) && (b_star/length_scale < 1.1*b[0])){
+			if ((0.9*b[0] < b_star/length_scale) && (b_star/length_scale < 1.1*b[0])){
 				N_enc_so_far += 1;
 				//myfile << setprecision(16) << E_fin-E_ini << " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 
@@ -184,19 +184,20 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 				dE_dv_dv_mean = dE_dv_dv_mean*(N_enc_so_far-1)/N_enc_so_far + dE_dv_dv/N_enc_so_far;
 				
 				//if (N_enc_so_far > pow(10.0, counter*0.1)-1){
+				if (N_enc_so_far % 1000 == 0){
 					std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
 					//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
-					//myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
+					myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
 					//v_initial = get<1>(impactAndVelocityVectors(b[0], v));
 					//v_initial_norm = norm(v_initial);
 					//myfile << setprecision(16) << v_initial[2]/v_initial_norm << endl;
 					//cout << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << " , " << dE_v_dv << endl;
-					myfile << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << " , " << dE_v_dv << endl;
+					//myfile << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << " , " << dE_v_dv << endl;
 					counter += 1;
 					
-				//}
+				}
 				
 				
 				b_star_min = min(b_star_min, b_star);
@@ -224,7 +225,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					cout << E_fin-E_ini << " , " << dE_v_dv + dE_dv_dv -(E_fin-E_ini)<< endl;
 				}
 				*/
-			//}
+			}
 			
 
 		}
@@ -497,13 +498,13 @@ int main() {
 	
 	//Test impulse approx against WSW
 	
-	string filename = "WSW_encounters_V_dV_theta_e0.csv";
+	string filename = "WSW_encounters_N_enc_b10e5au.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
 	long double M_p = 3.0*msol/mass_scale;
 	long double a = pow(10.0, 5.0) * au/length_scale;
-	long double e = 0.0;
+	long double e = 0.7;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
 	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);

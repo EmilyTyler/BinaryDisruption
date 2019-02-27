@@ -124,7 +124,7 @@ plt.show()
 '''
 
 
-'''
+
 #Plot average against number of encounters
 #N_enc_min = 10**0
 #N_enc_max = 10**9
@@ -166,21 +166,21 @@ dE_mean_min = dE_max/(1-N_encs)
 #Maximum positive energy that will allow a flip
 dE_mean_max = dE_min/(1-N_encs)
 
-plt.plot(N_encs, dE_mean_min, color='forestgreen', label='Most extreme average energy to still allow sign flip')
-plt.plot(N_encs, dE_mean_max, color='forestgreen')
+#plt.plot(N_encs, dE_mean_min, color='forestgreen', label='Most extreme average energy to still allow sign flip')
+#plt.plot(N_encs, dE_mean_max, color='forestgreen')
 plt.plot(N_encs, [dE_avg_analytic[0]]*np.size(N_encs), color='darkorange', label='WSW average energy')
 plt.plot(N_encs, [dE_avg_analytic[1]]*np.size(N_encs), color='darkorange')
 ax = plt.gca()
 #ax.set_xscale('log')
-ax.set_yscale('symlog')
+#ax.set_yscale('symlog')
 plt.title(r'b = $10^{}$ au $\pm10\%$'.format(int(np.floor(np.log10(b/au)))))
 plt.ylabel('Average energy change, J')
 plt.xlabel('Number of encounters')
 plt.legend()
 plt.show()
+
+
 '''
-
-
 #Plot distribution of energy changes
 #Energy change bins
 N_bins = 1000
@@ -233,7 +233,7 @@ with open(filename) as csvfile:
                 else:
                         N_dE_v_dv[1,j] += 1
                         dE_v_dv_mean[1] += dE_v_dv
-'''
+
                 j = int(np.floor(np.log(abs(dE_dv_dv)/dE_min)/dlogdE))
                 if (dE_min > abs(dE_dv_dv)) or (abs(dE_dv_dv) > dE_max):
                         print('Out of range:', dE_dv_dv)
@@ -245,7 +245,7 @@ with open(filename) as csvfile:
                 else:
                         N_dE_dv_dv[1,j] += 1
                         dE_dv_dv_mean[1] += dE_dv_dv
-'''
+
 #Normalise means
 dE_mean[0] /= np.sum(N_dE[0])
 dE_mean[1] /= np.sum(N_dE[1])
@@ -314,7 +314,7 @@ plt.ylabel('Number of encounters')
 plt.show()
 
 
-'''
+
 #Plot the average of the dv^2 term divided by the analalytical average energy against impact parameter
 N_b = 41
 
@@ -336,4 +336,5 @@ plt.ylabel(r'$\langle|\Delta\mathbf{V}|^2\rangle / \langle \Delta E \rangle$', r
 plt.title(r'Average value of $|\Delta\mathbf{V}|^2$ term divided by theoretical average energy change ($a=10^5$au)', wrap=True)
 plt.grid()
 plt.show()
+
 '''
