@@ -184,7 +184,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 				dE_dv_dv_mean = dE_dv_dv_mean*(N_enc_so_far-1)/N_enc_so_far + dE_dv_dv/N_enc_so_far;
 				
 				//if (N_enc_so_far > pow(10.0, counter*0.1)-1){
-				if (N_enc_so_far % 1000 == 0){
+				if (N_enc_so_far % static_cast<int>(pow(10, 6)) == 0){
 					std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
 					//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
