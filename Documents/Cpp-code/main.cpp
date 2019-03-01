@@ -95,7 +95,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 8);
+	const unsigned int N_enc = pow(10, 2);
 	//b's to run encounters
 	const int N_b = 1;
 	array<long double, N_b> b = {5.0};
@@ -184,7 +184,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 				dE_dv_dv_mean = dE_dv_dv_mean*(N_enc_so_far-1)/N_enc_so_far + dE_dv_dv/N_enc_so_far;
 				
 				//if (N_enc_so_far > pow(10.0, counter*0.1)-1){
-				if (N_enc_so_far % static_cast<int>(pow(10, 6)) == 0){
+				if (N_enc_so_far % static_cast<int>(pow(10, 0)) == 0){
 					std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
 					//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
@@ -203,7 +203,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 				b_star_min = min(b_star_min, b_star);
 				b_star_max = max(b_star_max, b_star);
 				
-				/*			
+							
 				if (copysign(1, dE_mean) != copysign(1, dE_mean_old)){
 					cout << endl;
 					cout << "Number of encounters so far = " << N_enc_so_far << endl;
@@ -218,7 +218,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 					cout << "Number required for convergence = " << pow(std_dev_analytic/(0.1*dE_avg_analytic) ,2.0) << endl;
 					cout << endl;
 				}
-				*/
+				
 				dE_mean_old = dE_mean;
 				/*
 				if (abs(E_fin-E_ini) < pow(10.0, 25.0)){

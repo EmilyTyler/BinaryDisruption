@@ -126,8 +126,8 @@ plt.show()
 
 
 #Plot average against number of encounters
-N_enc_min = 10**3
-N_enc_max = 10**8
+N_enc_min = 10**0
+N_enc_max = 10**2
 b = 10.0**5.0*au
 N_encs = np.array([])
 with open("WSW_encounters_N_enc_b10e5au.csv") as csvfile:
@@ -139,7 +139,7 @@ with open("WSW_encounters_N_enc_b10e5au.csv") as csvfile:
                 N_enc = float(row[2])
                 #N_encs = np.append(N_encs, N_enc)
                 row_number += 1
-                plt.scatter(N_enc, dE_mean, marker='x', color='dodgerblue')
+                plt.plot(N_enc, dE_mean, marker='x', color='dodgerblue')
 N_encs = np.linspace(N_enc_min, N_enc_max, num = 2)
 dE_avg_analytic = np.zeros(2, dtype=float)
 b_min = 0.9*b
