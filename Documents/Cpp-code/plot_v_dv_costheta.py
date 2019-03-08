@@ -8,6 +8,11 @@ e = np.array([0.0, 0.3, 0.5, 0.7, 0.9])
 N_e = np.size(e)
 N_data=5*10**6
 data = np.zeros((N_data, N_e, 4), dtype=float)
+G = 6.67*10.0**(-11.0)
+M_p = 6.0*10.0**30.0
+a = 10.0**5.0*1.5*10.0**11.0
+v_rel = 2.2*10.0**5.0
+b = 10.0**5.0*1.5*10.0**11.0
 
 def load(filename, index):
 	with open(filename) as csvfile:
@@ -63,7 +68,7 @@ plt.ylabel('Number of encounters')
 plt.legend()
 plt.show()
 
-
+'''
 N_bins = 1000000
 
 dv_min = 0.0
@@ -76,6 +81,7 @@ for k in range(N_e):
 		j = int(np.floor((data[i,k,1]-dv_min)/ddv))
 		N_dv[k,j] += 1
 	plt.plot(dv_bins, N_dv[k], label=r'$e={}$'.format(e[k]))
+	plt.plot([2*G*M_p*a/(v_rel*b**2)*(1+e[k])]*N_bins, N_dv[k], color = 'black')
 plt.xlabel(r'$|\Delta\mathbf{V}|$, ms$^{-1}$')
 plt.ylabel('Number of encounters')
 plt.legend()
@@ -99,7 +105,7 @@ plt.ylabel('Number of encounters')
 plt.legend()
 plt.show()
 
-'''
+
 #Contour plot
 N_dvct = np.zeros((N_bins, N_bins))
 for i in range(np.size(data[:,1])):

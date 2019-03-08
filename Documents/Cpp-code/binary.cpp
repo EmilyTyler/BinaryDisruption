@@ -78,7 +78,7 @@ array<array<long double, 3>, 4> setupRandomBinary(long double a, long double e, 
 	// Separation of stars
 	long double r = a*(1.0 - e*e)/(1.0 + e*cos(f));
 	// Mean motion
-	long double n = sqrt(G*(m1+m2)/(pow(a,3.0)));
+	long double n = sqrt(G*(m1+m2)/(pow(a,3)));
 	// Position and velocity vectors
 	array<array<long double, 3>, 4> X = { {
 		{0.0, 0.0, 0.0},

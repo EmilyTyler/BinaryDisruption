@@ -11,6 +11,7 @@
 #include "encounters.h"
 #include "vector_maths.h"
 #include "random_direction.h"
+#include "binary.h"
 using namespace std;
 
 void testBAndVVectors(){
@@ -504,14 +505,38 @@ int main() {
 	long double m2 = msol/mass_scale;
 	long double M_p = 3.0*msol/mass_scale;
 	long double a = pow(10.0, 5.0) * au/length_scale;
-	long double e = 0.7;
+	long double e = 0.3;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
-	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
+	//WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
 	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 
 	//BHT_survival_probability();
+
+	long double M;
+	long double E;
+	long double f;
+	long double r;
+	long double n;
+	array<long double,3> v_vec;
+	long double v_norm;
+	ofstream myfile;
+	myfile.open("test_data.csv");
+	for (int i=0; i<10000000; i++){
+		M = randomUniformDoubleOpen(0.0, 2.0*pi);
+		E = eccentricAnomaly(e, M);
+		f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
+		r = a*(1.0 - e*e)/(1.0 + e*cos(f));
+		n = sqrt(G*(m1+m2)/(pow(a,3)));
+		v_vec = {-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0};
+		for (int j=0; j<3; j++){
+			v_vec[j] *= length_scale/time_scale;
+		}
+		v_norm = norm(v_vec);
+		myfile << setprecision(16) << r*length_scale << endl;
+	}
+	myfile.close();
 	
 	return 1;
 }

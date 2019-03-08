@@ -3,8 +3,9 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+from scipy.constants import au
 
-data = np.zeros(5*10**6, dtype=float)
+data = np.zeros(10**7, dtype=float)
 
 with open('test_data.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
@@ -13,21 +14,29 @@ with open('test_data.csv') as csvfile:
 		data[row_number] = float(row[0])
 		row_number += 1
 
-data = np.abs(data)
-N_bins = 50
+N_bins = 100
 
-d_min = 0.0
-d_max = 1.0
+d_min = np.min(data)
+d_max = np.max(data)
 print('min =', d_min)
+print('max =', d_max)
 dd = (d_max - d_min)/(N_bins)
 d_bins = np.array([d_min + i*dd for i in range(N_bins)])
 N_d = np.zeros(N_bins)
 for i in range(np.size(data)):
 	j = int(np.floor((data[i]-d_min)/dd))
+	if (data[i] == d_max):
+		j = N_bins-1
 	N_d[j] += 1
 N_d /= np.size(data)
+#Move bins into centre for plotting and calculations
+d_bins += 0.5*dd
 plt.plot(d_bins, N_d/dd)
-plt.xlabel(r'$\sin(i)$')
+e=0.3
+a = 10.0**5.0 * au
+plt.plot(d_bins, -1.0/(np.pi*(3.0*e-1.0))*d_bins/a*(a**2.0*e**2.0-(d_bins-a)**2.0)**(-1/2))
+#plt.plot(d_bins, 1.0/(2.0*np.pi)*(1.0-e)**(3.0/2.0)*(1.0+e*np.cos(d_bins))**(-2.0))
+plt.xlabel(r'$r$')
 plt.ylabel('Probability density')
 plt.show()
 
