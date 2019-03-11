@@ -14,7 +14,7 @@ with open('test_data.csv') as csvfile:
 		data[row_number] = float(row[0])
 		row_number += 1
 
-N_bins = 100
+N_bins = 1000
 
 d_min = np.min(data)
 d_max = np.max(data)
@@ -31,13 +31,14 @@ for i in range(np.size(data)):
 N_d /= np.size(data)
 #Move bins into centre for plotting and calculations
 d_bins += 0.5*dd
-plt.plot(d_bins, N_d/dd)
+plt.plot(d_bins/au, N_d*au/dd, label='Simulation')
 e=0.3
 a = 10.0**5.0 * au
-plt.plot(d_bins, -1.0/(np.pi*(3.0*e-1.0))*d_bins/a*(a**2.0*e**2.0-(d_bins-a)**2.0)**(-1/2))
+plt.plot(d_bins/au, au*1.0/np.pi*d_bins/a*(a**2.0*e**2.0-(d_bins-a)**2.0)**(-1/2), label='Analytic')
 #plt.plot(d_bins, 1.0/(2.0*np.pi)*(1.0-e)**(3.0/2.0)*(1.0+e*np.cos(d_bins))**(-2.0))
-plt.xlabel(r'$r$')
-plt.ylabel('Probability density')
+plt.xlabel(r'$r$, au')
+plt.ylabel(r'Probability density, au$^{-1}$')
+plt.legend()
 plt.show()
 
 

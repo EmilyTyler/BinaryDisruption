@@ -99,7 +99,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 	const unsigned int N_enc = pow(10, 2);
 	//b's to run encounters
 	const int N_b = 1;
-	array<long double, N_b> b = {5.0};
+	array<long double, N_b> b = {6.0};
 	//array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
 	for(int i=0; i<N_b; ++i){
 		b[i] = pow(10.0,b[i])*au/length_scale;
@@ -499,7 +499,7 @@ int main() {
 	
 	//Test impulse approx against WSW
 	
-	string filename = "WSW_encounters_N_enc_b10e5au.csv";
+	string filename = "WSW_encounters_N_enc_b10e6au.csv";
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
@@ -508,12 +508,13 @@ int main() {
 	long double e = 0.3;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
-	//WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
+	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
 	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 
 	//BHT_survival_probability();
 
+	/*
 	long double M;
 	long double E;
 	long double f;
@@ -534,9 +535,10 @@ int main() {
 			v_vec[j] *= length_scale/time_scale;
 		}
 		v_norm = norm(v_vec);
-		myfile << setprecision(16) << r*length_scale << endl;
+		myfile << setprecision(16) << v_norm << endl;
 	}
 	myfile.close();
+	*/
 	
 	return 1;
 }
