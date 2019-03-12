@@ -96,7 +96,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
 	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 2);
+	const unsigned int N_enc = pow(10, 8);
 	//b's to run encounters
 	const int N_b = 1;
 	array<long double, N_b> b = {6.0};
@@ -185,7 +185,7 @@ void WSWEncounterTest(string filename, long double m1, long double m2, long doub
 				dE_dv_dv_mean = dE_dv_dv_mean*(N_enc_so_far-1)/N_enc_so_far + dE_dv_dv/N_enc_so_far;
 				
 				//if (N_enc_so_far > pow(10.0, counter*0.1)-1){
-				if (N_enc_so_far % static_cast<int>(pow(10, 0)) == 0){
+				if (N_enc_so_far % static_cast<int>(pow(10, 6)) == 0){
 					std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
 					//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
 					myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
@@ -266,11 +266,11 @@ void BHT_survival_probability(){
 	//Eccentricity
 	long double e_0 = 0.7;
 	//Number of binaries per simulation
-	int N_bin = 10;
+	int N_bin = 25;
 	//Number of simulations
-	int N_sim = 1;
+	int N_sim = 100;
 	//Starting index in file names
-	int i_start = 1;
+	int i_start = 0;
 
 	//Time steps
 	//Minimum impact parameter
@@ -376,7 +376,7 @@ void BHT_survival_probability(){
 		//Save data
 		cout << "Saving" << endl;
 		int file_index = i_start+i;
-		string filename = "BHTfig2_mysim_" + to_string(N_bin) + "bin_" + to_string(file_index) + ".csv";
+		string filename = "BHTfig2_mysim_2bmax_" + to_string(N_bin) + "bin_" + to_string(file_index) + ".csv";
 		ofstream myfile;
 		myfile.open(filename);
 		for (int j=0; j<N_N_broken; j++){

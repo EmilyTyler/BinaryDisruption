@@ -126,8 +126,8 @@ plt.show()
 
 
 #Plot average against number of encounters
-N_enc_min = 10**0
-N_enc_max = 10**2
+N_enc_min = 10**6
+N_enc_max = 10**8
 b = 10.0**6.0*au
 N_encs = np.array([])
 with open("WSW_encounters_N_enc_b10e6au.csv") as csvfile:
