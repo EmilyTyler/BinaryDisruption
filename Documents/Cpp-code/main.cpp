@@ -508,11 +508,11 @@ int main() {
 	long double e = 0.3;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
-	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
+	//WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
 	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 
-	//BHT_survival_probability();
+	BHT_survival_probability();
 
 	/*
 	long double M;
