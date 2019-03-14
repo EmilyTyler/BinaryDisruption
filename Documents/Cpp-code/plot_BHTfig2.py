@@ -4,6 +4,7 @@ import numpy as np
 from scipy.constants import giga, year
 plt.rc('font', family='serif')
 
+'''
 #Plot simulations of 25 binaries
 for i in range(59):
         BHTsim = np.array([[]])
@@ -14,7 +15,7 @@ for i in range(59):
         BHTsim = BHTsim.astype(np.float)
         BHTsim = np.reshape(BHTsim, (-1,2))
         plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], color='darkgrey')
-
+'''
 #Simulation of 1000 binaries
 BHTsim = np.array([[]])
 with open('BHTfig2_mysim_1000bin_0.csv') as csvfile:
@@ -25,6 +26,26 @@ BHTsim = BHTsim.astype(np.float)
 BHTsim = np.reshape(BHTsim, (-1,2))
 plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], label='My simulation', color='red')
 
+#With 2*b_max
+#Plot simulations of 25 binaries
+for i in range(28):
+        BHTsim = np.array([[]])
+        with open('BHTfig2_mysim_2bmax_25bin_{}.csv'.format(i)) as csvfile:
+                reader = csv.reader(csvfile, delimiter=',')
+                for row in reader:
+                        BHTsim = np.append(BHTsim, row)              
+        BHTsim = BHTsim.astype(np.float)
+        BHTsim = np.reshape(BHTsim, (-1,2))
+        plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], color='darkgrey')
+#Simulation of 1000 binaries
+BHTsim = np.array([[]])
+with open('BHTfig2_mysim_2bmax_1000bin_0.csv') as csvfile:
+        reader = csv.reader(csvfile, delimiter=',')
+        for row in reader:
+                BHTsim = np.append(BHTsim, row)              
+BHTsim = BHTsim.astype(np.float)
+BHTsim = np.reshape(BHTsim, (-1,2))
+plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], label='My simulation, 2bmax', color='darkorange')
 
 #Plot BHT data
 BHTsim = np.array([[]])

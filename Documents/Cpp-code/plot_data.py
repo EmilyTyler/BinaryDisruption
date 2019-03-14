@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.constants import au
 
+'''
 data = np.zeros(10**7, dtype=float)
 
 with open('test_data.csv') as csvfile:
@@ -42,7 +43,7 @@ plt.legend()
 plt.show()
 
 
-'''
+
 
 #Vector direction tests
 data = np.zeros((5*10**6, 3), dtype=float)
@@ -93,5 +94,73 @@ plt.plot(z_bins, N_z/dz/np.size(z))
 plt.plot(z_bins, [1.0/N_bins/dz if (z_bins[i]<=1.0) else 0.0 for i in range(N_bins)])
 plt.show()
 '''
+
+#2D vdv and i distribution
+N_data=10**6
+data = np.zeros((N_data, 2), dtype=float)
+
+def load(filename):
+	with open(filename) as csvfile:
+		reader = csv.reader(csvfile, delimiter=',')
+		row_number = 0
+		for row in reader:
+			data[row_number] = np.array([float(row[0]), float(row[1])])
+			row_number += 1
+	return
+
+load('vdv_i_b10e5au.csv')
+
+N_bins = 100
+vdv_min = np.min(data[:,0])
+vdv_max = np.max(data[:,0])
+dvdv = (vdv_max - vdv_min)/(N_bins-1)
+vdv_bins = np.array([vdv_min + i*dvdv for i in range(N_bins)])
+#Move to centre of bins for plotting
+vdv_bins += 0.5*dvdv
+N_vdv = np.zeros(N_bins)
+for i in range(N_data):
+	j = int(np.floor((data[i,0]-vdv_min)/dvdv))
+	N_vdv[j] += 1
+plt.plot(vdv_bins, N_vdv)
+plt.xlabel(r'$\mathbf{V}\cdot\Delta\mathbf{V}$, J')
+plt.ylabel('Number of encounters')
+plt.legend()
+plt.show()
+
+N_bins = 100
+i_min = 0.0
+i_max = np.pi/2.0
+di = (i_max - i_min)/(N_bins-1)
+i_bins = np.array([i_min + i*di for i in range(N_bins)])
+#Move to centre of bins for plotting
+i_bins += 0.5*di
+N_i = np.zeros(N_bins)
+for i in range(N_data):
+	j = int(np.floor((data[i,1]-i_min)/di))
+	N_i[j] += 1
+plt.plot(i_bins, N_i)
+plt.xlabel('Perturber inclination, rad')
+plt.ylabel('Number of encounters')
+plt.legend()
+plt.show()
+
+#Contour plot
+N_bins = 100
+N_vdvi = np.zeros((N_bins, N_bins))
+for i in range(np.size(data[:,0])):
+	j = int(np.floor((data[i,0]-vdv_min)/dvdv))
+	k = int(np.floor((data[i,1]-i_min)/di))
+	N_vdvi[j,k] += 1
+levels = np.linspace(np.min(N_vdvi), np.max(N_vdvi), num=25)
+#N_dv /= np.size(data[:,1])
+cs = plt.contourf(vdv_bins, i_bins, np.transpose(N_vdvi), levels=levels)
+cbar = plt.colorbar(cs)
+cbar.ax.set_ylabel('Number of encounters')
+ax = plt.gca()
+ax.set_yticks([0., .25*np.pi, .5*np.pi])
+ax.set_yticklabels(["$0$", r"$\frac{1}{4}\pi$", r"$\frac{1}{2}\pi$"])
+plt.xlabel(r'$\mathbf{V}\cdot\Delta\mathbf{V}$, J')
+plt.ylabel(r'Perturber inclination $i$, rad')
+plt.show()
 
 

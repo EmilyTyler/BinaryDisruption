@@ -23,13 +23,14 @@ def load(filename, index):
 			row_number += 1
 	return
 
+'''
 load('WSW_encounters_V_dV_theta_e0.csv', 0)
 load('WSW_encounters_V_dV_theta_e0_3.csv', 1)
 load('WSW_encounters_V_dV_theta_e0_5.csv', 2)
 load('WSW_encounters_V_dV_theta_e0_7.csv', 3)
 load('WSW_encounters_V_dV_theta_e0_9.csv', 4)
 
-'''
+
 N_bins = 500
 
 v_min = 0.0
@@ -68,7 +69,7 @@ plt.ylabel('Number of encounters')
 plt.legend()
 plt.show()
 
-'''
+
 N_bins = 1000000
 
 dv_min = 0.0
@@ -86,7 +87,7 @@ plt.xlabel(r'$|\Delta\mathbf{V}|$, ms$^{-1}$')
 plt.ylabel('Number of encounters')
 plt.legend()
 plt.show()
-'''
+
 
 N_bins = 25
 
@@ -105,7 +106,7 @@ plt.ylabel('Number of encounters')
 plt.legend()
 plt.show()
 
-
+'''
 #Contour plot
 N_dvct = np.zeros((N_bins, N_bins))
 for i in range(np.size(data[:,1])):
@@ -120,4 +121,4 @@ cbar.ax.set_ylabel('Number of encounters')
 plt.xlabel(r'$|\Delta\mathbf{V}|$, ms$^{-1}$')
 plt.ylabel(r'$\cos(\theta)$')
 plt.show()
-'''
+

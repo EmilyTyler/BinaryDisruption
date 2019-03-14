@@ -130,7 +130,7 @@ N_enc_min = 10**6
 N_enc_max = 10**8
 b = 10.0**6.0*au
 N_encs = np.array([])
-with open("WSW_encounters_N_enc_b10e6au.csv") as csvfile:
+with open("WSW_encounters_N_enc_b10e6au_log.csv") as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         row_number = 0
         for row in reader:
@@ -171,7 +171,7 @@ dE_mean_max = dE_min/(1-N_encs)
 plt.plot(N_encs, [dE_avg_analytic[0]]*np.size(N_encs), color='darkorange', label='WSW average energy')
 plt.plot(N_encs, [dE_avg_analytic[1]]*np.size(N_encs), color='darkorange')
 ax = plt.gca()
-#ax.set_xscale('log')
+ax.set_xscale('log')
 #ax.set_yscale('symlog')
 plt.title(r'b = $10^{}$ au $\pm10\%$'.format(int(np.floor(np.log10(b/au)))))
 plt.ylabel('Average energy change, J')
