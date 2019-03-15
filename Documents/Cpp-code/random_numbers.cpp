@@ -1,12 +1,13 @@
 // Generates random numbers
 #include <random>
 #include <limits>
+#include "constants.h"
 using namespace std;
 
 const long double DBL_MAX = numeric_limits<long double>::max();
 
 random_device rd;
-mt19937 gen(rd());
+mt19937 gen(seed);
 
 
 long double randomUniformDoubleClosed(long double min, long double max)

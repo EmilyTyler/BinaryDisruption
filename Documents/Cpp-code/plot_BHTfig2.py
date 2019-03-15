@@ -27,6 +27,7 @@ BHTsim = np.reshape(BHTsim, (-1,2))
 plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], label='My simulation', color='red')
 
 #With 2*b_max
+'''
 #Plot simulations of 25 binaries
 for i in range(28):
         BHTsim = np.array([[]])
@@ -37,6 +38,7 @@ for i in range(28):
         BHTsim = BHTsim.astype(np.float)
         BHTsim = np.reshape(BHTsim, (-1,2))
         plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], color='darkgrey')
+'''
 #Simulation of 1000 binaries
 BHTsim = np.array([[]])
 with open('BHTfig2_mysim_2bmax_1000bin_0.csv') as csvfile:
@@ -45,7 +47,7 @@ with open('BHTfig2_mysim_2bmax_1000bin_0.csv') as csvfile:
                 BHTsim = np.append(BHTsim, row)              
 BHTsim = BHTsim.astype(np.float)
 BHTsim = np.reshape(BHTsim, (-1,2))
-plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], label='My simulation, 2bmax', color='darkorange')
+plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], label=r'My simulation, up to $2\times b_\mathrm{max}$', color='darkorange')
 
 #Plot BHT data
 BHTsim = np.array([[]])

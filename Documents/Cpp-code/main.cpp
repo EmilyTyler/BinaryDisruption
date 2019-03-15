@@ -508,7 +508,7 @@ int main() {
 	long double e = 0.0;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
 
-	WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
+	//WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
 	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 
@@ -539,7 +539,10 @@ int main() {
 	}
 	myfile.close();
 	*/
-	
+	for (int i=0; i<10 ; i++){
+		cout << randomUniformDoubleClosed(0.0, 2.0*pi) << endl;
+	}
+
 	return 1;
 }
 
