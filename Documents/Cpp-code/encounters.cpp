@@ -31,6 +31,14 @@ long double calcBMax(long double M_p, long double v_rel, long double a, long dou
 	return pow((64.0*G*M_p*M_p*pow(a,3.0)/((m1+m2)*v_rel*v_rel*delta*delta)), 0.25);
 }
 
+long double BHTBMax(long double M_p, long double v_rel, long double a, long double m1, long double m2, long double e)
+{
+	long double C = 8.0;
+	long double D = 0.6*(1.0 + e);
+	long double v_c = G*m1*m2*(m1 + m2 + M_p)/(M_p*(m1 + m2)*a);
+	return (C*v_c/v_rel + D)/a;
+}
+
 //Tested magnitude, direction assumed to be correct from testing randomDirection
 // Finds the impact parameter and velocity vectors given the magnitudes of both and that they should be randomly distributed and perpendicular
 tuple<array<long double,3>, array<long double,3>> impactAndVelocityVectors(long double b, long double v)
@@ -128,6 +136,8 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	int N_encounters_close = 0;
 	int N_encounters_far = 0;
 	int N_encounters_mid = 0;
+	long double a_0 = a[0];
+	long double e_0 = e[0];
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
@@ -141,6 +151,7 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 		while (true){
 			//Maximum impact parameter
 			b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
+			//b_max = BHTBMax(M_p, v_rel, a_0, m1, m2, e_0);
 			//Encounter rate
 			rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
 			//Increment time passed
@@ -150,6 +161,7 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			}
 			//Draw velocity from distribution
 			v = drawVMaxwellian(v_rel, v_max);
+			//v = drawMaxwellian(v_rel);
 			//Draw impact parameter from distribution
 			b = drawB(b_max);
 			//Encounter

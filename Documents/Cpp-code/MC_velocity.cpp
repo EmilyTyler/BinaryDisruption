@@ -1,5 +1,6 @@
 //Functions to draw a random number from a v times maxwellian distribution
 #include <cmath>
+#include "constants.h"
 #include "random_numbers.h"
 using namespace std;
 
@@ -51,4 +52,12 @@ long double drawVMaxwellian(long double v_rel, long double v_max)
 			return x;
 		}
 	}
+}
+
+long double drawMaxwellian(long double v_rel)
+{
+	long double v_x = randomNormal(0.0, v_rel);
+	long double v_y = randomNormal(0.0, v_rel);
+	long double v_z = randomNormal(0.0, v_rel);
+	return sqrt(v_x*v_x + v_y*v_y + v_z*v_z);
 }

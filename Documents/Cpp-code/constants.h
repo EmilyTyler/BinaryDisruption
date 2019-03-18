@@ -1,7 +1,7 @@
 // Constants
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
-#include<cmath>
+#include <cmath>
 
 const long double pi = 3.14159265359;
 const long double G_SI = 6.67408 * pow(10.0, -11.0);
@@ -24,5 +24,6 @@ const long double G = 1.0;
 
 //Random number generator seed
 const long double seed = 3263214825;
+
 
 #endif

@@ -10,4 +10,6 @@ long double randomUniformDoubleOpen(long double min, long double max);
 //Tested
 long double randomExponential(long double rate=1.0);
 
+long double randomNormal(long double mean, long double stddev);
+
 #endif

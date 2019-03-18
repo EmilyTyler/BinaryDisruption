@@ -270,7 +270,7 @@ void BHT_survival_probability(){
 	//Number of simulations
 	int N_sim = 1;
 	//Starting index in file names
-	int i_start = 0;
+	int i_start = 1;
 
 	//Time steps
 	//Minimum impact parameter
@@ -376,7 +376,7 @@ void BHT_survival_probability(){
 		//Save data
 		cout << "Saving" << endl;
 		int file_index = i_start+i;
-		string filename = "BHTfig2_mysim_5bmax_" + to_string(N_bin) + "bin_" + to_string(file_index) + ".csv";
+		string filename = "BHTfig2_mysim_maxwellian_" + to_string(N_bin) + "bin_" + to_string(file_index) + ".csv";
 		ofstream myfile;
 		myfile.open(filename);
 		for (int j=0; j<N_N_broken; j++){
@@ -512,7 +512,7 @@ int main() {
 	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 
-	//BHT_survival_probability();
+	BHT_survival_probability();
 
 	/*
 	long double M;
@@ -539,9 +539,6 @@ int main() {
 	}
 	myfile.close();
 	*/
-	for (int i=0; i<10 ; i++){
-		cout << randomUniformDoubleClosed(0.0, 2.0*pi) << endl;
-	}
 
 	return 1;
 }

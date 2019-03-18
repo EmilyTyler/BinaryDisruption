@@ -14,4 +14,7 @@ long double VMaxwellianComparison(long double x, long double v_rel, long double 
 
 long double VMaxwellianXFromArea(long double A, long double v_rel, long double f_max);
 
+
+long double drawMaxwellian(long double v_rel);
+
 #endif
