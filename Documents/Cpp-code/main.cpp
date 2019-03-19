@@ -266,11 +266,11 @@ void BHT_survival_probability(){
 	//Eccentricity
 	long double e_0 = 0.7;
 	//Number of binaries per simulation
-	int N_bin = 1000;
+	int N_bin = 25;
 	//Number of simulations
-	int N_sim = 1;
+	int N_sim = 100;
 	//Starting index in file names
-	int i_start = 1;
+	int i_start = 0;
 
 	//Time steps
 	//Minimum impact parameter
@@ -373,6 +373,7 @@ void BHT_survival_probability(){
 		for (int j=0; j<N_N_broken; j++){
 			N_broken[j] = 1 - N_broken[j];
 		}
+		
 		//Save data
 		cout << "Saving" << endl;
 		int file_index = i_start+i;
@@ -383,6 +384,7 @@ void BHT_survival_probability(){
 			myfile << setprecision(16) << t[j]*time_scale << " , " << N_broken[j] << endl;
 		}
 		myfile.close();
+		
 	}
 	cout << "Total number of encounters = " << N_encounters << endl;
 	cout << "Number of encounters at b<a = " << N_encounters_close << endl;
@@ -500,14 +502,14 @@ int main() {
 	//Test impulse approx against WSW
 	
 	string filename = "WSW_encounters_N_enc_b10e6au_log.csv";
-
+	/*
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
 	long double M_p = 3.0*msol/mass_scale;
 	long double a = pow(10.0, 5.0) * au/length_scale;
 	long double e = 0.0;
 	long double v = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
-
+	*/
 	//WSWEncounterTest(filename, m1, m2, M_p, a, e, v);
 	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
@@ -540,6 +542,41 @@ int main() {
 	myfile.close();
 	*/
 
+	/*
+
+	int N_bin=1000;
+	//Mass of binary
+	long double m1 = msol / mass_scale;
+	long double m2 = msol / mass_scale;
+	//Perturber mass
+	long double M_p = 3.0 * msol / mass_scale;
+	//Relative velocity dispersion
+	long double v_rel = sqrt(2.0/3.0) * pow(10.0, 5.0) /length_scale*time_scale;
+	//Density of dark matter halo
+	long double rho = 0.1 *msol/(pow(parsec, 3.0)) /mass_scale*pow(length_scale, 3.0);
+	//Number density of perturbers
+	long double n_p = rho/M_p;
+	//Total simulation time
+	long double T = 10.0*giga*year / time_scale;
+	//Initial semi-major axis
+	long double a_0 = 0.1*parsec / length_scale;
+	//Eccentricity
+	long double e_0 = 0.7;
+	tuple<vector<long double>, vector<long double>, int, int, int, int, int> result;
+
+	//Semi-major axis and eccentricity arrays
+	vector<long double> a;
+	a.resize(N_bin);
+	a.shrink_to_fit();
+	vector<long double> e;
+	e.resize(N_bin);
+	e.shrink_to_fit();
+	for (int j=0; j<N_bin; j++){
+		a[j] = a_0;
+		e[j] = e_0;
+	}
+	result = MCEncounters(v_rel, n_p, T, m1, m2, M_p, a, e);
+	*/
 	return 1;
 }
 

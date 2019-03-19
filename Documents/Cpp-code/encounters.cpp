@@ -7,6 +7,7 @@
 #include <iostream>
 #include <iomanip>
 #include <ctime>
+#include <fstream>
 
 #include "constants.h"
 #include "random_direction.h"
@@ -141,12 +142,18 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
+		//cout << endl;
 		//cout << "Binary " << i+1 << " of " << N_bin << endl;
 		//Start time
 		//clock_t t_start;
 		//t_start = clock();
 		//Time passed
 		t = 0.0;
+
+		//ofstream myfile;
+		//string filename = "binary_history_" + to_string(i) + ".csv";
+		//myfile.open(filename);
+
 		//Implement encounters
 		while (true){
 			//Maximum impact parameter
@@ -179,6 +186,20 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			a[i] = get<0>(result);
 			e[i] = get<1>(result);
 			notBound = get<2>(result);
+
+			/*
+			cout << "t, Gyr = " << t*time_scale/(giga*year) << endl;
+			cout << "v_rel, km/s = " << v*length_scale/time_scale/1000.0 << endl;
+			cout << "b, pc = " << b*length_scale/parsec << endl;
+			cout << "a_fin, pc = " << a[i]*length_scale/parsec << endl;
+			cout << "e_fin = " << e[i] << endl;
+			cout << "N_enc = " << N_encounters << endl;
+			cout << "Binary broken? = " << (notBound or (a[i]>=a_T)) << endl;
+			cout << endl;
+			cin.ignore();
+			*/
+			//myfile << setprecision(16) << t*time_scale << " ," << v*length_scale/time_scale << " , " << b*length_scale << " , " << a[i]*length_scale << " , " << e[i] << " , " << N_encounters << endl;
+
 			if(notBound or (a[i]>=a_T)){
 				N_broken += 1;
 				a[i] = -1.0;
@@ -186,6 +207,7 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 				break;
 			}
 		}
+		//myfile.close();
 		//Print how long it took
 		//cout << "Time taken = " << (clock() - t_start)/(double)(CLOCKS_PER_SEC) << " s" << endl;
 	}

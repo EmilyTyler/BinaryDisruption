@@ -24,7 +24,7 @@ with open('BHTfig2_mysim_1000bin_0.csv') as csvfile:
                 BHTsim = np.append(BHTsim, row)              
 BHTsim = BHTsim.astype(np.float)
 BHTsim = np.reshape(BHTsim, (-1,2))
-plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], label='My simulation', color='red')
+plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], label=r'My simulation, V$_\mathrm{rel}\times$ Maxwellian', color='red')
 
 #With 2*b_max
 '''
