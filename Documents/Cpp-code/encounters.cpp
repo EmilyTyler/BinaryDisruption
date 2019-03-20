@@ -137,8 +137,8 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	int N_encounters_close = 0;
 	int N_encounters_far = 0;
 	int N_encounters_mid = 0;
-	long double a_0 = a[0];
-	long double e_0 = e[0];
+	//long double a_0 = a[0];
+	//long double e_0 = e[0];
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){

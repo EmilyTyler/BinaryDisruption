@@ -41,10 +41,13 @@ a = np.load('binary_history.npz')['a']
 e = np.load('binary_history.npz')['e']
 N_enc = np.load('binary_history.npz')['N_enc']
 
-
+'''
 for i in range(N_bin):
 	plt.plot(t[i][np.where(a[i]>0.0)]/(giga*year), a[i][np.where(a[i]>0.0)]/parsec)
 	plt.xlabel("Time, Gyr")
 	plt.ylabel("Semi-major axis, pc")
 	plt.show()
+'''
 
+for i in range(N_bin):
+	print(np.max(N_enc[i]))
