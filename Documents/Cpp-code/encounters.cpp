@@ -139,6 +139,10 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	int N_encounters_mid = 0;
 	//long double a_0 = a[0];
 	//long double e_0 = e[0];
+	//b_max = calcBMax(M_p, v_rel, a[0], m1, m2);
+	//rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
+	//long double N_mean = T*rate;
+	//cout << "Mean number of encounters for constant a = " << N_mean << endl;
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){

@@ -23,7 +23,8 @@ const long double G = 1.0;
 //const long double G = G_SI;
 
 //Random number generator seed
-const long double seed = 3263214825;
+//const long double seed = 3263214825;
+const long double seed = 2137850808;
 
 
 #endif

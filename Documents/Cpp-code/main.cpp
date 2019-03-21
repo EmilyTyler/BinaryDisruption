@@ -344,6 +344,8 @@ void BHT_survival_probability(){
 			N_encounters_far += get<5>(result);
 			N_encounters_mid += get<6>(result);
 		}
+
+
 		cout << "Filtering" << endl;
 		//Filter out zeros
 		previous_number_zero = false;
@@ -387,6 +389,7 @@ void BHT_survival_probability(){
 		
 	}
 	cout << "Total number of encounters = " << N_encounters << endl;
+	cout << "Average number of encounters = " << N_encounters/N_bin/N_sim << endl;
 	cout << "Number of encounters at b<a = " << N_encounters_close << endl;
 	cout << "Number of encounters at b>a = " << N_encounters_far << endl;
 	cout << "Number of encounters between close and far regimes = " << N_encounters_mid << endl;
