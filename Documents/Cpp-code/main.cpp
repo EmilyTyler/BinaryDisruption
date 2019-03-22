@@ -79,19 +79,25 @@ tuple<vector<long double>, vector<long double>> initialDistributions(int N_bin, 
 
 void evolvePopulation(string filename, int N_bin, long double a_min, long double a_max, long double alpha, long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p){
 	//Initial semimajor axis and eccentricity distributions
+	cout << "Generating initial binaries" << endl;
 	tuple<vector<long double>, vector<long double>> initial_dists = initialDistributions(N_bin, a_min, a_max, alpha);
+	vector<long double> a_ini = get<0>(initial_dists);
+	vector<long double> e_ini = get<1>(initial_dists);
 	//Final semimajor axis and eccentricity distributions
-	tuple<vector<long double>, vector<long double>, int, int, int, int, int> final_dists = MCEncounters(v_rel, n_p, T, m1, m2, M_p, get<0>(initial_dists), get<1>(initial_dists));
+	cout << "Evolving binaries" << endl;
+	tuple<vector<long double>, vector<long double>, int, int, int, int, int> final_dists = MCEncounters(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
 	//Extract results
 	vector<long double> a_fin = get<0>(final_dists);
 	vector<long double> e_fin = get<1>(final_dists);
 	//Save results to file
+	cout << "Saving" << endl;
 	ofstream myfile;
 	myfile.open(filename);
 	for (int i=0; i<N_bin; ++i){
-		myfile << setprecision(16) << a_fin[i]*length_scale << ", " << e_fin[i] << endl; 
+		myfile << setprecision(16) << a_ini[i]*length_scale << " , " << e_ini[i] << " , " << a_fin[i]*length_scale << ", " << e_fin[i] << endl; 
 	}
     myfile.close();
+    cout << "Finished" << endl;
 }
 
 void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
@@ -474,26 +480,26 @@ void WSWEncounterTest_MeanvB(string filename, long double m1, long double m2, lo
 
 int main() {
 	
-	/*
-	long double m1 = msol/mass_scale;
-	long double m2 = msol/mass_scale;
-	long double M_p = msol/mass_scale;
+	
+	long double m1 = 0.5*msol/mass_scale;
+	long double m2 = 0.5*msol/mass_scale;
+	long double M_p = 1000.0*msol/mass_scale;
 	long double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
 	long double n_p = rho/M_p;
-	long double v_rel = 2.2 * pow(10.0, 5.0) *(time_scale/length_scale);
-	long double T = 1.0 * giga * year /time_scale;
+	long double v_rel = 2.0 * pow(10.0, 5.0) *(time_scale/length_scale);
+	long double T = 10.0 * giga * year /time_scale;
 
 	long double alpha = 1.0;
-	long double a_min = pow(10.0, 3.0) * au/length_scale;
-	long double a_max = pow(10.0, 6.0) * au/length_scale;
+	long double a_min = pow(10.0, 1.0) * au/length_scale;
+	long double a_max = pow(10.0, 5.5) * au/length_scale;
 
-	int N_bin = 1;
+	int N_bin = 10000;
 
-	string filename = "binary_pop.csv";
+	string filename = "binary_pop_YCG1000Msol.csv";
 
 	//Run simulation
 	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
-	*/
+	
 
 	//To do
 	//Test MCEncounters
@@ -504,7 +510,7 @@ int main() {
 	
 	//Test impulse approx against WSW
 	
-	string filename = "WSW_encounters_N_enc_b10e6au_log.csv";
+	//string filename = "WSW_encounters_N_enc_b10e6au_log.csv";
 	/*
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
@@ -517,7 +523,7 @@ int main() {
 	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 
-	BHT_survival_probability();
+	//BHT_survival_probability();
 
 	/*
 	long double M;

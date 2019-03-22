@@ -38,7 +38,7 @@ for i in range(28):
         BHTsim = BHTsim.astype(np.float)
         BHTsim = np.reshape(BHTsim, (-1,2))
         plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], color='darkgrey')
-
+'''
 #Simulation of 1000 binaries
 BHTsim = np.array([[]])
 with open('BHTfig2_mysim_2bmax_1000bin_0.csv') as csvfile:
@@ -48,7 +48,7 @@ with open('BHTfig2_mysim_2bmax_1000bin_0.csv') as csvfile:
 BHTsim = BHTsim.astype(np.float)
 BHTsim = np.reshape(BHTsim, (-1,2))
 plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], label=r'My simulation, up to $2\times b_\mathrm{max}$', color='darkorange')
-'''
+
 
 #With 5*b_max
 '''
@@ -62,7 +62,7 @@ for i in range(28):
         BHTsim = BHTsim.astype(np.float)
         BHTsim = np.reshape(BHTsim, (-1,2))
         plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], color='darkgrey')
-
+'''
 #Simulation of 1000 binaries
 BHTsim = np.array([[]])
 with open('BHTfig2_mysim_5bmax_1000bin_0.csv') as csvfile:
@@ -72,9 +72,21 @@ with open('BHTfig2_mysim_5bmax_1000bin_0.csv') as csvfile:
 BHTsim = BHTsim.astype(np.float)
 BHTsim = np.reshape(BHTsim, (-1,2))
 plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], label=r'My simulation, up to $5\times b_\mathrm{max}$', color='darkviolet')
-'''
+
 
 #Maxwellian rather than vmaxwellian
+'''
+#Plot simulations of 25 binaries
+for i in range(4):
+        BHTsim = np.array([[]])
+        with open('BHTfig2_mysim_maxwellian_25bin_{}.csv'.format(i)) as csvfile:
+                reader = csv.reader(csvfile, delimiter=',')
+                for row in reader:
+                        BHTsim = np.append(BHTsim, row)              
+        BHTsim = BHTsim.astype(np.float)
+        BHTsim = np.reshape(BHTsim, (-1,2))
+        plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], color='darkgrey')
+
 BHTsim = np.array([[]])
 with open('BHTfig2_mysim_maxwellian_1000bin_0.csv') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
@@ -83,7 +95,7 @@ with open('BHTfig2_mysim_maxwellian_1000bin_0.csv') as csvfile:
 BHTsim = BHTsim.astype(np.float)
 BHTsim = np.reshape(BHTsim, (-1,2))
 plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], label=r'My simulation, Maxwellian', color='darkviolet')
-
+'''
 '''
 #Plot exponential decay
 M_b = 2.0 * 2.0*10.0**30.0
