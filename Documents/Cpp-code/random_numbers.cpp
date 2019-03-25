@@ -33,3 +33,9 @@ long double randomNormal(long double mean, long double stddev)
 	normal_distribution<long double> norm_distribution(mean, stddev);
 	return norm_distribution(gen);
 }
+
+int randomPoisson(long double mean)
+{
+	poisson_distribution<int> pois_distribution(mean);
+	return pois_distribution(gen);
+}

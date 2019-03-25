@@ -55,14 +55,14 @@ tuple<vector<long double>, vector<long double>> initialDistributions(int N_bin, 
 	a.shrink_to_fit();
 	//Declare variables
 	long double c;
-	if (alpha == 2.0){
+	if (alpha == 1.0){
 		c = log(a_min)/log(a_max/a_min);
 		for (int i=0; i<N_bin; ++i){
 			a[i] = pow(a_max/a_min, (randomUniformDoubleClosed(0.0, 1.0) + c));
 		}
 	} else {
 		for (int i=0; i<N_bin; ++i){
-			a[i] = pow((randomUniformDoubleClosed(0.0, 1.0)*(pow(a_max, 2.0-alpha) - pow(a_min, 2.0-alpha)) + pow(a_min, 2.0-alpha)), 1.0/(2.0 - alpha));
+			a[i] = pow((randomUniformDoubleClosed(0.0, 1.0)*(pow(a_max, 1.0-alpha) - pow(a_min, 1.0-alpha)) + pow(a_min, 1.0-alpha)), 1.0/(1.0 - alpha));
 		}
 	}
 	//Eccentricity array
@@ -483,7 +483,7 @@ int main() {
 	
 	long double m1 = 0.5*msol/mass_scale;
 	long double m2 = 0.5*msol/mass_scale;
-	long double M_p = 1000.0*msol/mass_scale;
+	long double M_p = 10.0*msol/mass_scale;
 	long double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
 	long double n_p = rho/M_p;
 	long double v_rel = 2.0 * pow(10.0, 5.0) *(time_scale/length_scale);
@@ -493,9 +493,9 @@ int main() {
 	long double a_min = pow(10.0, 1.0) * au/length_scale;
 	long double a_max = pow(10.0, 5.5) * au/length_scale;
 
-	int N_bin = 10000;
+	int N_bin = pow(10, 5);
 
-	string filename = "binary_pop_YCG1000Msol.csv";
+	//string filename = "binary_pop_YCG10Msol_100closest.csv";
 
 	//Run simulation
 	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);

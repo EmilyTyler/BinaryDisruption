@@ -3,6 +3,7 @@
 #include <array>
 #include <tuple>
 #include <vector>
+#include <algorithm>
 
 #include <iostream>
 #include <iomanip>
@@ -293,4 +294,107 @@ tuple<long double, long double, long double, long double, long double, array<lon
 	//cout << "b_star_norm = " << b_star_norm[0] << " , " << b_star_norm[1] << endl;
 	//cout << "b_star_norm_min = " << b_star_norm_min << endl;
 	return make_tuple(E_ini, E_fin, b_star_norm_min, v_dv, dv_dv, v_initial, delta_v, theta);
+}
+
+tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncounters100Closest(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
+{
+	//Minimum impact parameter
+	long double b_min = 0.0;
+	//Minimum relative velocity of encounter
+	long double v_min = 0.0;
+	//Maximum relative velocity of encounter
+	long double v_max = 100.0 * v_rel;
+	//Maximum semimajor axis
+	long double a_T = 1000.0 * parsec/length_scale;
+	//Number of binaries
+	int N_bin = static_cast<int>(a.size());
+	//Declare variable types
+	long double b_max, rate, v;
+	tuple<long double, long double, bool> result;
+	bool notBound;
+	//Number of binaries broken
+	int N_broken = 0;
+	//double t_start;
+
+	int N_encounters = 0;
+	int N_encounters_close = 0;
+	int N_encounters_far = 0;
+	int N_encounters_mid = 0;
+
+	int N_enc;
+	vector<long double> bs;
+	vector<long double> bs_sorted;
+	vector<long double> bs_closest;
+	long double b_limit;
+
+	//Iterate over binaries
+	for (int i=0; i<N_bin; ++i){
+		cout << "Binary " << i+1 << " of " << N_bin << endl;
+
+		N_enc = 0;
+		bs.resize(0);
+		bs_sorted.resize(0);
+		bs_closest.resize(0);
+		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
+		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
+		while(N_enc < 100){
+			N_enc = randomPoisson(rate*T);
+			b_max = 2*b_max;
+			rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
+		}
+
+		bs.resize(N_enc);
+		bs_sorted.resize(N_enc);
+		for (int j=0; j<N_enc; ++j){
+			bs[j] = drawB(b_max);
+			bs_sorted[j] = bs[j];
+		}
+		sort(bs_sorted.begin(), bs_sorted.end());
+		b_limit = bs_sorted[100];
+		for (int j=0; j<N_enc; ++j){
+			if (bs[j] < b_limit){
+				bs_closest.push_back(bs[j]);
+			}
+		}
+
+		//Implement encounters
+		for (int j=0; j<100; j++){
+
+			//Draw velocity from distribution
+			v = drawVMaxwellian(v_rel, v_max);
+
+			if (bs_closest[j]<a[i]){
+				N_encounters_close += 1;
+			}
+			if (bs_closest[j]>a[i]){
+				N_encounters_far += 1;
+			}
+			if ((bs_closest[j]>0.01*a[i]) && (bs_closest[j]<100.0*a[i])){
+				N_encounters_mid += 1;
+			}
+			N_encounters += 1;
+			result = impulseEncounter(m1, m2, M_p, a[i], e[i], bs_closest[j], v);
+			a[i] = get<0>(result);
+			e[i] = get<1>(result);
+			notBound = get<2>(result);
+
+			/*
+			cout << setprecision(16) << "b, pc = " << bs_closest[j]*length_scale/parsec << endl;
+			cout << "a_fin, pc = " << a[i]*length_scale/parsec << endl;
+			cout << "e_fin = " << e[i] << endl;
+			cout << "N_enc = " << N_encounters << endl;
+			cout << "Binary broken? = " << (notBound or (a[i]>=a_T)) << endl;
+			cout << endl;
+			*/
+			//myfile << setprecision(16) << t*time_scale << " ," << v*length_scale/time_scale << " , " << b*length_scale << " , " << a[i]*length_scale << " , " << e[i] << " , " << N_encounters << endl;
+
+			if(notBound or (a[i]>=a_T)){
+				N_broken += 1;
+				a[i] = -1.0;
+				e[i] = -1.0;
+				break;
+			}
+		}
+	}
+	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
 }
