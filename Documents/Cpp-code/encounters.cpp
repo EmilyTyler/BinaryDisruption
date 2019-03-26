@@ -362,6 +362,7 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 
 			//Draw velocity from distribution
 			v = drawVMaxwellian(v_rel, v_max);
+			//v = drawMaxwellian(v_rel);
 
 			if (bs_closest[j]<a[i]){
 				N_encounters_close += 1;

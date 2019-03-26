@@ -37,7 +37,7 @@ def loadData(filename, plot_label, plot_initial, plot_color, plot_linestyle):
 			j = int(np.floor(np.log(a_fin[i]/a_min)/dloga))
 			N_a_fin[j] += 1
 	if (plot_initial):
-		plt.plot(a_bins/au, N_a_ini, label = initial_plot_label, color='red', linestyle=plot_linestyle)
+		plt.plot(a_bins/au, N_a_ini, label = 'Simulation, Initial', color='red', linestyle=plot_linestyle)
 	plt.plot(a_bins/au, N_a_fin, label = plot_label, color=plot_color, linestyle=plot_linestyle)
 
 def loadYCGData(filename, plot_label, plot_color, plot_linestyle, y_offset=90/N_bins):
@@ -55,13 +55,17 @@ loadYCGData('YCGfig2_10Msol.csv', r'Yoo et al., $10M_\odot$', plot_color='dodger
 loadYCGData('YCGfig2_100Msol.csv', r'Yoo et al., $100M_\odot$', plot_color='forestgreen', plot_linestyle='-')
 loadYCGData('YCGfig2_1000Msol.csv', r'Yoo et al., $1000M_\odot$', plot_color='darkorange', plot_linestyle='-')
 
-#loadData('binary_pop_YCG10Msol.csv', r'Simulation, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
-#loadData('binary_pop_YCG100Msol.csv', r'Simulation, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle='--')
-loadData('binary_pop_YCG1000Msol.csv', r'Simulation, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle='--')
+#loadData('binary_pop_YCG10Msol.csv', r'Simulation, $10M_\odot$', False, plot_color='dodgerblue', plot_linestyle='--')
+loadData('binary_pop_YCG100Msol.csv', r'Simulation, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle='--')
+loadData('binary_pop_YCG1000Msol.csv', r'Simulation, $1000M_\odot$', True, plot_color='darkorange', plot_linestyle='--')
 
-loadData('binary_pop_YCG10Msol_100closest.csv', r'Simulation 100 closest, $10M_\odot$', False, plot_color='dodgerblue', plot_linestyle=':')
-loadData('binary_pop_YCG100Msol_100closest.csv', r'Simulation 100 closest, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle=':')
-loadData('binary_pop_YCG1000Msol_100closest.csv', r'Simulation 100 closest, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle=':')
+loadData('binary_pop_YCG10Msol_100closest.csv', r'Simulation 100 closest, $10M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
+loadData('binary_pop_YCG100Msol_100closest.csv', r'Simulation 100 closest, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle='-.')
+loadData('binary_pop_YCG1000Msol_100closest.csv', r'Simulation 100 closest, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle='-.')
+
+loadData('binary_pop_YCG10Msol_100closest_maxwellian.csv', r'Simulation 100 closest Maxwellian, $10M_\odot$', False, plot_color='dodgerblue', plot_linestyle=':')
+loadData('binary_pop_YCG100Msol_100closest_maxwellian.csv', r'Simulation 100 closest Maxwellian, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle=':')
+loadData('binary_pop_YCG1000Msol_100closest_maxwellian.csv', r'Simulation 100 closest Maxwellian, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle=':')
 
 
 ax = plt.gca()
