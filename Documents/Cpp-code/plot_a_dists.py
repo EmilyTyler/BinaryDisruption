@@ -6,7 +6,7 @@ plt.rc('font', family='serif')
 
 a_min = 10.0**3.0 * au
 a_max = 2.0*10.0**5.0 * au
-N_bins = 20
+N_bins = 40
 
 dloga = (np.log(a_max)-np.log(a_min))/(N_bins)
 a_bins = np.array([a_min*np.exp(i*dloga) for i in range(N_bins)])
@@ -55,9 +55,9 @@ loadYCGData('YCGfig2_10Msol.csv', r'Yoo et al., $10M_\odot$', plot_color='dodger
 loadYCGData('YCGfig2_100Msol.csv', r'Yoo et al., $100M_\odot$', plot_color='forestgreen', plot_linestyle='-')
 loadYCGData('YCGfig2_1000Msol.csv', r'Yoo et al., $1000M_\odot$', plot_color='darkorange', plot_linestyle='-')
 
-#loadData('binary_pop_YCG10Msol.csv', r'Simulation, $10M_\odot$', False, plot_color='dodgerblue', plot_linestyle='--')
+loadData('binary_pop_YCG10Msol.csv', r'Simulation, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
 loadData('binary_pop_YCG100Msol.csv', r'Simulation, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle='--')
-loadData('binary_pop_YCG1000Msol.csv', r'Simulation, $1000M_\odot$', True, plot_color='darkorange', plot_linestyle='--')
+loadData('binary_pop_YCG1000Msol.csv', r'Simulation, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle='--')
 
 loadData('binary_pop_YCG10Msol_100closest.csv', r'Simulation 100 closest, $10M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
 loadData('binary_pop_YCG100Msol_100closest.csv', r'Simulation 100 closest, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle='-.')
@@ -67,6 +67,8 @@ loadData('binary_pop_YCG10Msol_100closest_maxwellian.csv', r'Simulation 100 clos
 loadData('binary_pop_YCG100Msol_100closest_maxwellian.csv', r'Simulation 100 closest Maxwellian, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle=':')
 loadData('binary_pop_YCG1000Msol_100closest_maxwellian.csv', r'Simulation 100 closest Maxwellian, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle=':')
 
+#Move to centre of bins for plotting
+a_bins *= np.exp(0.5*dloga)
 
 ax = plt.gca()
 ax.set_xscale('log')
