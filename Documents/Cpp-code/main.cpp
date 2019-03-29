@@ -260,7 +260,7 @@ void BHT_survival_probability(){
 	//Perturber mass
 	long double M_p = 3.0 * msol / mass_scale;
 	//Relative velocity dispersion
-	long double v_rel = sqrt(2.0/3.0) * pow(10.0, 5.0) /length_scale*time_scale;
+	long double v_rel = sqrt(1.0/3.0) * pow(10.0, 5.0) /length_scale*time_scale;
 	//Density of dark matter halo
 	long double rho = 0.1 *msol/(pow(parsec, 3.0)) /mass_scale*pow(length_scale, 3.0);
 	//Number density of perturbers
@@ -272,9 +272,9 @@ void BHT_survival_probability(){
 	//Eccentricity
 	long double e_0 = 0.7;
 	//Number of binaries per simulation
-	int N_bin = 25;
+	int N_bin = 1000;
 	//Number of simulations
-	int N_sim = 100;
+	int N_sim = 1;
 	//Starting index in file names
 	int i_start = 0;
 
@@ -385,7 +385,7 @@ void BHT_survival_probability(){
 		//Save data
 		cout << "Saving" << endl;
 		int file_index = i_start+i;
-		string filename = "BHTfig2_mysim_maxwellian_" + to_string(N_bin) + "bin_" + to_string(file_index) + ".csv";
+		string filename = "BHTfig2_mysim_new_5bmax_" + to_string(N_bin) + "bin_" + to_string(file_index) + ".csv";
 		ofstream myfile;
 		myfile.open(filename);
 		for (int j=0; j<N_N_broken; j++){
@@ -498,7 +498,7 @@ int main() {
 	string filename = "binary_pop_YCG1000Msol_100closest_maxwellian.csv";
 
 	//Run simulation
-	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
+	//evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
 	
 
 	//To do
@@ -523,7 +523,7 @@ int main() {
 	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 
-	//BHT_survival_probability();
+	BHT_survival_probability();
 
 	/*
 	long double M;
