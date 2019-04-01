@@ -41,6 +41,12 @@ long double BHTBMax(long double M_p, long double v_rel, long double a, long doub
 	return (C*v_c/v_rel + D)/a;
 }
 
+long double YCGBMax(long double a, long double M_p, long double n_p, long double v_rel, long double T)
+{
+	long double b_min = sqrt(1.0/(pi*n_p*v_rel*T));
+	return max(10.0*b_min, 2.0*a);
+}
+
 //Tested magnitude, direction assumed to be correct from testing randomDirection
 // Finds the impact parameter and velocity vectors given the magnitudes of both and that they should be randomly distributed and perpendicular
 tuple<array<long double,3>, array<long double,3>> impactAndVelocityVectors(long double b, long double v)
@@ -296,7 +302,7 @@ tuple<long double, long double, long double, long double, long double, array<lon
 	return make_tuple(E_ini, E_fin, b_star_norm_min, v_dv, dv_dv, v_initial, delta_v, theta);
 }
 
-tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncounters100Closest(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
+tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncountersNClosest(int N_closest, long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
 {
 	//Minimum impact parameter
 	long double b_min = 0.0;
@@ -335,13 +341,10 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 		bs.resize(0);
 		bs_sorted.resize(0);
 		bs_closest.resize(0);
-		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
+		b_max = YCGBMax(a[i], M_p, n_p, v_rel, T);
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
-		while(N_enc < 100){
-			N_enc = randomPoisson(rate*T);
-			b_max = 2*b_max;
-			rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
-		}
+		N_enc = randomPoisson(rate*T);
+		//cout << "Total number of encounters = " << N_enc << endl;
 
 		bs.resize(N_enc);
 		bs_sorted.resize(N_enc);
@@ -350,15 +353,27 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			bs_sorted[j] = bs[j];
 		}
 		sort(bs_sorted.begin(), bs_sorted.end());
-		b_limit = bs_sorted[100];
-		for (int j=0; j<N_enc; ++j){
-			if (bs[j] < b_limit){
-				bs_closest.push_back(bs[j]);
+
+		if (N_enc > N_closest){			
+			b_limit = bs_sorted[N_closest];
+			for (int j=0; j<N_enc; ++j){
+				if (bs[j] < b_limit){
+					bs_closest.push_back(bs[j]);
+				}
+			}
+		} else {
+			bs_closest.resize(N_enc);
+			for (int j=0; j<N_enc; ++j){
+				bs_closest[j] = bs[j];
 			}
 		}
 
+		//cout << "Number of encounters = " << static_cast<int>(bs_closest.size()) << endl;
+
 		//Implement encounters
-		for (int j=0; j<100; j++){
+		for (int j=0; j<static_cast<int>(bs_closest.size()); j++){
+
+			//cout << "Encounter " << j+1 << " of " << static_cast<int>(bs_closest.size()) << endl;
 
 			//Draw velocity from distribution
 			v = drawVMaxwellian(v_rel, v_max);

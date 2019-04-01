@@ -85,7 +85,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	vector<long double> e_ini = get<1>(initial_dists);
 	//Final semimajor axis and eccentricity distributions
 	cout << "Evolving binaries" << endl;
-	tuple<vector<long double>, vector<long double>, int, int, int, int, int> final_dists = MCEncounters100Closest(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
+	tuple<vector<long double>, vector<long double>, int, int, int, int, int> final_dists = MCEncountersNClosest(100, v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
 	//Extract results
 	vector<long double> a_fin = get<0>(final_dists);
 	vector<long double> e_fin = get<1>(final_dists);
@@ -483,7 +483,7 @@ int main() {
 	
 	long double m1 = 0.5*msol/mass_scale;
 	long double m2 = 0.5*msol/mass_scale;
-	long double M_p = 1000.0*msol/mass_scale;
+	long double M_p = 10.0*msol/mass_scale;
 	long double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
 	long double n_p = rho/M_p;
 	long double v_rel = 2.0 * pow(10.0, 5.0) *(time_scale/length_scale);
@@ -495,10 +495,10 @@ int main() {
 
 	int N_bin = pow(10, 5);
 
-	string filename = "binary_pop_YCG1000Msol_100closest_maxwellian.csv";
+	string filename = "binary_pop_YCG10Msol_YCGbmax_100closest_maxwellian.csv";
 
 	//Run simulation
-	//evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
+	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
 	
 
 	//To do
@@ -523,7 +523,7 @@ int main() {
 	
 	//WSWEncounterTest_MeanvB(filename, m1, m2, M_p, a, e, v);
 
-	BHT_survival_probability();
+	//BHT_survival_probability();
 
 	/*
 	long double M;
