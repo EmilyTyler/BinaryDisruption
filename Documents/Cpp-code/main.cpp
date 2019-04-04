@@ -495,7 +495,7 @@ int main() {
 
 	int N_bin = pow(10, 5);
 
-	string filename = "binary_pop_YCG10Msol_YCGbmax_100closest_maxwellian.csv";
+	string filename = "binary_pop_YCG10Msol_mybmax_Nencclosest.csv";
 
 	//Run simulation
 	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);

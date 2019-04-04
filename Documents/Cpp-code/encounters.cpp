@@ -341,9 +341,11 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 		bs.resize(0);
 		bs_sorted.resize(0);
 		bs_closest.resize(0);
-		b_max = YCGBMax(a[i], M_p, n_p, v_rel, T);
+		//b_max = YCGBMax(a[i], M_p, n_p, v_rel, T);
+		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
 		N_enc = randomPoisson(rate*T);
+
 		//cout << "Total number of encounters = " << N_enc << endl;
 
 		bs.resize(N_enc);

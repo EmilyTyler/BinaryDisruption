@@ -88,7 +88,7 @@ for i in range(4):
         plt.plot(BHTsim[:,0]/(giga*year), BHTsim[:,1], color='darkgrey')
 '''
 BHTsim = np.array([[]])
-with open('BHTfig2_mysim_maxwellian_1000bin_0.csv') as csvfile:
+with open('BHTfig2_mysim_new_maxwellian_1000bin_0.csv') as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
                 BHTsim = np.append(BHTsim, row)              
