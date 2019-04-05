@@ -154,7 +154,7 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
 		//cout << endl;
-		//cout << "Binary " << i+1 << " of " << N_bin << endl;
+		cout << "Binary " << i+1 << " of " << N_bin << endl;
 		//Start time
 		//clock_t t_start;
 		//t_start = clock();
@@ -341,8 +341,8 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 		bs.resize(0);
 		bs_sorted.resize(0);
 		bs_closest.resize(0);
-		//b_max = YCGBMax(a[i], M_p, n_p, v_rel, T);
-		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
+		b_max = YCGBMax(a[i], M_p, n_p, v_rel, T);
+		//b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
 		N_enc = randomPoisson(rate*T);
 
@@ -378,8 +378,8 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			//cout << "Encounter " << j+1 << " of " << static_cast<int>(bs_closest.size()) << endl;
 
 			//Draw velocity from distribution
-			v = drawVMaxwellian(v_rel, v_max);
-			//v = drawMaxwellian(v_rel);
+			//v = drawVMaxwellian(v_rel, v_max);
+			v = drawMaxwellian(v_rel);
 
 			if (bs_closest[j]<a[i]){
 				N_encounters_close += 1;
