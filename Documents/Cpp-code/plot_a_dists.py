@@ -92,9 +92,9 @@ loadYCGData('YCGfig2_1000Msol.csv', r'Yoo et al., $1000M_\odot$', plot_color='bl
 #loadData('binary_pop_YCG1000Msol_mybmax_Nencclosest.csv', r'Full simulation with closest encounters code, my $b_\mathrm{max}$, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle='-')
 
 #172 km/s
-#loadData('binary_pop_YCG10Msol_172kms.csv', r'My simulation $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
-#loadData('binary_pop_YCG100Msol_172kms.csv', r'My simulation $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
-loadData('binary_pop_YCG1000Msol_172kms.csv', r'My simulation $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $1000M_\odot$', True, plot_color='dodgerblue', plot_linestyle='-')
+loadData('binary_pop_YCG10Msol_172kms.csv', r'My simulation $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
+loadData('binary_pop_YCG100Msol_172kms.csv', r'My simulation $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
+loadData('binary_pop_YCG1000Msol_172kms.csv', r'My simulation $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $1000M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-')
 
 loadData('binary_pop_YCG10Msol_YCGbmax_100closest_172kms.csv', r'Simulation 100 closest $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $10M_\odot$', False, plot_color='forestgreen', plot_linestyle='--')
 loadData('binary_pop_YCG100Msol_YCGbmax_100closest_172kms.csv', r'Simulation 100 closest $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle='-.')
