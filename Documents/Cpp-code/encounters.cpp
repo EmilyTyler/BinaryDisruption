@@ -346,6 +346,10 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
 		N_enc = randomPoisson(rate*T);
 
+		if(M_p < 700.0*msol/mass_scale){
+			N_closest = N_enc;
+		}
+
 		//cout << "Total number of encounters = " << N_enc << endl;
 
 		bs.resize(N_enc);
@@ -378,8 +382,8 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			//cout << "Encounter " << j+1 << " of " << static_cast<int>(bs_closest.size()) << endl;
 
 			//Draw velocity from distribution
-			v = drawVMaxwellian(v_rel, v_max);
-			//v = drawMaxwellian(v_rel);
+			//v = drawVMaxwellian(v_rel, v_max);
+			v = drawMaxwellian(v_rel);
 
 			if (bs_closest[j]<a[i]){
 				N_encounters_close += 1;

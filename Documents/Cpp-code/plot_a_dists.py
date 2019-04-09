@@ -55,13 +55,17 @@ loadYCGData('YCGfig2_10Msol.csv', r'Yoo et al., $10M_\odot$', plot_color='black'
 loadYCGData('YCGfig2_100Msol.csv', r'Yoo et al., $100M_\odot$', plot_color='black', plot_linestyle='-.')
 loadYCGData('YCGfig2_1000Msol.csv', r'Yoo et al., $1000M_\odot$', plot_color='black', plot_linestyle='-')
 
-#loadData('binary_pop_YCG10Msol.csv', r'My simulation, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
-#loadData('binary_pop_YCG100Msol.csv', r'My simulation, $100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
-#loadData('binary_pop_YCG1000Msol.csv', r'My simulation, $1000M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-')
+loadData('binary_pop_YCG10Msol.csv', r'My simulation, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
+loadData('binary_pop_YCG100Msol.csv', r'My simulation, $100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
+loadData('binary_pop_YCG1000Msol.csv', r'My simulation, $1000M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-')
+
+loadData('binary_pop_YCG10Msol_YCGbmax_Nencclosest.csv', r'Simulation, All encounters, Yoo et al. $b_\mathrm{max}$, $10M_\odot$', False, plot_color='forestgreen', plot_linestyle='--')
+loadData('binary_pop_YCG100Msol_YCGbmax_Nencclosest.csv', r'Simulation, All encounters, Yoo et al. $b_\mathrm{max}$, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle='-.')
+#loadData('binary_pop_YCG1000Msol_YCGbmax_Nencclosest.csv', r'Full simulation with closest encounters code, Yoo et al. $b_\mathrm{max}$, $1000M_\odot$', False, plot_color='forestgreen', plot_linestyle='-')
 
 #loadData('binary_pop_YCG10Msol_YCGbmax_100closest.csv', r'Simulation 100 closest, $10M_\odot$', False, plot_color='forestgreen', plot_linestyle='--')
 #loadData('binary_pop_YCG100Msol_YCGbmax_100closest.csv', r'Simulation 100 closest, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle='-.')
-#loadData('binary_pop_YCG1000Msol_YCGbmax_100closest.csv', r'Simulation 100 closest, $1000M_\odot$', False, plot_color='forestgreen', plot_linestyle='-')
+loadData('binary_pop_YCG1000Msol_YCGbmax_100closest.csv', r'Simulation, 100 closest, Yoo et al. $b_\mathrm{max}$, $1000M_\odot$', False, plot_color='forestgreen', plot_linestyle='-')
 
 #loadData('binary_pop_YCG10Msol_YCGbmax_100closest_maxwellian.csv', r'Simulation 100 closest Maxwellian, $10M_\odot$', False, plot_color='darkorange', plot_linestyle='--')
 #loadData('binary_pop_YCG100Msol_YCGbmax_100closest_maxwellian.csv', r'Simulation 100 closest Maxwellian, $100M_\odot$', False, plot_color='darkorange', plot_linestyle='-.')
@@ -83,15 +87,12 @@ loadYCGData('YCGfig2_1000Msol.csv', r'Yoo et al., $1000M_\odot$', plot_color='bl
 #loadData('binary_pop_YCG100Msol_YCGbmax_10000closest_maxwellian.csv', r'Simulation 10000 closest Maxwellian, $100M_\odot$', False, plot_color='mediumblue', plot_linestyle='-.')
 #loadData('binary_pop_YCG1000Msol_YCGbmax_10000closest_maxwellian.csv', r'Simulation 10000 closest Maxwellian, $1000M_\odot$', False, plot_color='mediumblue', plot_linestyle='-')
 
-#loadData('binary_pop_YCG10Msol_YCGbmax_Nencclosest.csv', r'Full simulation with closest encounters code, Yoo et al. $b_\mathrm{max}$, $10M_\odot$', False, plot_color='forestgreen', plot_linestyle='--')
-#loadData('binary_pop_YCG100Msol_YCGbmax_Nencclosest.csv', r'Full simulation with closest encounters code, Yoo et al. $b_\mathrm{max}$, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle='-.')
-#loadData('binary_pop_YCG1000Msol_YCGbmax_Nencclosest.csv', r'Full simulation with closest encounters code, Yoo et al. $b_\mathrm{max}$, $1000M_\odot$', False, plot_color='forestgreen', plot_linestyle='-')
-
 #loadData('binary_pop_YCG10Msol_mybmax_Nencclosest.csv', r'Full simulation with closest encounters code, my $b_\mathrm{max}$, $10M_\odot$', False, plot_color='darkorange', plot_linestyle='--')
 #loadData('binary_pop_YCG100Msol_mybmax_Nencclosest.csv', r'Full simulation with closest encounters code, my $b_\mathrm{max}$, $100M_\odot$', False, plot_color='darkorange', plot_linestyle='-.')
 #loadData('binary_pop_YCG1000Msol_mybmax_Nencclosest.csv', r'Full simulation with closest encounters code, my $b_\mathrm{max}$, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle='-')
 
 #172 km/s
+'''
 loadData('binary_pop_YCG10Msol_172kms.csv', r'My simulation $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
 loadData('binary_pop_YCG100Msol_172kms.csv', r'My simulation $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
 loadData('binary_pop_YCG1000Msol_172kms.csv', r'My simulation $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, $1000M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-')
@@ -103,6 +104,12 @@ loadData('binary_pop_YCG1000Msol_YCGbmax_100closest_172kms.csv', r'Simulation 10
 loadData('binary_pop_YCG10Msol_YCGbmax_100closest_maxwellian_172kms.csv', r'Simulation 100 closest $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, Maxwellian, $10M_\odot$', False, plot_color='darkorange', plot_linestyle='--')
 loadData('binary_pop_YCG100Msol_YCGbmax_100closest_maxwellian_172kms.csv', r'Simulation 100 closest $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, Maxwellian, $100M_\odot$', False, plot_color='darkorange', plot_linestyle='-.')
 loadData('binary_pop_YCG1000Msol_YCGbmax_100closest_maxwellian_172kms.csv', r'Simulation 100 closest $\sigma_\mathrm{rel} = 172\mathrm{kms}^{-1}$, Maxwellian, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle='-')
+'''
+
+#all encs expect 1000msol, maxwellian, 200kms, YCG bmax
+loadData('binary_pop_YCG10Msol_YCGbmax_allencs_maxwellian.csv', r'Simulation, All encounters, Yoo et al. $b_\mathrm{max}$, Maxwellian, $10M_\odot$', False, plot_color='darkorange', plot_linestyle='--')
+loadData('binary_pop_YCG100Msol_YCGbmax_allencs_maxwellian.csv', r'Simulation, All encounters, Yoo et al. $b_\mathrm{max}$, Maxwellian, $100M_\odot$', False, plot_color='darkorange', plot_linestyle='-.')
+loadData('binary_pop_YCG1000Msol_YCGbmax_100closest_maxwellian.csv', r'Simulation, 100 closest, Yoo et al. $b_\mathrm{max}$, Maxwellian, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle='-')
 
 #Move to centre of bins for plotting
 a_bins *= np.exp(0.5*dloga)
