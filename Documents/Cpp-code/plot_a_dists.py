@@ -50,10 +50,24 @@ def loadYCGData(filename, plot_label, plot_color, plot_linestyle, y_offset=90/N_
 	        	N = np.append(N, y_offset*float(row[1]))
 	plt.plot(a, N, label = plot_label, color=plot_color, linestyle=plot_linestyle)
 
+def loadMRAData(filename, plot_label, plot_color, plot_linestyle, y_offset=1720/N_bins):
+	a = np.zeros(0)
+	N = np.zeros(0)
+	with open(filename) as csvfile:
+	        reader = csv.reader(csvfile, delimiter=',')
+	        for row in reader:
+	        	a = np.append(a, float(row[0]))
+	        	N = np.append(N, y_offset*float(row[1]))
+	plt.plot(a, N, label = plot_label, color=plot_color, linestyle=plot_linestyle)
+
 loadYCGData('YCGfig2_initial.csv', 'Yoo et al., Initial', plot_color='black', plot_linestyle=':')
 loadYCGData('YCGfig2_10Msol.csv', r'Yoo et al., $10M_\odot$', plot_color='black', plot_linestyle='--')
 loadYCGData('YCGfig2_100Msol.csv', r'Yoo et al., $100M_\odot$', plot_color='black', plot_linestyle='-.')
 loadYCGData('YCGfig2_1000Msol.csv', r'Yoo et al., $1000M_\odot$', plot_color='black', plot_linestyle='-')
+
+loadMRAData('MRAfig1_10Msol.csv', r'Monroy-Rodriguez & Allen, $10M_\odot$', plot_color='darkviolet', plot_linestyle='--')
+loadMRAData('MRAfig1_100Msol.csv', r'Monroy-Rodriguez & Allen, $100M_\odot$', plot_color='darkviolet', plot_linestyle='-.')
+loadMRAData('MRAfig1_1000Msol.csv', r'Monroy-Rodriguez & Allen, $1000M_\odot$', plot_color='darkviolet', plot_linestyle='-')
 
 loadData('binary_pop_YCG10Msol.csv', r'My simulation, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
 loadData('binary_pop_YCG100Msol.csv', r'My simulation, $100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
