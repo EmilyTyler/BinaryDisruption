@@ -332,20 +332,28 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	vector<long double> bs_sorted;
 	vector<long double> bs_closest;
 	long double b_limit;
+	long double a_initial;
+
+	string filename = "N_enc_broken_dist_1000Msol.csv";
+	ofstream myfile;
+	myfile.open(filename);
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
 		cout << "Binary " << i+1 << " of " << N_bin << endl;
+		N_encounters = 0;
+		a_initial = a[i];
 
 		N_enc = 0;
 		bs.resize(0);
 		bs_sorted.resize(0);
 		bs_closest.resize(0);
-		b_max = YCGBMax(a[i], M_p, n_p, v_rel, T);
-		//b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
+		//b_max = YCGBMax(a[i], M_p, n_p, v_rel, T);
+		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
 		N_enc = randomPoisson(rate*T);
 
+		/*
 		if(M_p < 700.0*msol/mass_scale){
 			N_closest = N_enc;
 		}
@@ -373,6 +381,12 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 				bs_closest[j] = bs[j];
 			}
 		}
+		*/
+		bs_closest.resize(N_enc);
+		for (int j=0; j<N_enc; ++j){
+			bs_closest[j] = drawB(b_max);
+		}
+
 
 		//cout << "Number of encounters = " << static_cast<int>(bs_closest.size()) << endl;
 
@@ -382,8 +396,8 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			//cout << "Encounter " << j+1 << " of " << static_cast<int>(bs_closest.size()) << endl;
 
 			//Draw velocity from distribution
-			//v = drawVMaxwellian(v_rel, v_max);
-			v = drawMaxwellian(v_rel);
+			v = drawVMaxwellian(v_rel, v_max);
+			//v = drawMaxwellian(v_rel);
 
 			if (bs_closest[j]<a[i]){
 				N_encounters_close += 1;
@@ -414,9 +428,11 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 				N_broken += 1;
 				a[i] = -1.0;
 				e[i] = -1.0;
+				myfile << setprecision(16) << N_encounters << ", " << a_initial*length_scale << endl;
 				break;
 			}
 		}
 	}
+	myfile.close();
 	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
 }
