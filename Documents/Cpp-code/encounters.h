@@ -37,4 +37,6 @@ std::tuple<long double, long double, long double, long double, long double, std:
 
 std::tuple<std::vector<long double>, std::vector<long double>, int, int, int, int, int> MCEncountersNClosest(int N_closest, long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, std::vector<long double> a, std::vector<long double> e);
 
+std::tuple<std::vector<long double>, std::vector<long double>, int, int, int, int, int> MCEncountersIonised(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, std::vector<long double> a, std::vector<long double> e);
+
 #endif

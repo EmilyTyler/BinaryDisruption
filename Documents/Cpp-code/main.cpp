@@ -87,7 +87,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	//ofstream myfile;
 	//myfile.open(filename);
 	cout << "Evolving binaries" << endl;
-	tuple<vector<long double>, vector<long double>, int, int, int, int, int> final_dists = MCEncountersNClosest(100, v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
+	tuple<vector<long double>, vector<long double>, int, int, int, int, int> final_dists = MCEncountersIonised(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
 	//Extract results
 	vector<long double> a_fin = get<0>(final_dists);
 	vector<long double> e_fin = get<1>(final_dists);
@@ -477,8 +477,46 @@ void WSWEncounterTest_MeanvB(string filename, long double m1, long double m2, lo
 }
 
 
+//Solve recurrence relation for max N_enc as a function of a_0
+void recurrenceSolve(){
+	array<long double,4> a_0 = {3.0, 4.0, 5.0, 6.0};
+	long double delta = pow(10.0, -3.0);
+	long double m1 = msol/mass_scale;
+	long double m2 = msol/mass_scale;
+
+	long double M_p = 10.0*msol/mass_scale;
+	long double v_rel = 2.0*pow(10.0, 5.0)*time_scale/length_scale;
+
+	long double M_b = m1+m2;
+	M_b *= 1.0;
+	const int N_a = static_cast<int>(a_0.size());
+	array<long double,N_a> E_0;
+	for(int i=0; i<N_a; i++){
+		a_0[i] = pow(10.0, a_0[i]) * au/length_scale;
+		E_0[i] = -G*M_b/(2.0*a_0[i]);
+	}
+	int N_enc;
+	long double E;
+	long double dE;
+	for(int i=0; i<N_a; i++){
+		N_enc = 0;
+		E = E_0[i];
+		dE = 5.0/2.0*pow(G, 3.0/2.0)*delta*M_p/v_rel*sqrt(M_b)*pow(a_0[i], -3.0/2.0);
+		while (E < 0.0){
+			//E = E - 189.0/512.0*delta*delta*pow(E_0[i],3.0)/(pow(E,2.0));
+			E = E + dE;
+			N_enc += 1;
+			//cout << "E = " << E << ", " << "N_enc = " << N_enc << endl;
+		}
+		cout << "a_0, au = " << a_0[i]*length_scale/au << ", " << "N_enc = " << N_enc << endl;
+	}
+}
+
+
 
 int main() {
+
+	//recurrenceSolve();
 	
 	
 	long double m1 = 0.5*msol/mass_scale;
@@ -493,7 +531,7 @@ int main() {
 	long double a_min = pow(10.0, 1.0) * au/length_scale;
 	long double a_max = pow(10.0, 5.5) * au/length_scale;
 
-	int N_bin = pow(10, 3);
+	int N_bin = 5*pow(10, 1);
 
 	string filename = "";
 

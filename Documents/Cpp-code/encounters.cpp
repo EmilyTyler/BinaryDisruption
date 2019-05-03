@@ -113,6 +113,54 @@ tuple<long double, long double, bool> impulseEncounter(long double m1, long doub
 	return orbitalElements(X, m1, m2);
 }
 
+tuple<long double, long double, long double, bool> impulseEncounterIonised(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v, long double E, bool notBound)
+{
+	//Star masses
+	array<long double, 2> m = {m1, m2};
+	//Open binary
+	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, m1, m2, E, notBound);
+
+	array<long double,3> V;
+	for(int i=0; i<3; ++i){
+		V[i] = X[2][i] - X[3][i];
+	}
+	array<long double,3> dV;
+
+	//Find impact parameter and velocity vectors
+	tuple<array<long double,3>, array<long double,3>> bvvectors = impactAndVelocityVectors(b, v);
+	array<long double,3> b_vec = get<0>(bvvectors);
+	array<long double,3> v_vec = get<1>(bvvectors);
+	//Declare variables
+	long double b_90, b_star_norm, v_perp, v_para;
+	array<long double,3> b_star;
+	for (int i=0; i<2; ++i){
+		//90 degree deflection radius
+		b_90 = G*(M_p + m[i])/(v*v);
+		//Calculate impact parameter for this star
+		b_star = calcBStar(X[i], v_vec, v, b_vec);
+		//Calculate norm of b_star
+		b_star_norm = norm(b_star);
+		//Calculate speed change in b_star direction
+		v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90)/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+		//Calculate speed change in -v_vec direction
+		v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+		//Change star velocity
+		//cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
+		for (int j=0; j<3; ++j){
+			X[i+2][j] += v_perp * b_star[j]/b_star_norm - v_para * v_vec[j]/v;
+		}
+	}
+
+	for(int i=0; i<3; ++i){
+		dV[i] = X[2][i] - X[3][i] - V[i];
+	}
+
+	//cout << "Energy change = " << m1*m2/(m1+m2)*(dot(V,dV) + 0.5*dot(dV, dV)) << endl;
+
+	//Close binary
+	return orbitalElementsIonised(X, m1, m2);
+}
+
 //Tested
 //Draw an impact parameter from a distribution linear in b up to b_max
 long double drawB(long double b_max, long double b_min=0.0)
@@ -434,5 +482,123 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 		}
 	}
 	myfile.close();
+	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
+}
+
+
+
+tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncountersIonised(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
+{
+	//Minimum impact parameter
+	long double b_min = 0.0;
+	//Minimum relative velocity of encounter
+	long double v_min = 0.0;
+	//Maximum relative velocity of encounter
+	long double v_max = 100.0 * v_rel;
+	//Maximum semimajor axis
+	long double a_T = 1000.0 * parsec/length_scale;
+	//Number of binaries
+	int N_bin = static_cast<int>(a.size());
+	//Declare variable types
+	long double b_max, rate, v;
+	tuple<long double, long double, long double, bool> result;
+	bool notBound;
+	//Number of binaries broken
+	int N_broken = 0;
+	//double t_start;
+
+	int N_encounters = 0;
+	int N_encounters_close = 0;
+	int N_encounters_far = 0;
+	int N_encounters_mid = 0;
+	int N_enc;
+	vector<long double> bs;
+	long double E, M, n;
+	bool hasBroken;
+	bool rebound;
+	int N_rebound = 0;
+
+	//Iterate over binaries
+	for (int i=0; i<N_bin; ++i){
+		cout << "Binary " << i+1 << " of " << N_bin << endl;
+
+		N_encounters = 0;
+		N_enc = 0;
+		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
+		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
+		N_enc = randomPoisson(rate*T);
+		bs.resize(N_enc);
+		for (int j=0; j<N_enc; ++j){
+			bs[j] = drawB(b_max);
+		}
+
+		hasBroken = false;
+		rebound = false;
+		notBound = false;
+
+		//cout << "a_0 = " << a[i]*length_scale/au << " , N_enc = " << N_enc << endl;
+
+		//Implement encounters
+		for (int j=0; j<N_enc; j++){
+			//cout << '\r' << "Encounter " << j+1 << " of " << N_enc;
+
+			//Draw velocity from distribution
+			v = drawVMaxwellian(v_rel, v_max);
+			//v = drawMaxwellian(v_rel);
+
+			if (notBound){
+				hasBroken = true;
+				//Evolve E in time
+				//Mean motion
+				n = sqrt(G*(m1+m2)/(pow(a[i],3)));
+				//Mean anomaly
+				M = e[i]*sinh(E) - E;
+				M += n*randomExponential(rate);
+				M = fmod(M, 2.0*pi);
+				//New eccentric anomaly
+				E = eccentricAnomalyIonised(e[i], M, notBound);
+			} else {
+				if (hasBroken){
+					rebound = true;
+				}
+			}
+
+			if (bs[j]<a[i]){
+				N_encounters_close += 1;
+			}
+			if (bs[j]>a[i]){
+				N_encounters_far += 1;
+			}
+			if ((bs[j]>0.01*a[i]) && (bs[j]<100.0*a[i])){
+				N_encounters_mid += 1;
+			}
+			N_encounters += 1;
+			result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], bs[j], v, E, notBound);
+			a[i] = get<0>(result);
+			e[i] = get<1>(result);
+			E = get<2>(result);
+			notBound = get<3>(result);
+
+			//cout << "Not bound? " << notBound << ", a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << endl;
+
+			if(a[i]>=a_T){
+				cout << "Binary broken!" << endl;
+				N_broken += 1;
+				a[i] = -1.0;
+				e[i] = -1.0;
+				break;
+			}
+		}
+		if (notBound){
+			cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
+		}
+		if (rebound) {
+			cout << "Rebound binary!" << endl;
+			N_rebound ++;
+		}
+		cout << endl;
+	}
+	cout << endl;
+	cout << "Number of binaries rebound = " << N_rebound << endl;
 	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
 }
