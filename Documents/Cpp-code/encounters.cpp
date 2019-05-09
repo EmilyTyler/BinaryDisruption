@@ -30,7 +30,7 @@ long double encounterRate(long double n_p, long double v_rel, long double b0, lo
 // Calculates the impact parameter at which the fractional change in semi-major axis of the binary will be equal to delta, for perturber mass M_p, relative velocity dispersion v_rel, semi-major axis a and binary star masses m1 and m2.
 long double calcBMax(long double M_p, long double v_rel, long double a, long double m1, long double m2, long double delta = pow(10.0, -3.0))
 {
-	return pow((64.0*G*M_p*M_p*pow(a,3.0)/((m1+m2)*v_rel*v_rel*delta*delta)), 0.25);
+	return 0.5*pow((64.0*G*M_p*M_p*pow(a,3.0)/((m1+m2)*v_rel*v_rel*delta*delta)), 0.25);
 }
 
 long double BHTBMax(long double M_p, long double v_rel, long double a, long double m1, long double m2, long double e)
@@ -120,11 +120,11 @@ tuple<long double, long double, long double, bool> impulseEncounterIonised(long 
 	//Open binary
 	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, m1, m2, E, notBound);
 
-	array<long double,3> V;
-	for(int i=0; i<3; ++i){
-		V[i] = X[2][i] - X[3][i];
-	}
-	array<long double,3> dV;
+	//array<long double,3> V;
+	//for(int i=0; i<3; ++i){
+	//	V[i] = X[2][i] - X[3][i];
+	//}
+	//array<long double,3> dV;
 
 	//Find impact parameter and velocity vectors
 	tuple<array<long double,3>, array<long double,3>> bvvectors = impactAndVelocityVectors(b, v);
@@ -151,9 +151,9 @@ tuple<long double, long double, long double, bool> impulseEncounterIonised(long 
 		}
 	}
 
-	for(int i=0; i<3; ++i){
-		dV[i] = X[2][i] - X[3][i] - V[i];
-	}
+	//for(int i=0; i<3; ++i){
+	//	dV[i] = X[2][i] - X[3][i] - V[i];
+	//}
 
 	//cout << "Energy change = " << m1*m2/(m1+m2)*(dot(V,dV) + 0.5*dot(dV, dV)) << endl;
 
@@ -382,9 +382,9 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	long double b_limit;
 	long double a_initial;
 
-	string filename = "N_enc_broken_dist_1000Msol.csv";
-	ofstream myfile;
-	myfile.open(filename);
+	//string filename = "N_enc_broken_dist_1000Msol_a10e4au.csv";
+	//ofstream myfile;
+	//myfile.open(filename);
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
@@ -476,12 +476,12 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 				N_broken += 1;
 				a[i] = -1.0;
 				e[i] = -1.0;
-				myfile << setprecision(16) << N_encounters << ", " << a_initial*length_scale << endl;
+				//myfile << setprecision(16) << N_encounters << ", " << a_initial*length_scale << endl;
 				break;
 			}
 		}
 	}
-	myfile.close();
+	//myfile.close();
 	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
 }
 
@@ -517,10 +517,11 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	bool hasBroken;
 	bool rebound;
 	int N_rebound = 0;
+	int N_close = 0;
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
-		cout << "Binary " << i+1 << " of " << N_bin << endl;
+		cout << '\r' << "Binary " << i+1 << " of " << N_bin;
 
 		N_encounters = 0;
 		N_enc = 0;
@@ -547,7 +548,6 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			//v = drawMaxwellian(v_rel);
 
 			if (notBound){
-				hasBroken = true;
 				//Evolve E in time
 				//Mean motion
 				n = sqrt(G*(m1+m2)/(pow(a[i],3)));
@@ -578,27 +578,35 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			e[i] = get<1>(result);
 			E = get<2>(result);
 			notBound = get<3>(result);
+			if (notBound){
+				hasBroken = true;
+			}
 
 			//cout << "Not bound? " << notBound << ", a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << endl;
 
 			if(a[i]>=a_T){
-				cout << "Binary broken!" << endl;
+				hasBroken = true;
+				//cout << "Binary broken!" << endl;
 				N_broken += 1;
 				a[i] = -1.0;
 				e[i] = -1.0;
 				break;
 			}
 		}
-		if (notBound){
-			cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
-		}
-		if (rebound) {
-			cout << "Rebound binary!" << endl;
+		//if (notBound){
+			//cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
+		//}
+		if (rebound && (notBound == false)) {
+			//cout << "Rebound binary!" << endl;
 			N_rebound ++;
 		}
-		cout << endl;
+		if ((a[i]>0.0) && (a[i]<100.0*parsec/length_scale) && notBound){
+			N_close ++;
+		}
+		//cout << endl;
 	}
 	cout << endl;
 	cout << "Number of binaries rebound = " << N_rebound << endl;
+	cout << "Number of binaries unbound within 100pc = " << N_close << endl;
 	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
 }
