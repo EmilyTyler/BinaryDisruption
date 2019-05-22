@@ -39,4 +39,8 @@ std::tuple<std::vector<long double>, std::vector<long double>, int, int, int, in
 
 std::tuple<std::vector<long double>, std::vector<long double>, int, int, int, int, int> MCEncountersIonised(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, std::vector<long double> a, std::vector<long double> e);
 
+std::array<std::array<long double, 3>, 4> impulseEncounterXV(std::array<std::array<long double, 3>, 4> X, long double m1, long double m2, long double b, long double v);
+
+std::tuple<std::vector<long double>, std::vector<long double>> MCEncountersXV(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, std::vector<long double> a, std::vector<long double> e);
+
 #endif

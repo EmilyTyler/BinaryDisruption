@@ -6,7 +6,7 @@ plt.rc('font', family='serif')
 
 a_min = 10.0**3.0 * au
 a_max = 2.0*10.0**5.0 * au
-N_bins = 10
+N_bins = 40
 
 dloga = (np.log(a_max)-np.log(a_min))/(N_bins)
 a_bins = np.array([a_min*np.exp(i*dloga) for i in range(N_bins)])
@@ -69,7 +69,7 @@ loadMRAData('MRAfig1_10Msol.csv', r'Monroy-Rodriguez & Allen, $10M_\odot$', plot
 loadMRAData('MRAfig1_100Msol.csv', r'Monroy-Rodriguez & Allen, $100M_\odot$', plot_color='darkviolet', plot_linestyle='-.')
 loadMRAData('MRAfig1_1000Msol.csv', r'Monroy-Rodriguez & Allen, $1000M_\odot$', plot_color='darkviolet', plot_linestyle='-')
 '''
-loadData('binary_pop_YCG10Msol.csv', r'My simulation, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
+#loadData('binary_pop_YCG10Msol.csv', r'My simulation, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
 #loadData('binary_pop_YCG100Msol.csv', r'My simulation, $100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
 #loadData('binary_pop_YCG1000Msol.csv', r'My simulation, $1000M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-')
 
@@ -127,11 +127,11 @@ loadData('binary_pop_YCG1000Msol_YCGbmax_100closest_maxwellian.csv', r'Simulatio
 '''
 
 #bmax convergence testing
-loadData('binary_pop_10Msol_0_2bmax.csv', r'0.2 bmax', True, plot_color='darkorange', plot_linestyle='-')
-loadData('binary_pop_10Msol_0_5bmax.csv', r'0.5 bmax', False, plot_color='forestgreen', plot_linestyle='-')
-loadData('binary_pop_10Msol_1bmax.csv', r'bmax', False, plot_color='darkviolet', plot_linestyle='-')
-loadData('binary_pop_10Msol_2bmax.csv', r'2 bmax', False, plot_color='red', plot_linestyle='-')
-loadData('binary_pop_10Msol_5bmax.csv', r'5 bmax', False, plot_color='mediumblue', plot_linestyle='-')
+loadData('binary_pop_10Msol_0_2bmax.csv', r'0.2 $b_\mathrm{max}$', True, plot_color='darkorange', plot_linestyle='-')
+loadData('binary_pop_10Msol_0_5bmax.csv', r'0.5 $b_\mathrm{max}$', False, plot_color='forestgreen', plot_linestyle='-')
+loadData('binary_pop_10Msol_1bmax.csv', r'$b_\mathrm{max}$', False, plot_color='darkviolet', plot_linestyle='-')
+loadData('binary_pop_10Msol_2bmax.csv', r'2 $b_\mathrm{max}$', False, plot_color='red', plot_linestyle='-')
+loadData('binary_pop_10Msol_5bmax.csv', r'5 $b_\mathrm{max}$', False, plot_color='mediumblue', plot_linestyle='-')
 #Move to centre of bins for plotting
 a_bins *= np.exp(0.5*dloga)
 

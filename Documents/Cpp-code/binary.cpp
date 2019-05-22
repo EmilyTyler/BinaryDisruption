@@ -113,7 +113,7 @@ tuple<long double, long double, long double, bool> orbitalElementsIonised(array<
 	//cout << "R/au = " << R*length_scale/au << endl;
 	// Total energy
 	long double E = m1*m2*(V*V/(2.0*(m1+m2)) - G/R);
-	//cout << "Energy = " << E << endl;
+	cout << "Energy = " << E << endl;
 	// Total angular momentum
 	array<long double, 3> L = cross(r, v);
 	L[0] *= m1*m2/(m1+m2);

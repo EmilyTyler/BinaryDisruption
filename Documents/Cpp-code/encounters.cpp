@@ -120,11 +120,11 @@ tuple<long double, long double, long double, bool> impulseEncounterIonised(long 
 	//Open binary
 	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, m1, m2, E, notBound);
 
-	//array<long double,3> V;
-	//for(int i=0; i<3; ++i){
-	//	V[i] = X[2][i] - X[3][i];
-	//}
-	//array<long double,3> dV;
+	array<long double,3> V;
+	for(int i=0; i<3; ++i){
+		V[i] = X[2][i] - X[3][i];
+	}
+	array<long double,3> dV;
 
 	//Find impact parameter and velocity vectors
 	tuple<array<long double,3>, array<long double,3>> bvvectors = impactAndVelocityVectors(b, v);
@@ -151,11 +151,11 @@ tuple<long double, long double, long double, bool> impulseEncounterIonised(long 
 		}
 	}
 
-	//for(int i=0; i<3; ++i){
-	//	dV[i] = X[2][i] - X[3][i] - V[i];
-	//}
+	for(int i=0; i<3; ++i){
+		dV[i] = X[2][i] - X[3][i] - V[i];
+	}
 
-	//cout << "Energy change = " << m1*m2/(m1+m2)*(dot(V,dV) + 0.5*dot(dV, dV)) << endl;
+	cout << "Energy change = " << m1*m2/(m1+m2)*(dot(V,dV) + 0.5*dot(dV, dV)) << endl;
 
 	//Close binary
 	return orbitalElementsIonised(X, m1, m2);
@@ -381,16 +381,18 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	vector<long double> bs_closest;
 	long double b_limit;
 	long double a_initial;
+	long double t;
 
-	//string filename = "N_enc_broken_dist_1000Msol_a10e4au.csv";
-	//ofstream myfile;
-	//myfile.open(filename);
+	string filename = "t_broken_dist_10Msol_a10e4au_t20Gyr.csv";
+	ofstream myfile;
+	myfile.open(filename);
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
 		cout << "Binary " << i+1 << " of " << N_bin << endl;
 		N_encounters = 0;
 		a_initial = a[i];
+		t = 0.0;
 
 		N_enc = 0;
 		bs.resize(0);
@@ -462,6 +464,8 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			e[i] = get<1>(result);
 			notBound = get<2>(result);
 
+			t += randomExponential(rate);
+
 			/*
 			cout << setprecision(16) << "b, pc = " << bs_closest[j]*length_scale/parsec << endl;
 			cout << "a_fin, pc = " << a[i]*length_scale/parsec << endl;
@@ -476,12 +480,12 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 				N_broken += 1;
 				a[i] = -1.0;
 				e[i] = -1.0;
-				//myfile << setprecision(16) << N_encounters << ", " << a_initial*length_scale << endl;
+				myfile << setprecision(16) << N_encounters << ", " << t*time_scale << endl;
 				break;
 			}
 		}
 	}
-	//myfile.close();
+	myfile.close();
 	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
 }
 
@@ -582,7 +586,8 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 				hasBroken = true;
 			}
 
-			//cout << "Not bound? " << notBound << ", a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << endl;
+			cout << endl << "Not bound? " << notBound << ", a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << endl;
+			cin.ignore();
 
 			if(a[i]>=a_T){
 				hasBroken = true;
@@ -597,7 +602,7 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			//cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
 		//}
 		if (rebound && (notBound == false)) {
-			//cout << "Rebound binary!" << endl;
+			cout << "Rebound binary!" << endl;
 			N_rebound ++;
 		}
 		if ((a[i]>0.0) && (a[i]<100.0*parsec/length_scale) && notBound){
@@ -609,4 +614,87 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	cout << "Number of binaries rebound = " << N_rebound << endl;
 	cout << "Number of binaries unbound within 100pc = " << N_close << endl;
 	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
+}
+
+array<array<long double, 3>, 4> impulseEncounterXV(array<array<long double, 3>, 4> X, long double m1, long double m2, long double b, long double v)
+{
+	//Star masses
+	array<long double, 2> m = {m1, m2};
+	//Find impact parameter and velocity vectors
+	tuple<array<long double,3>, array<long double,3>> bvvectors = impactAndVelocityVectors(b, v);
+	array<long double,3> b_vec = get<0>(bvvectors);
+	array<long double,3> v_vec = get<1>(bvvectors);
+	//Declare variables
+	long double b_90, b_star_norm, v_perp, v_para;
+	array<long double,3> b_star;
+	for (int i=0; i<2; ++i){
+		//90 degree deflection radius
+		b_90 = G*(M_p + m[i])/(v*v);
+		//Calculate impact parameter for this star
+		b_star = calcBStar(X[i], v_vec, v, b_vec);
+		//Calculate norm of b_star
+		b_star_norm = norm(b_star);
+		//Calculate speed change in b_star direction
+		v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90)/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+		//Calculate speed change in -v_vec direction
+		v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+		//Change star velocity
+		for (int j=0; j<3; ++j){
+			X[i+2][j] += v_perp * b_star[j]/b_star_norm - v_para * v_vec[j]/v;
+		}
+	}
+	return X;
+}
+
+tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncountersXV(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
+{
+	//Minimum impact parameter
+	long double b_min = 0.0;
+	//Minimum relative velocity of encounter
+	long double v_min = 0.0;
+	//Maximum relative velocity of encounter
+	long double v_max = 100.0 * v_rel;
+	//Maximum semimajor axis
+	long double a_T = 1000.0 * parsec/length_scale;
+	//Number of binaries
+	int N_bin = static_cast<int>(a.size());
+	//Declare variable types
+	long double b_max, rate, v, b;
+	int N_enc;
+	//Position and velocity vector
+	array<array<long double, 3>, 4> X;
+	tuple<long double, long double, bool> result;
+
+
+	//Iterate over binaries
+	for (int i=0; i<N_bin; ++i){
+		//cout << "Binary " << i+1 << " of " << N_bin << endl;
+
+		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
+		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
+		N_enc = randomPoisson(rate*T);
+		//Set-up binary
+		X = setupRandomBinary(a[i], e[i], m1, m2);
+
+		//Implement encounters
+		for (int j=0; j<N_enc; j++){
+			//Draw impact parameter
+			b = drawB(b_max);
+			//Draw relative encounter velocity
+			v = drawVMaxwellian(v_rel, v_max);
+
+			X = impulseEncounterXV(X, m1, m2, b, v);
+
+			if(norm(X[0]-X[1])>=a_T){
+				a[i] = -1.0;
+				e[i] = -1.0;
+				break;
+			}
+		}
+		//Close binary
+		result = orbitalElements(X, m1, m2);
+		a[i] = get<0>(result);
+		e[i] = get<1>(result);
+	}
+	return make_tuple(a, e);
 }
