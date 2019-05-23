@@ -13,7 +13,7 @@ binary.o: binary.cpp constants.h vector_maths.h random_numbers.h
 encounters.o: encounters.cpp constants.h vector_maths.h random_numbers.h random_direction.h binary.h MC_velocity.h nbodyintegration.h
 	$(CC) -c encounters.cpp $(CXXFLAGS)
 
-MC_velocity.o: MC_velocity.cpp random_numbers.h
+MC_velocity.o: MC_velocity.cpp random_numbers.h constants.h
 	$(CC) -c MC_velocity.cpp $(CXXFLAGS)
 
 random_direction.o: random_direction.cpp constants.h vector_maths.h random_numbers.h
@@ -25,7 +25,7 @@ random_numbers.o: random_numbers.cpp constants.h
 vector_maths.o: vector_maths.cpp
 	$(CC) -c vector_maths.cpp $(CXXFLAGS)
 
-nbodyintegration.o: nbodyintegration.cpp
+nbodyintegration.o: nbodyintegration.cpp vector_maths.h constants.h
 	$(CC) -c nbodyintegration.cpp $(CXXFLAGS)
 
 main.o: main.cpp constants.h random_direction.h random_numbers.h vector_maths.h MC_velocity.h binary.h encounters.h
