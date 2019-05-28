@@ -2,7 +2,7 @@ CC = g++
 CXXFLAGS = -std=c++11
 
 program     = binary_disruption
-objects     = binary.o encounters.o MC_velocity.o random_direction.o random_numbers.o vector_maths.o main.o
+objects     = binary.o encounters.o MC_velocity.o random_direction.o random_numbers.o vector_maths.o main.o nbodyintegration.o
 
 $(program): $(objects)
 	$(CC) $(objects) -o $(program) $(CXXFLAGS)
@@ -28,7 +28,7 @@ vector_maths.o: vector_maths.cpp
 nbodyintegration.o: nbodyintegration.cpp vector_maths.h constants.h
 	$(CC) -c nbodyintegration.cpp $(CXXFLAGS)
 
-main.o: main.cpp constants.h random_direction.h random_numbers.h vector_maths.h MC_velocity.h binary.h encounters.h
+main.o: main.cpp constants.h random_direction.h random_numbers.h vector_maths.h MC_velocity.h binary.h encounters.h nbodyintegration.h
 	$(CC) -c main.cpp $(CXXFLAGS)
 
 clean:

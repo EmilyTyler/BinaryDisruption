@@ -12,6 +12,7 @@
 #include "vector_maths.h"
 #include "random_direction.h"
 #include "binary.h"
+#include "nbodyintegration.h"
 using namespace std;
 
 void testBAndVVectors(){
@@ -519,6 +520,24 @@ void recurrenceSolve(){
 	}
 }
 
+void testEvolve(){
+	vector<long double> M = {msol/mass_scale, msol/mass_scale};
+	long double a = pow(10.0, 4.0)*au/length_scale;
+	long double e = 0.7;
+	long double T = 10.0*giga*year;
+	array<array<long double, 3>, 4> X = setupRandomBinary(a, e, M[0], M[1]);
+	vector<array<long double, 3>> X_0;
+	X_0.resize(4);
+	for (int i=0; i<4; ++i){
+		for (int j=0; j<4; ++j){
+			X_0[i][j] = X[i][j];
+		}
+	}
+	X_0.shrink_to_fit();
+	X_0 = evolve(2, M, X_0, T);
+	return;
+}
+
 
 
 int main() {
@@ -542,8 +561,11 @@ int main() {
 
 	string filename = "";
 
+	//Test evolve
+	testEvolve();
+
 	//Run simulation
-	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
+	//evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
 	
 
 	//To do

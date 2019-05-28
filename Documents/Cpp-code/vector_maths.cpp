@@ -72,11 +72,3 @@ vector<long double> where_positive(vector<long double> x)
 	}
 	return x;
 }
-
-long double array_min(array<long double, N> x){
-	long double current_min = x[0];
-	for (int i=1; i<N; ++i){
-		current_min = min(x[i], x[i-1]);
-	}
-	return current_min;
-}

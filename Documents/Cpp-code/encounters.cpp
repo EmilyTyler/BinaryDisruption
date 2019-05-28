@@ -616,7 +616,7 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
 }
 
-array<array<long double, 3>, 4> impulseEncounterXV(array<array<long double, 3>, 4> X, long double m1, long double m2, long double b, long double v)
+array<array<long double, 3>, 4> impulseEncounterXV(array<array<long double, 3>, 4> X, long double M_p, long double m1, long double m2, long double b, long double v)
 {
 	//Star masses
 	array<long double, 2> m = {m1, m2};
@@ -646,7 +646,7 @@ array<array<long double, 3>, 4> impulseEncounterXV(array<array<long double, 3>, 
 	return X;
 }
 
-tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncountersXV(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
+tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
 {
 	//Minimum impact parameter
 	long double b_min = 0.0;
@@ -683,9 +683,14 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			//Draw relative encounter velocity
 			v = drawVMaxwellian(v_rel, v_max);
 
-			X = impulseEncounterXV(X, m1, m2, b, v);
+			X = impulseEncounterXV(X, M_p, m1, m2, b, v);
 
-			if(norm(X[0]-X[1])>=a_T){
+			//Separation vector
+			array<long double,3> R;
+			for (int k=0; k<3; ++k){
+				R[k] = X[0][k] - X[1][k];
+			}
+			if(norm(R)>=a_T){
 				a[i] = -1.0;
 				e[i] = -1.0;
 				break;
