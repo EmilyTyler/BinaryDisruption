@@ -524,16 +524,17 @@ void testEvolve(){
 	vector<long double> M = {msol/mass_scale, msol/mass_scale};
 	long double a = pow(10.0, 4.0)*au/length_scale;
 	long double e = 0.7;
-	long double T = 10.0*giga*year;
+	long double T = 10.0*giga*year/time_scale;
 	array<array<long double, 3>, 4> X = setupRandomBinary(a, e, M[0], M[1]);
 	vector<array<long double, 3>> X_0;
 	X_0.resize(4);
 	for (int i=0; i<4; ++i){
-		for (int j=0; j<4; ++j){
+		for (int j=0; j<3; ++j){
 			X_0[i][j] = X[i][j];
 		}
 	}
 	X_0.shrink_to_fit();
+	cout << setprecision(16) << "Initial energy, internal units = " << -G*M[0]*M[1]/(2.0*a) << endl;
 	X_0 = evolve(2, M, X_0, T);
 	return;
 }
@@ -551,7 +552,7 @@ int main() {
 	long double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
 	long double n_p = rho/M_p;
 	long double v_rel = 2.0 * pow(10.0, 5.0) *(time_scale/length_scale);
-	long double T = 2.0 * 10.0 * giga * year /time_scale;
+	long double T = 10.0 * giga * year /time_scale;
 
 	long double alpha = 1.0;
 	long double a_min = pow(10.0, 1.0) * au/length_scale;

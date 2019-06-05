@@ -95,6 +95,7 @@ plt.plot(z_bins, [1.0/N_bins/dz if (z_bins[i]<=1.0) else 0.0 for i in range(N_bi
 plt.show()
 '''
 
+'''
 #2D vdv and i distribution
 N_data=10**6
 data = np.zeros((N_data, 2), dtype=float)
@@ -162,5 +163,26 @@ ax.set_yticklabels(["$0$", r"$\frac{1}{4}\pi$", r"$\frac{1}{2}\pi$"])
 plt.xlabel(r'$\mathbf{V}\cdot\Delta\mathbf{V}$, J')
 plt.ylabel(r'Perturber inclination $i$, rad')
 plt.show()
+'''
 
+x1 = np.zeros((0,3))
+x2 = np.zeros((0,3))
+
+with open('test_nbody.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	row_number = 0
+	for row in reader:
+		x1 = np.append(x1, [[float(row[0]), float(row[1]), float(row[2])]], axis=0)
+		x2 = np.append(x2, [[float(row[3]), float(row[4]), float(row[5])]], axis=0)
+		row_number += 1
+		if (row_number>100000):
+			break
+
+#Plot 3D
+fig = plt.figure()
+ax1 = fig.add_subplot(111, projection='3d')
+#ax1.plot3D(x1[:,0], x1[:,1], x1[:,2])
+#ax1.plot3D(x2[:,0], x2[:,1], x2[:,2])
+ax1.plot3D(x1[:,0]-x2[:,0], x1[:,1]-x2[:,1], x1[:,2]-x2[:,2])
+plt.show()
 
