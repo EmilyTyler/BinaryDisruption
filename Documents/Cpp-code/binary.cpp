@@ -46,22 +46,27 @@ long double eccentricAnomalyIonised(long double e, long double M, bool notBound)
 	long double E;
 	if (notBound){
 		// Initial value for eccentric anomaly
-		long double E = M;
+		long double E;
+		if (M>100){
+			E = log(2.0*M/e);
+		} else {
+			E = pi;
+		}
 		// Initialise loop counter
 		int count = 0;
 		// Define other variables
 		long double f, f_p, f_pp, f_ppp, d_1, d_2, d_3;
 		while (abs(E - e*sinh(E) + M) > pow(10.0, -8.0)){
-			f = E - e*sinh(E) + M;
-			f_p = 1.0 - e*cosh(E);
-			f_pp = -e*sinh(E);
-			f_ppp = -e*cosh(E);
+				f = E - e*sinh(E) + M;
+				f_p = 1.0 - e*cosh(E);
+				f_pp = -e*sinh(E);
+				f_ppp = -e*cosh(E);
 
-			d_1 = -f/f_p;
-			d_2 = -f/(f_p + 0.5*d_1*f_pp);
-			d_3 = -f/(f_p + 0.5*d_2*f_pp + pow(d_2, 2.0)*f_ppp/6.0);
+				d_1 = -f/f_p;
+				d_2 = -f/(f_p + 0.5*d_1*f_pp);
+				d_3 = -f/(f_p + 0.5*d_2*f_pp + pow(d_2, 2.0)*f_ppp/6.0);
 
-			E += d_3;
+				E += d_3;
 
 			count += 1;
 			if (count > 100){
@@ -101,8 +106,7 @@ tuple<long double, long double, bool> orbitalElements(array<array<long double,3>
 	bool notBound = E >= 0.0;
 	return make_tuple(a, e, notBound);
 }
-
-tuple<long double, long double, long double, bool> orbitalElementsIonised(array<array<long double,3>, 4> X, long double m1, long double m2){
+tuple<long double, long double, bool> orbitalElements(vector<array<long double,3>> X, long double m1, long double m2){
 	// Separation vector
 	array<long double, 3> r = {X[0][0] - X[1][0], X[0][1] - X[1][1], X[0][2] - X[1][2]};
 	// Relative velocity vector
@@ -110,10 +114,8 @@ tuple<long double, long double, long double, bool> orbitalElementsIonised(array<
 	// Magnitudes of the above vectors
 	long double R = norm(r);
 	long double V = norm(v);
-	//cout << "R/au = " << R*length_scale/au << endl;
 	// Total energy
 	long double E = m1*m2*(V*V/(2.0*(m1+m2)) - G/R);
-	cout << "Energy = " << E << endl;
 	// Total angular momentum
 	array<long double, 3> L = cross(r, v);
 	L[0] *= m1*m2/(m1+m2);
@@ -126,12 +128,47 @@ tuple<long double, long double, long double, bool> orbitalElementsIonised(array<
 	long double e = sqrt(1.0 + 2.0*(m1+m2)*L_norm*L_norm*E/(G*G*pow(m1,3.0)*pow(m2,3.0)));
 	// Not bound?
 	bool notBound = E >= 0.0;
+	return make_tuple(a, e, notBound);
+}
+
+tuple<long double, long double, long double, bool, long double> orbitalElementsIonised(array<array<long double,3>, 4> X, long double m1, long double m2){
+	// Separation vector
+	array<long double, 3> r = {X[0][0] - X[1][0], X[0][1] - X[1][1], X[0][2] - X[1][2]};
+	// Relative velocity vector
+	array<long double, 3> v = {X[2][0] - X[3][0], X[2][1] - X[3][1], X[2][2] - X[3][2]};
+	// Magnitudes of the above vectors
+	long double R = norm(r);
+	long double V = norm(v);
+	//cout << "R/au = " << R*length_scale/au << endl;
+	// Total energy
+	long double E = m1*m2*(V*V/(2.0*(m1+m2)) - G/R);
+	//cout << "Energy = " << E << endl;
+	// Total angular momentum
+	array<long double, 3> L = cross(r, v);
+	L[0] *= m1*m2/(m1+m2);
+	L[1] *= m1*m2/(m1+m2);
+	L[2] *= m1*m2/(m1+m2);
+	long double L_norm = norm(L);
+	// Semi-major axis
+	long double a = G*m1*m2/(2.0*abs(E));
+	// Eccentricity
+	long double e = sqrt(1.0 + 2.0*(m1+m2)*L_norm*L_norm*E/(G*G*pow(m1,3.0)*pow(m2,3.0)));
+	// Not bound?
+	bool notBound = (E >= 0.0);
 	//Eccentric anomaly
 	long double Ecc = 0.0;
-	if (notBound){
+	if (E>0.0){
+		//Hyperbolic orbit
 		Ecc = acosh((R/a + 1.0)/e);
+	} else if(E == 0.0){
+		//Parabolic orbit
+		cout << "Energy = 0" << endl;
+		Ecc = 0;
+	} else{
+		//Elliptical orbit
+		Ecc = acos((1.0 - R/a)/e);
 	}
-	return make_tuple(a, e, Ecc, notBound);
+	return make_tuple(a, e, Ecc, notBound, E);
 }
 
 //Tested with orbitalElements
@@ -171,6 +208,42 @@ array<array<long double, 3>, 4> setupRandomBinary(long double a, long double e, 
 	return X;
 }
 
+vector<array<long double, 3>> setupRandomBinaryVector(long double a, long double e, long double m1, long double m2){
+	// Randomise mean anomaly
+	long double M = randomUniformDoubleOpen(0.0, 2.0*pi);
+	// Find eccentric anomaly
+	long double E = eccentricAnomaly(e, M);
+	// Find true anomaly
+	long double f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
+	// Separation of stars
+	long double r = a*(1.0 - e*e)/(1.0 + e*cos(f));
+	// Mean motion
+	long double n = sqrt(G*(m1+m2)/(pow(a,3)));
+	// Position and velocity vectors
+	vector<array<long double, 3>> X = { {
+		{0.0, 0.0, 0.0},
+		{r*cos(f), r*sin(f), 0.0},
+		{0.0, 0.0, 0.0}, 
+		{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
+	X.shrink_to_fit();
+	// Centre of mass position vector
+	array<long double, 3> R;
+	// Centre of mass velocity vector
+	array<long double,3> V;
+	for (int i=0; i<3; ++i){
+		R[i] = (m1*X[0][i] + m2*X[1][i])/(m1 + m2);
+		V[i] = (m1*X[2][i] + m2*X[3][i])/(m1 + m2);
+	}
+	// Move into centre of mass rest frame
+	for (int i=0; i<3; ++i){
+		X[0][i] -= R[i];
+		X[1][i] -= R[i];
+		X[2][i] -= V[i];
+		X[3][i] -= V[i];
+	}
+	return X;
+}
+
 array<array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long double e, long double m1, long double m2, long double E, bool notBound){
 	long double M, f, r, n;
 	array<array<long double, 3>, 4> X;
@@ -185,9 +258,9 @@ array<array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long dou
 			{n*a*sinh(E)/(e*cosh(E) - 1.0), n*a*sqrt(e*e-1.0)*cosh(E)/(e*cosh(E) - 1.0), 0.0}} };
 	} else {
 		// Randomise mean anomaly
-		M = randomUniformDoubleOpen(0.0, 2.0*pi);
+		//M = randomUniformDoubleOpen(0.0, 2.0*pi);
 		// Find eccentric anomaly
-		E = eccentricAnomaly(e, M);
+		//E = eccentricAnomaly(e, M);
 		// Find true anomaly
 		f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
 		// Separation of stars
@@ -221,4 +294,118 @@ array<array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long dou
 	//}
 	//cout << endl;
 	return X;
+}
+
+long double g(long double f, long double e){
+	if (e < 1.0){
+		return 2.0*pow((1.0 - e*e), -3.0/2.0)*atan((1.0-e)*tan(f/2.0)/sqrt(1.0-e*e)) - e*sin(f)/((1.0-e*e)*(e*cos(f)+1));
+	} else if (e == 1.0){
+		return sin(f)*(cos(f)+2.0)/(3.0*pow(cos(f)+1.0, 2.0));
+	} else {
+		return e*sin(f)/((e*e-1.0)*(e*cos(f)+1.0)) - 2.0*pow(e*e-1.0, -3.0/2.0)*atanh((e-1.0)*tan(f/2.0)/sqrt(e*e-1.0));
+	}
+}
+
+long double evolveF (long double f_0, long double dt, long double e, long double m1, long double m2, long double p){
+	//To solve g(f)-g(f_0) = c*dt where g'(f) = (1 + e cos(f))^(-2) and c = h/p^2
+	long double c = sqrt(G*(m1 + m2))*pow(p ,-3.0/2.0);
+	if (e==0){
+		return f_0 + c*dt;
+	}
+	//Initial value for f
+	long double f = f_0 + c*dt;
+	//cout << "f_0 = " << f_0 << endl;
+	//cout << "e = " << e << endl;
+	// Initialise loop counter
+	int count = 0;
+	// Define other variables
+	long double x, x_p, x_pp, x_ppp, d_1, d_2, d_3;
+	while (abs(g(f, e) - g(f_0, e) - c*dt) > pow(10.0, -8.0)){
+		x = g(f, e) - g(f_0, e) - c*dt;
+		x_p = pow(1.0 + e*cos(f), -2.0);
+		x_pp = 2.0*e*sin(f)*pow(1.0 + e*cos(f), -3.0);
+		x_ppp = 2.0*e*cos(f)*pow(1.0 + e*cos(f), -3.0) + 6.0*pow(e*sin(f), 2.0)*pow(1.0 + e*cos(f), -4.0);
+
+		d_1 = -x/x_p;
+		d_2 = -x/(x_p + 0.5*d_1*x_pp);
+		d_3 = -x/(x_p + 0.5*d_2*x_pp + pow(d_2, 2.0)*x_ppp/6.0);
+
+		f += d_3;
+		//cout << "f = " << f << endl;
+		//cout << "g(f) = " << g(f,e) << ", g(f_0,e) = " << g(f_0,e) << ", c*dt = " << c*dt << endl;
+		//cout << "count = " << count << endl;
+		//cin.ignore();
+
+		count += 1;
+		if (count > 100){
+			cout  << "evolveF did not converge, g(f,e) = " << g(f,e) << ", -g(f_0,e) = " << -g(f_0,e) << ", -c*dt = " << -c*dt << "e = " << e << endl;
+			break;
+		}
+	}
+	return f;
+}
+
+long double randomF(long double e){
+	// Randomise mean anomaly
+	long double M = randomUniformDoubleOpen(0.0, 2.0*pi);
+	// Find eccentric anomaly
+	long double E = eccentricAnomaly(e, M);
+	// Find true anomaly
+	return 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
+}
+
+array<array<long double, 3>, 4> setupBinaryPEF(long double p, long double e, long double m1, long double m2, long double f){
+	//
+	array<array<long double, 3>, 4> X;
+	//Separation
+	long double r = p/(1.0 + e*cos(f));
+	long double h = sqrt(G*(m1+m2)*p);
+
+	X = { {
+		{0.0, 0.0, 0.0},
+		{r*cos(f), r*sin(f), 0.0},
+		{0.0, 0.0, 0.0}, 
+		{-h/p*sin(f), h/p*(e + cos(f)), 0.0}} };
+
+	// Centre of mass position vector
+	array<long double, 3> R;
+	// Centre of mass velocity vector
+	array<long double,3> V;
+	for (int i=0; i<3; ++i){
+		R[i] = (m1*X[0][i] + m2*X[1][i])/(m1 + m2);
+		V[i] = (m1*X[2][i] + m2*X[3][i])/(m1 + m2);
+	}
+	// Move into centre of mass rest frame
+	for (int i=0; i<3; ++i){
+		X[0][i] -= R[i];
+		X[1][i] -= R[i];
+		X[2][i] -= V[i];
+		X[3][i] -= V[i];
+	}
+	return X;
+}
+
+tuple<long double, long double, long double> orbitalElementsPEF(array<array<long double,3>, 4> X, long double m1, long double m2){
+	// Separation vector
+	array<long double, 3> r = {X[0][0] - X[1][0], X[0][1] - X[1][1], X[0][2] - X[1][2]};
+	// Relative velocity vector
+	array<long double, 3> v = {X[2][0] - X[3][0], X[2][1] - X[3][1], X[2][2] - X[3][2]};
+	// Magnitudes of the above vectors
+	long double R = norm(r);
+	long double V = norm(v);
+	// Total energy
+	long double E = m1*m2*(V*V/(2.0*(m1+m2)) - G/R);
+	// Total angular momentum
+	array<long double, 3> L = cross(r, v);
+	L[0] *= m1*m2/(m1+m2);
+	L[1] *= m1*m2/(m1+m2);
+	L[2] *= m1*m2/(m1+m2);
+	long double L_norm = norm(L);
+	// Semi-latus rectum
+	long double p = L_norm*L_norm*(m1 + m2)/(G*m1*m1*m2*m2);
+	// Eccentricity
+	long double e = sqrt(1.0 + 2.0*(m1+m2)*L_norm*L_norm*E/(G*G*pow(m1,3.0)*pow(m2,3.0)));
+	// True anomaly
+	long double f = acos((p/R - 1.0)/e);
+	return make_tuple(p, e, f);
 }

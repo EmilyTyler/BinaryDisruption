@@ -3,7 +3,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from scipy.constants import au
+from scipy.constants import au, parsec
 
 '''
 data = np.zeros(10**7, dtype=float)
@@ -163,7 +163,7 @@ ax.set_yticklabels(["$0$", r"$\frac{1}{4}\pi$", r"$\frac{1}{2}\pi$"])
 plt.xlabel(r'$\mathbf{V}\cdot\Delta\mathbf{V}$, J')
 plt.ylabel(r'Perturber inclination $i$, rad')
 plt.show()
-'''
+
 
 x1 = np.zeros((0,3))
 x2 = np.zeros((0,3))
@@ -175,8 +175,8 @@ with open('test_nbody.csv') as csvfile:
 		x1 = np.append(x1, [[float(row[0]), float(row[1]), float(row[2])]], axis=0)
 		x2 = np.append(x2, [[float(row[3]), float(row[4]), float(row[5])]], axis=0)
 		row_number += 1
-		if (row_number>100000):
-			break
+		#if (row_number>100000):
+		#	break
 
 #Plot 3D
 fig = plt.figure()
@@ -185,4 +185,70 @@ ax1 = fig.add_subplot(111, projection='3d')
 #ax1.plot3D(x2[:,0], x2[:,1], x2[:,2])
 ax1.plot3D(x1[:,0]-x2[:,0], x1[:,1]-x2[:,1], x1[:,2]-x2[:,2])
 plt.show()
+'''
+'''
+N_data = 15018
+data = np.zeros(N_data)
 
+with open('dE_break_binary_1000Msol.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	row_number = 0
+	for row in reader:
+		data[row_number] = float(row[0])
+		row_number += 1
+
+N_bins = 10000
+d_min = np.min(data)
+d_max = np.max(data)
+print('min =', d_min)
+print('max =', d_max)
+dd = (d_max - d_min)/(N_bins)
+d_bins = np.array([d_min + i*dd for i in range(N_bins)])
+N_d = np.zeros(N_bins)
+for i in range(np.size(data)):
+	j = int(np.floor((data[i]-d_min)/dd))
+	if (data[i] == d_max):
+		j = N_bins-1
+	N_d[j] += 1
+#N_d /= np.size(data)
+#Move bins into centre for plotting and calculations
+d_bins += 0.5*dd
+plt.plot(d_bins, N_d)
+plt.xlabel(r'$\Delta E$, au')
+plt.ylabel(r'Number')
+plt.legend()
+plt.show()
+'''
+
+
+N_bins = 100
+a_min = 10.0**(-5.0) * 0.17*parsec
+a_max = 10.0**4.0 * 0.17*parsec
+da = (np.log(a_max) - np.log(a_min))/(N_bins)
+a_bins = np.array([a_min*np.exp(i*da) for i in range(N_bins)])
+N_a = np.zeros(N_bins)
+
+def loadData(file_name, plot_label):
+	with open(file_name) as csvfile:
+		reader = csv.reader(csvfile, delimiter=',')
+		for row in reader:
+			a = float(row[2])
+			e = float(row[3])
+			if ((a >= 0.0) and (e < 1.0)):
+				if (a == a_max):
+					j = N_bins-1
+				else:
+					j = int(np.floor((np.log(a/a_min))/da))
+				N_a[j] += 1
+	plt.plot((a_bins+0.5*da)/(0.17*parsec), N_a, label = plot_label)
+
+#loadData('ionised_code_a_dist.csv', 'Hyperbolic code')
+#loadData('xv_code_a_dist.csv', 'Integration code')
+loadData('ionised_code_a_dist_Nbin10e5.csv', 'Hyperbolic code')
+ax = plt.gca()
+ax.set_xscale('log')
+ax.set_yscale('log')
+plt.xlabel(r'$a/r_J$')
+plt.ylabel('Number of binaries')
+plt.legend()
+plt.show()

@@ -288,6 +288,8 @@ long double singleTimestep(int N, vector<array<long double, 3>> &X, vector<long 
     //Find initial acceleration and jerk and timestep
     //cout << "Total energy1, internal units = " << M[0]*M[1]*(dot(v[1][0], v[1][0])/(2*(M[0]+M[1])) - G/(norm(x[1][0]))) << endl;
     dt = acc_jerk_and_timestep(N, X_0, V_0, M, eta); 
+    //acc_and_jerk(N, X_0, V_0, M);
+    //dt = 7*pow(10.0, -6.0);
     //cout << "Total energy2, internal units = " << M[0]*M[1]*(dot(v[1][0], v[1][0])/(2*(M[0]+M[1])) - G/(norm(x[1][0]))) << endl;
     A_0 = acc;
     J_0 = jerk;
@@ -322,7 +324,7 @@ long double singleTimestep(int N, vector<array<long double, 3>> &X, vector<long 
 			X[i+N][l] = V_1[i][l];
 		}
 	} 
-	cout << "Total energy4, internal units = " << M[0]*M[1]*(dot(v[1][0], v[1][0])/(2*(M[0]+M[1])) - G/(norm(x[1][0]))) << endl;
+	//cout << "Total energy4, internal units = " << M[0]*M[1]*(dot(v[1][0], v[1][0])/(2*(M[0]+M[1])) - G/(norm(x[1][0]))) << endl;
 	//cin.ignore();
     return dt;
 }
@@ -412,21 +414,21 @@ vector<array<long double, 3>> evolve(int N, vector<long double> M, vector<array<
 	long double t = 0.0;
 	long double dt_max, dt;
 	if (ini_arrays){
-		cout << "Initialising arrays" << endl;
+		//cout << "Initialising arrays" << endl;
 		initialise_arrays(N);
 	}
-	n=5;
-	eta = 0.0002;
-	ofstream myfile;
-	myfile.open("test_nbody.csv");
+	n=10;
+	eta = 0.00002;
+	//ofstream myfile;
+	//myfile.open("test_nbody.csv");
 	while (t<T){
-		cout << setprecision(16) << "Current time, Gyr = " << t*time_scale/(giga*year) << endl;
+		//cout << setprecision(16) << "Current time, Gyr = " << t*time_scale/(giga*year) << endl;
 		dt_max = T - t;
 		dt = singleTimestep(N, X, M, n, eta, dt_max=dt_max);
 		//cout << "Timestep, Gyr = " << dt*time_scale/(giga*year) << endl;
 		t += dt;
-		myfile << setprecision(16) << X[0][0] << ", " << X[0][1] << ", " << X[0][2] << ", " << X[1][0] << ", " << X[1][1] << ", " << X[1][2] << endl;
+		//myfile << setprecision(16) << X[0][0] << ", " << X[0][1] << ", " << X[0][2] << ", " << X[1][0] << ", " << X[1][1] << ", " << X[1][2] << endl;
 	}
-	myfile.close();
+	//myfile.close();
 	return X;
 }          

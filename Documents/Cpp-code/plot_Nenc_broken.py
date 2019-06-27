@@ -226,7 +226,7 @@ N_bins = 200
 dt = (t_max-t_min)/(N_bins)
 t_bins = np.array([t_min + i*dt for i in range(N_bins)])
 
-def loadData(filename, plot_label, plot_color):
+def loadData(filename, plot_label, plot_color, line_style='-', y_offset = 1.0):
 	N_bin = 0
 	N_t = np.zeros(N_bins, dtype=int)
 	with open(filename) as csvfile:
@@ -240,7 +240,7 @@ def loadData(filename, plot_label, plot_color):
 	#Make it cumulative
 	for i in range(1, N_bins):
 		N_t[i] += N_t[i-1]
-	plt.plot((t_bins + 0.5*dt)/(10.0**9*year), N_t, label = plot_label, color=plot_color)
+	plt.plot((t_bins + 0.5*dt)/(10.0**9*year), N_t*y_offset, label = plot_label, color=plot_color, linestyle=line_style)
 
 loadData('t_broken_dist_10Msol_a10e4au_t20Gyr.csv', plot_label=r'$M_p=10M_\odot$', plot_color='red')
 loadData('t_broken_dist_100Msol_a10e4au_t20Gyr.csv', plot_label=r'$M_p=100M_\odot$', plot_color='forestgreen')
@@ -248,6 +248,22 @@ loadData('t_broken_dist_1000Msol_a10e4au_t20Gyr.csv', plot_label=r'$M_p=1000M_\o
 loadData('t_broken_dist_10Msol_a10e4au.csv', plot_label=r'$M_p=10M_\odot$', plot_color='darkorange')
 loadData('t_broken_dist_100Msol_a10e4au.csv', plot_label=r'$M_p=100M_\odot$', plot_color='darkviolet')
 loadData('t_broken_dist_1000Msol_a10e4au.csv', plot_label=r'$M_p=1000M_\odot$', plot_color='saddlebrown')
+
+'''
+loadData('t_broken_dist_10Msol_a10e4au_t20Gyr_0_1bmax.csv', plot_label=r'$M_p=10M_\odot$, $0.1b_\mathrm{max}$', plot_color='red', line_style='--')
+loadData('t_broken_dist_100Msol_a10e4au_t20Gyr_0_1bmax.csv', plot_label=r'$M_p=100M_\odot$, $0.1b_\mathrm{max}$', plot_color='forestgreen', line_style='--')
+loadData('t_broken_dist_1000Msol_a10e4au_t20Gyr_0_1bmax.csv', plot_label=r'$M_p=1000M_\odot$, $0.1b_\mathrm{max}$', plot_color='dodgerblue', line_style='--')
+loadData('t_broken_dist_10Msol_a10e4au_t10Gyr_0_1bmax.csv', plot_label=r'$M_p=10M_\odot$, $0.1b_\mathrm{max}$', plot_color='darkorange', line_style='--')
+loadData('t_broken_dist_100Msol_a10e4au_t10Gyr_0_1bmax.csv', plot_label=r'$M_p=100M_\odot$, $0.1b_\mathrm{max}$', plot_color='darkviolet', line_style='--')
+loadData('t_broken_dist_1000Msol_a10e4au_t10Gyr_0_1bmax.csv', plot_label=r'$M_p=1000M_\odot$, $0.1b_\mathrm{max}$', plot_color='saddlebrown', line_style='--')
+'''
+
+loadData('t_broken_dist_10Msol_a10e4au_t20Gyr_0_1rate.csv', plot_label=r'$M_p=10M_\odot$, 0.1 rate (10x)', plot_color='red', line_style='-.', y_offset=10.0)
+loadData('t_broken_dist_100Msol_a10e4au_t20Gyr_0_1rate.csv', plot_label=r'$M_p=100M_\odot$, 0.1 rate', plot_color='forestgreen', line_style='-.', y_offset=10.0)
+loadData('t_broken_dist_1000Msol_a10e4au_t20Gyr_0_1rate.csv', plot_label=r'$M_p=1000M_\odot$, 0.1 rate', plot_color='dodgerblue', line_style='-.', y_offset=10.0)
+loadData('t_broken_dist_10Msol_a10e4au_0_1rate.csv', plot_label=r'$M_p=10M_\odot$, 0.1 rate', plot_color='darkorange', line_style='-.', y_offset=10.0)
+loadData('t_broken_dist_100Msol_a10e4au_0_1rate.csv', plot_label=r'$M_p=100M_\odot$, 0.1 rate', plot_color='darkviolet', line_style='-.', y_offset=10.0)
+loadData('t_broken_dist_1000Msol_a10e4au_0_1rate.csv', plot_label=r'$M_p=1000M_\odot$, 0.1 rate', plot_color='saddlebrown', line_style='-.', y_offset=10.0)
 
 plt.xlabel('Time, Gyr')
 plt.ylabel(r'Number of binaries disrupted (out of $10^5$)')
