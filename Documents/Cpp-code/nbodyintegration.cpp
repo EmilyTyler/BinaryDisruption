@@ -418,15 +418,19 @@ vector<array<long double, 3>> evolve(int N, vector<long double> M, vector<array<
 		initialise_arrays(N);
 	}
 	n=10;
-	eta = 0.00002;
+	eta = 0.000002;
 	//ofstream myfile;
 	//myfile.open("test_nbody.csv");
 	while (t<T){
 		//cout << setprecision(16) << "Current time, Gyr = " << t*time_scale/(giga*year) << endl;
+		//cout << setprecision(16) << "Current time = " << t << endl;
 		dt_max = T - t;
 		dt = singleTimestep(N, X, M, n, eta, dt_max=dt_max);
 		//cout << "Timestep, Gyr = " << dt*time_scale/(giga*year) << endl;
+		//cout << "Timestep = " << dt << endl;
 		t += dt;
+		//cout << "Time after timestep = " << t << endl;
+		//cin.ignore();
 		//myfile << setprecision(16) << X[0][0] << ", " << X[0][1] << ", " << X[0][2] << ", " << X[1][0] << ", " << X[1][1] << ", " << X[1][2] << endl;
 	}
 	//myfile.close();

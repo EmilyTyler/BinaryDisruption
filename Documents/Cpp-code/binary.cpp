@@ -19,7 +19,7 @@ long double eccentricAnomaly(long double e, long double M){
 	int count = 0;
 	// Define other variables
 	long double f, f_p, f_pp, f_ppp, d_1, d_2, d_3;
-	while (abs(E - e*sin(E) - M) > pow(10.0, -8.0)){
+	while (abs(E - e*sin(E) - M) > pow(10.0, -14.0)){
 		f = E - e*sin(E) - M;
 		f_p = 1.0 - e*cos(E);
 		f_pp = e*sin(E);
@@ -56,7 +56,7 @@ long double eccentricAnomalyIonised(long double e, long double M, bool notBound)
 		int count = 0;
 		// Define other variables
 		long double f, f_p, f_pp, f_ppp, d_1, d_2, d_3;
-		while (abs(E - e*sinh(E) + M) > pow(10.0, -8.0)){
+		while (abs(E - e*sinh(E) + M) > pow(10.0, -14.0)){
 				f = E - e*sinh(E) + M;
 				f_p = 1.0 - e*cosh(E);
 				f_pp = -e*sinh(E);
@@ -167,6 +167,11 @@ tuple<long double, long double, long double, bool, long double> orbitalElementsI
 	} else{
 		//Elliptical orbit
 		Ecc = acos((1.0 - R/a)/e);
+		long double n = sqrt(G*(m1+m2)/(pow(a,3)));
+		long double f = asin(sqrt(1.0-e*e)*V/(n*a*e));
+		if (((0<=Ecc<pi) && (pi<=f<2*pi)) || ((pi<=Ecc<2.0*pi) && (0<=f<pi))){
+			Ecc = 2.0*pi - Ecc;
+		} 
 	}
 	return make_tuple(a, e, Ecc, notBound, E);
 }
@@ -211,20 +216,27 @@ array<array<long double, 3>, 4> setupRandomBinary(long double a, long double e, 
 vector<array<long double, 3>> setupRandomBinaryVector(long double a, long double e, long double m1, long double m2){
 	// Randomise mean anomaly
 	long double M = randomUniformDoubleOpen(0.0, 2.0*pi);
+	//cout << "M_0 = " << M << endl;
 	// Find eccentric anomaly
 	long double E = eccentricAnomaly(e, M);
+	//cout << "E_0 = " << E << endl;
 	// Find true anomaly
-	long double f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
+	//long double f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
 	// Separation of stars
-	long double r = a*(1.0 - e*e)/(1.0 + e*cos(f));
+	//long double r = a*(1.0 - e*e)/(1.0 + e*cos(f));
 	// Mean motion
 	long double n = sqrt(G*(m1+m2)/(pow(a,3)));
 	// Position and velocity vectors
+	//vector<array<long double, 3>> X = { {
+		//{0.0, 0.0, 0.0},
+		//{r*cos(f), r*sin(f), 0.0},
+		//{0.0, 0.0, 0.0}, 
+		//{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
 	vector<array<long double, 3>> X = { {
 		{0.0, 0.0, 0.0},
-		{r*cos(f), r*sin(f), 0.0},
+		{a*(cos(E)-e), a*sqrt(1.0-e*e)*sin(E), 0.0},
 		{0.0, 0.0, 0.0}, 
-		{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
+		{-n*a/(1.0-e*cos(E))*sin(E), n*a/(1.0-e*cos(E))*sqrt(1.0-e*e)*cos(E), 0.0}} };
 	X.shrink_to_fit();
 	// Centre of mass position vector
 	array<long double, 3> R;
@@ -262,15 +274,20 @@ array<array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long dou
 		// Find eccentric anomaly
 		//E = eccentricAnomaly(e, M);
 		// Find true anomaly
-		f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
+		//f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
 		// Separation of stars
-		r = a*(1.0 - e*e)/(1.0 + e*cos(f));
+		//r = a*(1.0 - e*e)/(1.0 + e*cos(f));
 		// Position and velocity vectors
+		//X = { {
+			//{0.0, 0.0, 0.0},
+			//{r*cos(f), r*sin(f), 0.0},
+			//{0.0, 0.0, 0.0}, 
+			//{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
 		X = { {
 			{0.0, 0.0, 0.0},
-			{r*cos(f), r*sin(f), 0.0},
+			{a*(cos(E)-e), a*sqrt(1.0-e*e)*sin(E), 0.0},
 			{0.0, 0.0, 0.0}, 
-			{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
+			{-n*a/(1.0-e*cos(E))*sin(E), n*a/(1.0-e*cos(E))*sqrt(1.0-e*e)*cos(E), 0.0}} };
 	}
 	// Centre of mass position vector
 	array<long double, 3> R;

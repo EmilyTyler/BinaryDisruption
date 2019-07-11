@@ -114,68 +114,6 @@ tuple<long double, long double, bool> impulseEncounter(long double m1, long doub
 	return orbitalElements(X, m1, m2);
 }
 
-tuple<long double, long double, long double, bool, long double> impulseEncounterIonised(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v, long double E, bool notBound)
-{
-	//Star masses
-	array<long double, 2> m = {m1, m2};
-	//Open binary
-	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, m1, m2, E, notBound);
-
-	//cout << "a = " << a << endl;
-	//cout << "e = " << e << endl;
-
-	cout << "X = " << X[0][0] << ", " << X[0][1] << ", " << X[0][2] << endl;
-	cout << X[1][0] << ", " << X[1][1] << ", " << X[1][2] << endl;
-	cout << X[2][0] << ", " << X[2][1] << ", " << X[2][2] << endl;
-	cout << X[3][0] << ", " << X[3][1] << ", " << X[3][2] << endl;
-
-
-
-	//array<long double,3> V;
-	//for(int i=0; i<3; ++i){
-	//	V[i] = X[2][i] - X[3][i];
-	//}
-	//array<long double,3> dV;
-
-	//Find impact parameter and velocity vectors
-	tuple<array<long double,3>, array<long double,3>> bvvectors = impactAndVelocityVectors(b, v);
-	array<long double,3> b_vec = get<0>(bvvectors);
-	cout << "b = " << b_vec[0] << ", " << b_vec[1] << ", " << b_vec[2] << endl;
-	array<long double,3> v_vec = get<1>(bvvectors);
-	cout << "v = " << v_vec[0] << ", " << v_vec[1] << ", " << v_vec[2] << endl;
-	//Declare variables
-	long double b_90, b_star_norm, v_perp, v_para;
-	array<long double,3> b_star;
-	for (int i=0; i<2; ++i){
-		//90 degree deflection radius
-		b_90 = G*(M_p + m[i])/(v*v);
-		//Calculate impact parameter for this star
-		b_star = calcBStar(X[i], v_vec, v, b_vec);
-		//Calculate norm of b_star
-		b_star_norm = norm(b_star);
-		//Calculate speed change in b_star direction
-		v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90)/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
-		//Calculate speed change in -v_vec direction
-		v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
-		//Change star velocity
-		cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
-		//for (int j=0; j<3; ++j){
-			//X[i+2][j] += v_perp * b_star[j]/b_star_norm - v_para * v_vec[j]/v;
-		//}
-	}
-	//cout << "ENCOUNTER" << endl;
-
-	//for(int i=0; i<3; ++i){
-	//	dV[i] = X[2][i] - X[3][i] - V[i];
-	//}
-	//cout << "Energy change = " << m1*m2/(m1+m2)*(dot(V,dV) + 0.5*dot(dV, dV)) << endl;
-
-	//if (isnan(m1*m2/(m1+m2)*(dot(V,dV) + 0.5*dot(dV, dV)))){
-	//	cin.ignore();
-	//}
-	//Close binary
-	return orbitalElementsIonised(X, m1, m2);
-}
 
 //Tested
 //Draw an impact parameter from a distribution linear in b up to b_max
@@ -506,6 +444,68 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
 }
 
+tuple<long double, long double, long double, bool, long double> impulseEncounterIonised(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v, long double E, bool notBound)
+{
+	//Star masses
+	array<long double, 2> m = {m1, m2};
+	//Open binary
+	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, m1, m2, E, notBound);
+
+	//cout << "a = " << a << endl;
+	//cout << "e = " << e << endl;
+
+	//cout << "X = " << X[0][0] << ", " << X[0][1] << ", " << X[0][2] << endl;
+	//cout << X[1][0] << ", " << X[1][1] << ", " << X[1][2] << endl;
+	//cout << X[2][0] << ", " << X[2][1] << ", " << X[2][2] << endl;
+	//cout << X[3][0] << ", " << X[3][1] << ", " << X[3][2] << endl;
+
+
+
+	//array<long double,3> V;
+	//for(int i=0; i<3; ++i){
+	//	V[i] = X[2][i] - X[3][i];
+	//}
+	//array<long double,3> dV;
+
+	//Find impact parameter and velocity vectors
+	tuple<array<long double,3>, array<long double,3>> bvvectors = impactAndVelocityVectors(b, v);
+	array<long double,3> b_vec = get<0>(bvvectors);
+	//cout << "b = " << b_vec[0] << ", " << b_vec[1] << ", " << b_vec[2] << endl;
+	array<long double,3> v_vec = get<1>(bvvectors);
+	//cout << "v = " << v_vec[0] << ", " << v_vec[1] << ", " << v_vec[2] << endl;
+	//Declare variables
+	long double b_90, b_star_norm, v_perp, v_para;
+	array<long double,3> b_star;
+	for (int i=0; i<2; ++i){
+		//90 degree deflection radius
+		b_90 = G*(M_p + m[i])/(v*v);
+		//Calculate impact parameter for this star
+		b_star = calcBStar(X[i], v_vec, v, b_vec);
+		//Calculate norm of b_star
+		b_star_norm = norm(b_star);
+		//Calculate speed change in b_star direction
+		v_perp = 2.0*M_p*v/(m[i]+M_p) * (b_star_norm/b_90)/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+		//Calculate speed change in -v_vec direction
+		v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+		//Change star velocity
+		//cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
+		for (int j=0; j<3; ++j){
+			X[i+2][j] += v_perp * b_star[j]/b_star_norm - v_para * v_vec[j]/v;
+		}
+	}
+	//cout << "ENCOUNTER" << endl;
+
+	//for(int i=0; i<3; ++i){
+	//	dV[i] = X[2][i] - X[3][i] - V[i];
+	//}
+	//cout << "Energy change = " << m1*m2/(m1+m2)*(dot(V,dV) + 0.5*dot(dV, dV)) << endl;
+
+	//if (isnan(m1*m2/(m1+m2)*(dot(V,dV) + 0.5*dot(dV, dV)))){
+	//	cin.ignore();
+	//}
+	//Close binary
+	return orbitalElementsIonised(X, m1, m2);
+}
 
 
 tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
@@ -531,7 +531,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 
 	int N_enc;
-	long double E, M, n, En;
+	long double E, M, n, En, t;
 	bool hasBroken;
 	bool rebound;
 	int N_rebound = 0;
@@ -561,8 +561,10 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 		// Randomise mean anomaly
 		M = randomUniformDoubleOpen(0.0, 2.0*pi);
+		//cout << "M_0 = " << M << endl;
 		// Find eccentric anomaly
 		E = eccentricAnomaly(e[i], M);
+		//cout << "E_0 = " << E << endl;
 
 		//Implement encounters
 		for (int j=0; j<N_enc; j++){
@@ -570,14 +572,15 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 			//Draw impact parameter
 			b = drawB(b_max);
-			cout << "b = " << b*length_scale << endl;
+			//cout << "b = " << b*length_scale << endl;
 			//Draw relative encounter velocity
 			v = drawVMaxwellian(v_rel, v_max);
-			cout << "v = " << v*length_scale/time_scale << endl;
+			//cout << "v = " << v*length_scale/time_scale << endl;
 
 			//Evolve E in time
 			//Mean motion
 			n = sqrt(G*(m1+m2)/(pow(a[i],3)));
+			//cout << "n = " << n << endl;
 			if (e[i] < 1){
 				//Mean anomaly
 				M = E - e[i]*sin(E);
@@ -588,31 +591,39 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				cout << endl << "e = 1 or 0" << endl;
 				break;
 			}
-			M += n*randomExponential(rate);
+			t = randomExponential(rate);
+			//cout << "dt = " << t << endl;
+			M += n*t;
 			//cout << "M = " << M << endl;
-			//M = fmod(M, 2.0*pi);
 			//New eccentric anomaly
 			E = eccentricAnomalyIonised(e[i], M, notBound);
-			//cout << "E = " << E << endl;
+			//cout << "Separation = " << a[i]*(1.0 - e[i]*cos(E)) << endl;
+			//cout << "Ecc pre-encounter = " << E << endl;
+			//cout << "M pre-encounter = " << E - e[i]*sin(E) << endl;
 
 			//cout << "Energy = " << En << endl;
 			result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, notBound);
 			//En_previous = En;
 			//notBound_previous = notBound;
 			a[i] = get<0>(result);
-			cout << "a = " << a[i] << endl;
+			//cout << "a = " << a[i] << endl;
 			e[i] = get<1>(result);
-			cout << "e = " << e[i] << endl;
+			//cout << "e = " << e[i] << endl;
 			E = get<2>(result);
-			cout << "Ecc = " << E << endl;
+			
 			notBound = get<3>(result);
 			En = get<4>(result);
 			//cout << "Energy = " << En << endl;
+
+			//cout << "Separation = " << a[i]*(1.0 - e[i]*cos(E)) << endl;
+			//cout << endl << "Ecc = " << E << endl;
+			//cout << "M = " << E - e[i]*sin(E) << endl;
 
 			if(a[i]>=a_T){
 				//cout << "Binary broken!" << endl;
 				a[i] = -1.0;
 				e[i] = -1.0;
+				notBound = true;
 				break;
 			}
 
@@ -632,7 +643,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 			//cout << endl << "Not bound? " << notBound << ", a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << endl;
 			//cout << endl;
-			cin.ignore();
+			//cin.ignore();
 
 			
 		}
@@ -641,12 +652,17 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		//}
 		if (rebound && (notBound == false)) {
 			//cout << "Rebound binary!" << endl;
+			//cout << endl << "Rebound binary!" << endl;
 			N_rebound ++;
 		}
 		if ((a[i]>0.0) && (a[i]<100.0*parsec/length_scale) && notBound){
 			N_close ++;
 		}
 		//cout << endl;
+		//cout << "a = " << a[i] << endl;
+		//cout << "e = " << e[i] << endl;
+		//cout << endl << "Ecc = " << E << endl;
+		//cin.ignore();
 	}
 	//myfile.close();
 	cout << endl;
@@ -660,17 +676,33 @@ vector<array<long double, 3>> impulseEncounterXV(vector<array<long double, 3>> X
 	//Star masses
 	array<long double, 2> m = {m1, m2};
 
-	cout << "X = " << X[0][0] << ", " << X[0][1] << ", " << X[0][2] << endl;
-	cout << X[1][0] << ", " << X[1][1] << ", " << X[1][2] << endl;
-	cout << X[2][0] << ", " << X[2][1] << ", " << X[2][2] << endl;
-	cout << X[3][0] << ", " << X[3][1] << ", " << X[3][2] << endl;
+	// Centre of mass position vector
+	array<long double, 3> R;
+	// Centre of mass velocity vector
+	array<long double,3> V;
+	for (int i=0; i<3; ++i){
+		R[i] = (m1*X[0][i] + m2*X[1][i])/(m1 + m2);
+		V[i] = (m1*X[2][i] + m2*X[3][i])/(m1 + m2);
+	}
+	// Move into centre of mass rest frame
+	for (int i=0; i<3; ++i){
+		X[0][i] -= R[i];
+		X[1][i] -= R[i];
+		X[2][i] -= V[i];
+		X[3][i] -= V[i];
+	}
+
+	//cout << "X = " << X[0][0] << ", " << X[0][1] << ", " << X[0][2] << endl;
+	//cout << X[1][0] << ", " << X[1][1] << ", " << X[1][2] << endl;
+	//cout << X[2][0] << ", " << X[2][1] << ", " << X[2][2] << endl;
+	//cout << X[3][0] << ", " << X[3][1] << ", " << X[3][2] << endl;
 
 	//Find impact parameter and velocity vectors
 	tuple<array<long double,3>, array<long double,3>> bvvectors = impactAndVelocityVectors(b, v);
 	array<long double,3> b_vec = get<0>(bvvectors);
-	cout << "b = " << b_vec[0] << ", " << b_vec[1] << ", " << b_vec[2] << endl;
+	//cout << "b = " << b_vec[0] << ", " << b_vec[1] << ", " << b_vec[2] << endl;
 	array<long double,3> v_vec = get<1>(bvvectors);
-	cout << "v = " << v_vec[0] << ", " << v_vec[1] << ", " << v_vec[2] << endl;
+	//cout << "v = " << v_vec[0] << ", " << v_vec[1] << ", " << v_vec[2] << endl;
 	//Declare variables
 	long double b_90, b_star_norm, v_perp, v_para;
 	array<long double,3> b_star;
@@ -686,10 +718,10 @@ vector<array<long double, 3>> impulseEncounterXV(vector<array<long double, 3>> X
 		//Calculate speed change in -v_vec direction
 		v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
 		//Change star velocity
-		cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
-		//for (int j=0; j<3; ++j){
-			//X[i+2][j] += v_perp * b_star[j]/b_star_norm - v_para * v_vec[j]/v;
-		//}
+		//cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
+		for (int j=0; j<3; ++j){
+			X[i+2][j] += v_perp * b_star[j]/b_star_norm - v_para * v_vec[j]/v;
+		}
 	}
 	return X;
 }
@@ -708,7 +740,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 	int N_bin = static_cast<int>(a.size());
 	cout << "Number of binaries = " << N_bin << endl;
 	//Declare variable types
-	long double b_max, rate, v, b, t, Ecc, r_mag;
+	long double b_max, rate, v, b, t, Ecc, r_mag, n, r_dot_mag, f;
 	int N_enc;
 	//Position and velocity vector
 	vector<array<long double, 3>> X;
@@ -724,7 +756,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 	initialise_arrays(2);
 	bool ini_arrays = false;
 
-	array<long double, 3> r;
+	array<long double, 3> r, r_dot;
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
@@ -751,17 +783,42 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 			//cout << "v2 = " << X[3][0]*length_scale << ", " << X[3][1]*length_scale << ", " << X[3][2]*length_scale << endl;
 			//Draw impact parameter
 			b = drawB(b_max);
-			cout << "b = " << b*length_scale << endl;
+			//cout << "b = " << b*length_scale << endl;
 			//Draw relative encounter velocity
 			v = drawVMaxwellian(v_rel, v_max);
-			cout << "v = " << v*length_scale/time_scale << endl;
+			//cout << "v = " << v*length_scale/time_scale << endl;
 
 			//result = orbitalElements(X, m1, m2);
 			//cout << "Energy = " << -G*m1*m2/(2.0*get<0>(result)) << endl;
+			//n = sqrt(G*(m1+m2)/(pow(a[i],3)));
+			//cout << "n = " << n << endl;
 
 			//Evolve binary forward in time
 			t = randomExponential(rate);
+			//cout << "dt = " << t << endl;
 			X = evolve(2, M, X, t, ini_arrays = ini_arrays);
+
+			//CALCULATE Ecc
+			// Separation vector
+			//r = {X[0][0] - X[1][0], X[0][1] - X[1][1], X[0][2] - X[1][2]};
+			//r_dot = {X[2][0] - X[3][0], X[2][1] - X[3][1], X[2][2] - X[3][2]};
+			// Magnitudes of the above vectors
+			//r_mag = norm(r);
+			//r_dot_mag = norm(r_dot);
+			//cout << "Separation = " << r_mag << endl;
+			//if (notBound){
+				//Hyperbolic orbit
+			//	Ecc = acosh((r_mag/a[i] + 1.0)/e[i]);
+			//} else{
+				//Elliptical orbit
+			//	Ecc = acos((1.0 - r_mag/a[i])/e[i]);
+			//	f = asin(sqrt(1.0-e[i]*e[i])*r_dot_mag/(n*a[i]*e[i]));
+			//	if (((0<=Ecc<pi) && (pi<=f<2*pi)) || ((pi<=Ecc<2.0*pi) && (0<=f<pi))){
+			//		Ecc = 2.0*pi - Ecc;
+			//	} 
+			//}
+			//cout << "Ecc pre-encounter = " << Ecc << endl;
+			//cout << "M pre-encounter = " << Ecc - e[i]*sin(Ecc) << endl;
 
 
 			X = impulseEncounterXV(X, M_p, m1, m2, b, v);
@@ -780,30 +837,41 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 			if(norm(R)>=a_T){
 				a[i] = -1.0;
 				e[i] = -1.0;
+				notBound = true;
 				break;
 			}
 
 			//Check if unbound
 			result = orbitalElements(X, m1, m2);
 			a[i] = get<0>(result);
-			cout << "a = " << a[i] << endl;
+			//cout << "a = " << a[i] << endl;
 			e[i] = get<1>(result);
-			cout << "e = " << e[i] << endl;
-						//cout << "Energy = " << -G*m1*m2/(2.0*get<0>(result)) << endl;
+			//cout << "e = " << e[i] << endl;
+			//cout << "Energy = " << -G*m1*m2/(2.0*get<0>(result)) << endl;
 			notBound = get<2>(result);
 
+			/*
+			//CALCULATE Ecc
 			// Separation vector
 			r = {X[0][0] - X[1][0], X[0][1] - X[1][1], X[0][2] - X[1][2]};
+			r_dot = {X[2][0] - X[3][0], X[2][1] - X[3][1], X[2][2] - X[3][2]};
 			// Magnitudes of the above vectors
 			r_mag = norm(r);
+			r_dot_mag = norm(r_dot);
+			//cout << "Separation = " << r_mag << endl;
 			if (notBound){
 				//Hyperbolic orbit
 				Ecc = acosh((r_mag/a[i] + 1.0)/e[i]);
 			} else{
 				//Elliptical orbit
 				Ecc = acos((1.0 - r_mag/a[i])/e[i]);
+				f = asin(sqrt(1.0-e[i]*e[i])*r_dot_mag/(n*a[i]*e[i]));
+				if (((0<=Ecc<pi) && (pi<=f<2*pi)) || ((pi<=Ecc<2.0*pi) && (0<=f<pi))){
+					Ecc = 2.0*pi - Ecc;
+				} 
 			}
-			cout << "Ecc = " << Ecc << endl;
+			//cout << "Ecc post-encounter = " << Ecc << endl;
+			//cout << "M post-encounter = " << Ecc - e[i]*sin(Ecc) << endl;
 
 			//cout << "notBound = " << notBound << endl;
 			if (notBound){
@@ -813,11 +881,12 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 					rebound = true;
 				}
 			}
-
+			*/
 			
 
-			cin.ignore();
+			//cin.ignore();
 		}
+
 		//Close binary
 		result = orbitalElements(X, m1, m2);
 		a[i] = get<0>(result);
@@ -825,9 +894,14 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 		notBound = get<2>(result);
 
 		if (rebound && !(notBound)){
+			cout << endl << "Rebound binary!" << endl;
 			N_rebound += 1;
 		}
 		//cout << endl;
+		//cout << "a = " << a[i] << endl;
+		//cout << "e = " << e[i] << endl;
+		//cout << "Ecc = " << Ecc << endl;
+		//cin.ignore();
 	}
 	cout << endl;
 	cout << "Number of rebound binaries = " << N_rebound << endl;
