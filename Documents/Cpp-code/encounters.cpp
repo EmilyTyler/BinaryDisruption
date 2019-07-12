@@ -500,9 +500,6 @@ tuple<long double, long double, long double, bool, long double> impulseEncounter
 	//}
 	//cout << "Energy change = " << m1*m2/(m1+m2)*(dot(V,dV) + 0.5*dot(dV, dV)) << endl;
 
-	//if (isnan(m1*m2/(m1+m2)*(dot(V,dV) + 0.5*dot(dV, dV)))){
-	//	cin.ignore();
-	//}
 	//Close binary
 	return orbitalElementsIonised(X, m1, m2);
 }
@@ -612,7 +609,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			E = get<2>(result);
 			
 			notBound = get<3>(result);
-			En = get<4>(result);
+			//En = get<4>(result);
 			//cout << "Energy = " << En << endl;
 
 			//cout << "Separation = " << a[i]*(1.0 - e[i]*cos(E)) << endl;
@@ -843,9 +840,9 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 
 			//Check if unbound
 			result = orbitalElements(X, m1, m2);
-			a[i] = get<0>(result);
+			//a[i] = get<0>(result);
 			//cout << "a = " << a[i] << endl;
-			e[i] = get<1>(result);
+			//e[i] = get<1>(result);
 			//cout << "e = " << e[i] << endl;
 			//cout << "Energy = " << -G*m1*m2/(2.0*get<0>(result)) << endl;
 			notBound = get<2>(result);
@@ -872,6 +869,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 			}
 			//cout << "Ecc post-encounter = " << Ecc << endl;
 			//cout << "M post-encounter = " << Ecc - e[i]*sin(Ecc) << endl;
+			*/
 
 			//cout << "notBound = " << notBound << endl;
 			if (notBound){
@@ -881,7 +879,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 					rebound = true;
 				}
 			}
-			*/
+
 			
 
 			//cin.ignore();
@@ -898,10 +896,10 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 			N_rebound += 1;
 		}
 		//cout << endl;
-		//cout << "a = " << a[i] << endl;
-		//cout << "e = " << e[i] << endl;
+		cout << "a = " << a[i] << endl;
+		cout << "e = " << e[i] << endl;
 		//cout << "Ecc = " << Ecc << endl;
-		//cin.ignore();
+		cin.ignore();
 	}
 	cout << endl;
 	cout << "Number of rebound binaries = " << N_rebound << endl;

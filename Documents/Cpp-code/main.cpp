@@ -86,7 +86,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	vector<long double> e_ini = get<1>(initial_dists);
 
 	for(int i=0; i<N_bin; i++){
-		a_ini[i] = pow(10.0, 5.0)*au/length_scale;
+		a_ini[i] = pow(10.0, 6.0)*au/length_scale;
 	}
 	cout << setprecision(16) << "M_p, M_sol = " << M_p*mass_scale/msol << endl;
 	cout << "a_ini, au = " << a_ini[0]*length_scale/au << endl;
@@ -95,8 +95,8 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	//ofstream myfile;
 	//myfile.open(filename);
 	cout << "Evolving binaries" << endl;
-	tuple<vector<long double>, vector<long double>> final_dists = MCEncountersXV(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
-	//tuple<vector<long double>, vector<long double>> final_dists = MCEncountersIonised(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
+	//tuple<vector<long double>, vector<long double>> final_dists = MCEncountersXV(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
+	tuple<vector<long double>, vector<long double>> final_dists = MCEncountersIonised(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
 	//Extract results
 	vector<long double> a_fin = get<0>(final_dists);
 	vector<long double> e_fin = get<1>(final_dists);
@@ -549,7 +549,7 @@ int main() {
 	
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
-	long double M_p = 1000.0*msol/mass_scale;
+	long double M_p = 1.0*msol/mass_scale;
 	long double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
 	long double n_p = rho/M_p;
 	long double v_rel = 200.0*1000.0 *(time_scale/length_scale);
@@ -559,7 +559,7 @@ int main() {
 	long double a_min = pow(10.0, 1.0) * au/length_scale;
 	long double a_max = pow(10.0, 5.5) * au/length_scale;
 
-	int N_bin = pow(10, 2);
+	int N_bin = pow(10, 3);
 
 	string filename = "";
 

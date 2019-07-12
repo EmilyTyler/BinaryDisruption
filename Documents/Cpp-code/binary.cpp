@@ -127,7 +127,7 @@ tuple<long double, long double, bool> orbitalElements(vector<array<long double,3
 	// Eccentricity
 	long double e = sqrt(1.0 + 2.0*(m1+m2)*L_norm*L_norm*E/(G*G*pow(m1,3.0)*pow(m2,3.0)));
 	// Not bound?
-	bool notBound = E >= 0.0;
+	bool notBound = (E >= 0.0);
 	return make_tuple(a, e, notBound);
 }
 
