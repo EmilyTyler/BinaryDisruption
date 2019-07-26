@@ -37,7 +37,7 @@ def loadData(filename, plot_label, plot_initial, plot_color, plot_linestyle, yof
 			j = int(np.floor(np.log(a_fin[i]/a_min)/dloga))
 			N_a_fin[j] += 1
 	if (plot_initial):
-		plt.plot(a_bins/au, N_a_ini*yoffset, label = 'Simulation, Initial', color=plot_color, linestyle=':')
+		plt.plot(a_bins/au, N_a_ini*yoffset, label = 'Our simulation, Initial', color=plot_color, linestyle=':')
 	plt.plot(a_bins/au, N_a_fin*yoffset, label = plot_label, color=plot_color, linestyle=plot_linestyle)
 
 def loadYCGData(filename, plot_label, plot_color, plot_linestyle, y_offset=90/N_bins):
@@ -59,19 +59,23 @@ def loadMRAData(filename, plot_label, plot_color, plot_linestyle, y_offset=1720/
 	        	a = np.append(a, float(row[0]))
 	        	N = np.append(N, y_offset*float(row[1]))
 	plt.plot(a, N, label = plot_label, color=plot_color, linestyle=plot_linestyle)
-'''
-loadYCGData('YCGfig2_initial.csv', 'Yoo et al., Initial', plot_color='black', plot_linestyle=':')
-loadYCGData('YCGfig2_10Msol.csv', r'Yoo et al., $10M_\odot$', plot_color='black', plot_linestyle='--')
-loadYCGData('YCGfig2_100Msol.csv', r'Yoo et al., $100M_\odot$', plot_color='black', plot_linestyle='-.')
-loadYCGData('YCGfig2_1000Msol.csv', r'Yoo et al., $1000M_\odot$', plot_color='black', plot_linestyle='-')
 
-loadMRAData('MRAfig1_10Msol.csv', r'Monroy-Rodriguez & Allen, $10M_\odot$', plot_color='darkviolet', plot_linestyle='--')
-loadMRAData('MRAfig1_100Msol.csv', r'Monroy-Rodriguez & Allen, $100M_\odot$', plot_color='darkviolet', plot_linestyle='-.')
-loadMRAData('MRAfig1_1000Msol.csv', r'Monroy-Rodriguez & Allen, $1000M_\odot$', plot_color='darkviolet', plot_linestyle='-')
-'''
-#loadData('binary_pop_YCG10Msol.csv', r'My simulation, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
-#loadData('binary_pop_YCG100Msol.csv', r'My simulation, $100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
-#loadData('binary_pop_YCG1000Msol.csv', r'My simulation, $1000M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-')
+loadYCGData('YCGfig2_initial.csv', 'Yoo et al., Initial', plot_color='black', plot_linestyle=':')
+loadYCGData('YCGfig2_10Msol.csv', r'Yoo et al., $10M_\odot$, fitted', plot_color='black', plot_linestyle='--')
+loadYCGData('YCGfig2_100Msol.csv', r'Yoo et al., $100M_\odot$, fitted', plot_color='black', plot_linestyle='-.')
+loadYCGData('YCGfig2_1000Msol.csv', r'Yoo et al., $1000M_\odot$, fitted', plot_color='black', plot_linestyle='-')
+
+loadYCGData('YCGfig2_10Msol_points.csv', r'Yoo et al., $10M_\odot$', plot_color='grey', plot_linestyle='--')
+loadYCGData('YCGfig2_100Msol_points.csv', r'Yoo et al., $100M_\odot$', plot_color='grey', plot_linestyle='-.')
+loadYCGData('YCGfig2_1000Msol_points.csv', r'Yoo et al., $1000M_\odot$', plot_color='grey', plot_linestyle='-')
+
+#loadMRAData('MRAfig1_10Msol.csv', r'Monroy-Rodr$\mathrm{\'{\i}}$guez & Allen, $10M_\odot$', plot_color='darkorange', plot_linestyle='--')
+#loadMRAData('MRAfig1_100Msol.csv', r'Monroy-Rodr$\mathrm{\'{\i}}$guez & Allen, $100M_\odot$', plot_color='darkorange', plot_linestyle='-.')
+#loadMRAData('MRAfig1_1000Msol.csv', r'Monroy-Rodr$\mathrm{\'{\i}}$guez & Allen, $1000M_\odot$', plot_color='darkorange', plot_linestyle='-')
+
+loadData('binary_pop_YCG10Msol.csv', r'Our simulation, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
+loadData('binary_pop_YCG100Msol.csv', r'Our simulation, $100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
+loadData('binary_pop_YCG1000Msol.csv', r'Our simulation, $1000M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-')
 
 #loadData('binary_pop_YCG10Msol_YCGbmax_Nencclosest.csv', r'Simulation, All encounters, Yoo et al. $b_\mathrm{max}$, $10M_\odot$', False, plot_color='forestgreen', plot_linestyle='--')
 #loadData('binary_pop_YCG100Msol_YCGbmax_Nencclosest.csv', r'Simulation, All encounters, Yoo et al. $b_\mathrm{max}$, $100M_\odot$', False, plot_color='forestgreen', plot_linestyle='-.')
@@ -127,11 +131,18 @@ loadData('binary_pop_YCG1000Msol_YCGbmax_100closest_maxwellian.csv', r'Simulatio
 '''
 
 #bmax convergence testing
+'''
 loadData('binary_pop_10Msol_0_2bmax.csv', r'0.2 $b_\mathrm{max}$', True, plot_color='darkorange', plot_linestyle='-')
 loadData('binary_pop_10Msol_0_5bmax.csv', r'0.5 $b_\mathrm{max}$', False, plot_color='forestgreen', plot_linestyle='-')
 loadData('binary_pop_10Msol_1bmax.csv', r'$b_\mathrm{max}$', False, plot_color='darkviolet', plot_linestyle='-')
 loadData('binary_pop_10Msol_2bmax.csv', r'2 $b_\mathrm{max}$', False, plot_color='red', plot_linestyle='-')
 loadData('binary_pop_10Msol_5bmax.csv', r'5 $b_\mathrm{max}$', False, plot_color='mediumblue', plot_linestyle='-')
+'''
+
+#New 100 closest plots
+loadData('binary_pop_100closest_1000Msol.csv', r'Our simulation, 100 closest, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle='-')
+
+
 #Move to centre of bins for plotting
 a_bins *= np.exp(0.5*dloga)
 
@@ -139,6 +150,7 @@ ax = plt.gca()
 ax.set_xscale('log')
 ax.set_yscale('log')
 plt.xlabel('Semi-major axis, au')
+plt.xlim(10.0**3.0, 3.0*10.0**5.0)
 plt.ylabel('Number of binaries')
 plt.legend()
 plt.show()                

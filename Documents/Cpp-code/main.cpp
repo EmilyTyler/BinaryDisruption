@@ -86,7 +86,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	vector<long double> e_ini = get<1>(initial_dists);
 
 	for(int i=0; i<N_bin; i++){
-		a_ini[i] = pow(10.0, 6.0)*au/length_scale;
+		a_ini[i] = pow(10.0, 3.0)*au/length_scale;
 	}
 	cout << setprecision(16) << "M_p, M_sol = " << M_p*mass_scale/msol << endl;
 	cout << "a_ini, au = " << a_ini[0]*length_scale/au << endl;
@@ -96,7 +96,8 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	//myfile.open(filename);
 	cout << "Evolving binaries" << endl;
 	//tuple<vector<long double>, vector<long double>> final_dists = MCEncountersXV(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
-	tuple<vector<long double>, vector<long double>> final_dists = MCEncountersIonised(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
+	//tuple<vector<long double>, vector<long double>> final_dists = MCEncountersIonised(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
+	tuple<vector<long double>, vector<long double>> final_dists = MCEncountersNClosest(100, v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
 	//Extract results
 	vector<long double> a_fin = get<0>(final_dists);
 	vector<long double> e_fin = get<1>(final_dists);
@@ -526,7 +527,8 @@ void testEvolve(){
 	long double a = pow(10.0, 1.0)*au/length_scale;
 	long double e = 1.5;
 	long double T = 1.0*year/time_scale;
-	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, M[0], M[1], 0.0, true);
+	bool arg3 = false;
+	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, M[0], M[1], 0.0, 0.0, true, arg3, false);
 	vector<array<long double, 3>> X_0;
 	X_0.resize(4);
 	for (int i=0; i<4; ++i){
@@ -540,16 +542,123 @@ void testEvolve(){
 	return;
 }
 
+void testImpulseApprox(){
+	tuple<long double, long double, bool> result;
+	long double a_imp, e_imp, a_thr, e_thr, w;
+	bool notBound;
+	array<long double, 3> x_pbh, v_vec, b_vec;
+	array<array<long double, 3>, 4> X;
+	vector<array<long double, 3>> X_thr, X_imp;
+	tuple<array<long double,3>, array<long double,3>> bvvectors;
+	bool ini_arrays;
+
+	long double b_90, b_star_norm, v_perp, v_para;
+	array<long double,3> b_star;
+
+	long double m1 = msol/mass_scale;
+	long double m2 = msol/mass_scale;
+	long double M_p = 1000.0*msol/mass_scale;
+	long double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
+	long double n_p = rho/M_p;
+	long double v_rel = 200.0*1000.0 *(time_scale/length_scale);
+	vector<long double> M = {m1, m2, M_p};
+	vector<long double> m = {m1, m2};
+	long double T = 10.0 * giga * year /time_scale;
+
+	long double v = v_rel;
+	long double a = pow(10.0, 4.0) * au;
+	long double e = 0.7;
+	int N_enc = 100;
+
+
+
+	long double b_min = sqrt(M_p/(pi*rho*v_rel*T));
+	long double b_max = calcBMax(M_p, v_rel, a, m1, m2);
+	int N_b = 10;
+	long double db = (log(b_max) - log(b_min))/(N_b - 1);
+	vector<long double> bs;
+	bs.resize(N_b);
+	for (int i=0; i<N_b; i++){
+		bs[i] = b_min*exp(i*db);
+	}
+	vector<long double> a_frac_avg;
+	a_frac_avg.resize(N_b);
+
+	ofstream myfile;
+	myfile.open("impulse_test_a10e4au_Mp1000Msol.csv");
+
+	for (int l=0; l<N_b; l++){
+		cout << '\r' << "Impact parameter " << l+1 << " of " << N_b << flush;
+		a_frac_avg[l] = 0.0;
+		for(int i=0; i<N_enc; i++){
+			//cout << '\r' << "Encounter " << i+1 << " of " << N_enc << flush;
+
+			w = sqrt(pow(10.0, 6.0)*M_p*a*a/(min(m1, m2)) - bs[l]*bs[l])/v;
+			X = setupRandomBinary(a, e, m1, m2);
+			bvvectors = impactAndVelocityVectors(bs[l], v);
+			b_vec = get<0>(bvvectors);
+			v_vec = get<1>(bvvectors);
+
+			X_imp = {X[0], X[1], X[2], X[3]};
+			X_imp = evolve(2, m, X_imp, w, ini_arrays=true);
+			for (int j=0; j<2; ++j){
+				//90 degree deflection radius
+				b_90 = G*(M_p + m[j])/(v*v);
+				//Calculate impact parameter for this star
+				b_star = calcBStar(X_imp[j], v_vec, v, b_vec);
+				//Calculate norm of b_star
+				b_star_norm = norm(b_star);
+				//Calculate speed change in b_star direction
+				v_perp = 2.0*M_p*v/(m[j]+M_p) * (b_star_norm/b_90)/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+				//Calculate speed change in -v_vec direction
+				v_para = 2.0*M_p*v/(m[j]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+				//Change star velocity
+				for (int k=0; k<3; ++k){
+					X_imp[j+2][k] += v_perp * b_star[k]/b_star_norm - v_para * v_vec[k]/v;
+				}
+			}
+			X_imp = evolve(2, m, X_imp, w, ini_arrays=true);
+			result = orbitalElements(X_imp, m1, m2);
+			a_imp = get<0>(result);
+			e_imp = get<1>(result);
+			notBound = get<2>(result);
+
+
+			x_pbh = {b_vec[0]-w*v_vec[0], b_vec[1]-w*v_vec[1], b_vec[2]-w*v_vec[2]};
+			X_thr = {X[0], X[1], x_pbh, X[2], X[3], v_vec};
+			X_thr = evolve(3, M, X_thr, 2.0*w, ini_arrays = true);
+			X_thr.erase(X_thr.begin()+2);
+			X_thr.erase(X_thr.begin()+4);
+			result = orbitalElements(X_thr, m1, m2);
+			a_thr = get<0>(result);
+			e_thr = get<1>(result);
+
+			a_frac_avg[l] += (a_imp-a_thr)/a_thr/N_b;
+
+			//cout << setprecision(16) << "a_imp = " << a_imp << endl;
+			//cout << setprecision(16) << "a_thr = " << a_thr << endl;
+			//cin.ignore();
+		}
+		cout << endl;
+	}
+	cout << "Saving" << endl;
+	for (int i=0; i< N_b; i++){
+		myfile << setprecision(16) << a_frac_avg[i] << ", " << bs[i]*length_scale << endl;
+	}
+	myfile.close();
+	cout << "Finished" << endl;
+}
+
 
 
 int main() {
 
 	//recurrenceSolve();
 	
-	
+
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
-	long double M_p = 1.0*msol/mass_scale;
+	long double M_p = 1000.0*msol/mass_scale;
 	long double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
 	long double n_p = rho/M_p;
 	long double v_rel = 200.0*1000.0 *(time_scale/length_scale);
@@ -559,7 +668,7 @@ int main() {
 	long double a_min = pow(10.0, 1.0) * au/length_scale;
 	long double a_max = pow(10.0, 5.5) * au/length_scale;
 
-	int N_bin = pow(10, 3);
+	int N_bin = pow(10, 4);
 
 	string filename = "";
 
@@ -567,8 +676,9 @@ int main() {
 	//testEvolve();
 
 	//Run simulation
-	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
+	//evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
 	
+	testImpulseApprox();
 
 	//To do
 	//Test MCEncounters

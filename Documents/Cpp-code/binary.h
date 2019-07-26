@@ -6,9 +6,9 @@
 
 //Tested
 // Find the eccentric anomaly of a binary given its eccentricity e and mean anomaly M
-long double eccentricAnomaly(long double e, long double M);
+long double eccentricAnomaly(long double e, long double M, bool &non_converged_binary);
 
-long double eccentricAnomalyIonised(long double e, long double M, bool notBound);
+long double eccentricAnomalyIonised(long double e, long double M, bool notBound, bool &non_converged_binary);
 
 //Tested with setupRandomBinary
 //Return the semi-major axis and eccentricity of a binary and whether or not it is bound from the positions and velocities of the stars
@@ -22,7 +22,7 @@ std::tuple<long double, long double, long double, bool, long double> orbitalElem
 std::array<std::array<long double, 3>, 4> setupRandomBinary(long double a, long double e, long double m1, long double m2);
 std::vector<std::array<long double, 3>> setupRandomBinaryVector(long double a, long double e, long double m1, long double m2);
 
-std::array<std::array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long double e, long double m1, long double m2, long double E, bool notBound);
+std::array<std::array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long double e, long double m1, long double m2, long double E, long double r, bool notBound, bool &non_converged_binary, bool linear);
 
 long double evolveF (long double f, long double dt, long double e, long double m1, long double m2, long double p);
 

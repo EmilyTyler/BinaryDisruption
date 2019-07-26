@@ -10,11 +10,11 @@ using namespace std;
 
 //Tested
 // Find the eccentric anomaly of a binary given its eccentricity e and mean anomaly M
-long double eccentricAnomaly(long double e, long double M){
+long double eccentricAnomaly(long double e, long double M, bool &non_converged_binary){
 	// Solves Kepler's equation E-esinE=M to find eccentric anomaly E given eccentricity e and mean anomaly M.
 	// From page 36 of Solar System Dynamics, or Danby 1988.
 	// Initial value for eccentric anomaly
-	long double E = M + copysign(1.0, sin(M))*0.85*e;
+	long double E = fmod(M + copysign(1.0, sin(M))*0.85*e, 2.0*pi);
 	// Initialise loop counter
 	int count = 0;
 	// Define other variables
@@ -33,25 +33,27 @@ long double eccentricAnomaly(long double e, long double M){
 
 		count += 1;
 		if (count > 100){
-			cout  << "eccentricAnomaly did not converge" << endl;
+			//cout << '\n' << "eccentricAnomaly did not converge" << ", E = " << E << ", M = " << M << ", e = " << e << endl;
+			non_converged_binary = true;
 			break;
 		}
 	}
-	return E;
+	return fmod(E, 2.0*pi);
 }
 
-long double eccentricAnomalyIonised(long double e, long double M, bool notBound){
+long double eccentricAnomalyIonised(long double e, long double M, bool notBound, bool &non_converged_binary){
 	// Solves Kepler's equation E-esinE=M to find eccentric anomaly E given eccentricity e and mean anomaly M.
 	// From page 36 of Solar System Dynamics, or Danby 1988.
 	long double E;
 	if (notBound){
 		// Initial value for eccentric anomaly
 		long double E;
-		if (M>100){
-			E = log(2.0*M/e);
+		if (M > 10000){
+			E = log(M/e + sqrt(1.0+M*M/(e*e)));
 		} else {
 			E = pi;
 		}
+
 		// Initialise loop counter
 		int count = 0;
 		// Define other variables
@@ -70,13 +72,14 @@ long double eccentricAnomalyIonised(long double e, long double M, bool notBound)
 
 			count += 1;
 			if (count > 100){
-				cout << '\n' << "eccentricAnomaly did not converge" << ", E = " << E << ", M = " << M << ", e = " << e << endl;
+				cout << '\n' << "eccentricAnomalyIonised did not converge" << ", E = " << E << ", M = " << M << ", e = " << e << endl;
+				non_converged_binary = true;
 				break;
 			}
 		}
 		return E;
 	} else {
-		return eccentricAnomaly(e, M);
+		return eccentricAnomaly(e, M, non_converged_binary);
 	}
 }
 
@@ -173,7 +176,7 @@ tuple<long double, long double, long double, bool, long double> orbitalElementsI
 			Ecc = 2.0*pi - Ecc;
 		} 
 	}
-	return make_tuple(a, e, Ecc, notBound, E);
+	return make_tuple(a, e, Ecc, notBound, R);
 }
 
 //Tested with orbitalElements
@@ -182,7 +185,8 @@ array<array<long double, 3>, 4> setupRandomBinary(long double a, long double e, 
 	// Randomise mean anomaly
 	long double M = randomUniformDoubleOpen(0.0, 2.0*pi);
 	// Find eccentric anomaly
-	long double E = eccentricAnomaly(e, M);
+	bool arg3 = false;
+	long double E = eccentricAnomaly(e, M, arg3);
 	// Find true anomaly
 	long double f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
 	// Separation of stars
@@ -218,7 +222,8 @@ vector<array<long double, 3>> setupRandomBinaryVector(long double a, long double
 	long double M = randomUniformDoubleOpen(0.0, 2.0*pi);
 	//cout << "M_0 = " << M << endl;
 	// Find eccentric anomaly
-	long double E = eccentricAnomaly(e, M);
+	bool arg3 = false;
+	long double E = eccentricAnomaly(e, M, arg3);
 	//cout << "E_0 = " << E << endl;
 	// Find true anomaly
 	//long double f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
@@ -256,38 +261,46 @@ vector<array<long double, 3>> setupRandomBinaryVector(long double a, long double
 	return X;
 }
 
-array<array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long double e, long double m1, long double m2, long double E, bool notBound){
-	long double M, f, r, n;
+array<array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long double e, long double m1, long double m2, long double E, long double r, bool notBound, bool &non_converged_binary, bool linear){
+	long double M, f, n;
 	array<array<long double, 3>, 4> X;
 	//Mean motion
 	n = sqrt(G*(m1+m2)/(pow(a,3)));
-	if (notBound){
-		// Position and velocity vectors
+	if (linear){
 		X = { {
-			{0.0, 0.0, 0.0},
-			{a*(cosh(E) - e), a*sqrt(e*e-1.0)*sinh(E), 0.0},
-			{0.0, 0.0, 0.0}, 
-			{n*a*sinh(E)/(e*cosh(E) - 1.0), n*a*sqrt(e*e-1.0)*cosh(E)/(e*cosh(E) - 1.0), 0.0}} };
+				{0.0, 0.0, 0.0},
+				{r, 0.0, 0.0},
+				{0.0, 0.0, 0.0}, 
+				{sqrt(G*(m1+m2)/a), 0.0, 0.0}} };
 	} else {
-		// Randomise mean anomaly
-		//M = randomUniformDoubleOpen(0.0, 2.0*pi);
-		// Find eccentric anomaly
-		//E = eccentricAnomaly(e, M);
-		// Find true anomaly
-		//f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
-		// Separation of stars
-		//r = a*(1.0 - e*e)/(1.0 + e*cos(f));
-		// Position and velocity vectors
-		//X = { {
-			//{0.0, 0.0, 0.0},
-			//{r*cos(f), r*sin(f), 0.0},
-			//{0.0, 0.0, 0.0}, 
-			//{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
-		X = { {
-			{0.0, 0.0, 0.0},
-			{a*(cos(E)-e), a*sqrt(1.0-e*e)*sin(E), 0.0},
-			{0.0, 0.0, 0.0}, 
-			{-n*a/(1.0-e*cos(E))*sin(E), n*a/(1.0-e*cos(E))*sqrt(1.0-e*e)*cos(E), 0.0}} };
+		if (notBound){
+			// Position and velocity vectors
+			X = { {
+				{0.0, 0.0, 0.0},
+				{a*(cosh(E) - e), a*sqrt(e*e-1.0)*sinh(E), 0.0},
+				{0.0, 0.0, 0.0}, 
+				{n*a*sinh(E)/(e*cosh(E) - 1.0), n*a*sqrt(e*e-1.0)*cosh(E)/(e*cosh(E) - 1.0), 0.0}} };
+		} else {
+			// Randomise mean anomaly
+			M = randomUniformDoubleOpen(0.0, 2.0*pi);
+			// Find eccentric anomaly
+			E = eccentricAnomaly(e, M, non_converged_binary);
+			// Find true anomaly
+			//f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
+			// Separation of stars
+			//r = a*(1.0 - e*e)/(1.0 + e*cos(f));
+			// Position and velocity vectors
+			//X = { {
+				//{0.0, 0.0, 0.0},
+				//{r*cos(f), r*sin(f), 0.0},
+				//{0.0, 0.0, 0.0}, 
+				//{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
+			X = { {
+				{0.0, 0.0, 0.0},
+				{a*(cos(E)-e), a*sqrt(1.0-e*e)*sin(E), 0.0},
+				{0.0, 0.0, 0.0}, 
+				{-n*a/(1.0-e*cos(E))*sin(E), n*a/(1.0-e*cos(E))*sqrt(1.0-e*e)*cos(E), 0.0}} };
+		}
 	}
 	// Centre of mass position vector
 	array<long double, 3> R;
@@ -366,7 +379,8 @@ long double randomF(long double e){
 	// Randomise mean anomaly
 	long double M = randomUniformDoubleOpen(0.0, 2.0*pi);
 	// Find eccentric anomaly
-	long double E = eccentricAnomaly(e, M);
+	bool arg3 = false;
+	long double E = eccentricAnomaly(e, M, arg3);
 	// Find true anomaly
 	return 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
 }

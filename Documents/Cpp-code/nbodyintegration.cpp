@@ -418,7 +418,8 @@ vector<array<long double, 3>> evolve(int N, vector<long double> M, vector<array<
 		initialise_arrays(N);
 	}
 	n=10;
-	eta = 0.000002;
+	//eta = 0.000002;
+	eta = 0.02;
 	//ofstream myfile;
 	//myfile.open("test_nbody.csv");
 	while (t<T){

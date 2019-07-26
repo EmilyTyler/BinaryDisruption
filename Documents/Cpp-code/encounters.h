@@ -19,7 +19,7 @@ std::tuple<std::array<long double,3>, std::array<long double,3>> impactAndVeloci
 
 //Tested
 //Finds the impact parameter for a star in a binary given the impact parameter b_vec, velocity of perturber v_vec, and star position x
-std::array<long double,3> calcBStar(std::array<long double, 3> x, std::array<long double, 3> v_vec, std::array<long double, 3> b_vec);
+std::array<long double,3> calcBStar(std::array<long double, 3> x, std::array<long double, 3> v_vec, long double v_norm, std::array<long double, 3> b_vec);
 
 //Tested
 // Implements an encounter at impact parameter b and relative speed v
@@ -35,7 +35,7 @@ std::tuple<std::vector<long double>, std::vector<long double>, int, int, int, in
 // Test impulse encounter
 std::tuple<long double, long double, long double, long double, long double, std::array<long double,3>, std::array<long double,3>, long double> testImpulseEncounter(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v);
 
-std::tuple<std::vector<long double>, std::vector<long double>, int, int, int, int, int> MCEncountersNClosest(int N_closest, long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, std::vector<long double> a, std::vector<long double> e);
+std::tuple<std::vector<long double>, std::vector<long double>> MCEncountersNClosest(int N_closest, long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, std::vector<long double> a, std::vector<long double> e);
 
 std::tuple<std::vector<long double>, std::vector<long double>> MCEncountersIonised(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, std::vector<long double> a, std::vector<long double> e);
 

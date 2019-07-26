@@ -125,7 +125,7 @@ plt.show()
 '''
 
 
-
+'''
 #Plot average against number of encounters
 N_enc_min = 10**0
 N_enc_max = 10**8
@@ -193,7 +193,7 @@ plt.ylabel(r'$\frac{\mathrm{Average \ energy}}{\mathrm{Error \ on \ mean}} = \fr
 plt.xlabel('Number of encounters, N')
 plt.legend()
 plt.show()
-
+'''
 
 '''
 #Plot distribution of energy changes
@@ -328,7 +328,7 @@ plt.xlabel('Energy change due to encounter, dvdv, J')
 plt.ylabel('Number of encounters')
 plt.show()
 
-
+'''
 
 #Plot the average of the dv^2 term divided by the analalytical average energy against impact parameter
 N_b = 41
@@ -343,13 +343,15 @@ with open(filename) as csvfile:
                 dvdv_dEs[row_number] = float(row[0])
                 bs[row_number] = float(row[1])
                 row_number += 1
-plt.scatter(bs/au, dvdv_dEs, marker='x')
+#plt.scatter(bs/au, dvdv_dEs, marker='x')
+plt.plot(bs/au, [1.0]*np.size(bs), linestyle='--', color = 'grey')
+plt.plot(bs/au, dvdv_dEs);
 ax=plt.gca()
 ax.set_xscale('log')
 plt.xlabel('Impact parameter, au')
-plt.ylabel(r'$\langle|\Delta\mathbf{V}|^2\rangle / \langle \Delta E \rangle$', rotation=0, labelpad=20)
-plt.title(r'Average value of $|\Delta\mathbf{V}|^2$ term divided by theoretical average energy change ($a=10^5$au)', wrap=True)
-plt.grid()
+#plt.ylabel(r'$\langle|\Delta\mathbf{V}|^2\rangle / \langle \Delta E \rangle$', rotation=0, labelpad=20)
+plt.ylabel('Ratio of average energy change to theoretical prediction')
+#plt.title(r'Average value of $|\Delta\mathbf{V}|^2$ term divided by theoretical average energy change ($a=10^5$au)', wrap=True)
+#plt.grid()
 plt.show()
 
-'''

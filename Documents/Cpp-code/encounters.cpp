@@ -304,7 +304,7 @@ tuple<long double, long double, long double, long double, long double, array<lon
 	return make_tuple(E_ini, E_fin, b_star_norm_min, v_dv, dv_dv, v_initial, delta_v, theta);
 }
 
-tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncountersNClosest(int N_closest, long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
+tuple<vector<long double>, vector<long double>> MCEncountersNClosest(int N_closest, long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
 {
 	//Minimum impact parameter
 	long double b_min = 0.0;
@@ -320,75 +320,54 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 	long double b_max, rate, v;
 	tuple<long double, long double, bool> result;
 	bool notBound;
-	//Number of binaries broken
-	int N_broken = 0;
-	//double t_start;
 
-	int N_encounters = 0;
-	int N_encounters_close = 0;
-	int N_encounters_far = 0;
-	int N_encounters_mid = 0;
 
 	int N_enc;
 	vector<long double> bs;
 	vector<long double> bs_sorted;
 	vector<long double> bs_closest;
 	long double b_limit;
-	long double a_initial;
-	long double t;
 
-	string filename = "t_broken_dist_10Msol_a10e4au_t20Gyr_0_1rate.csv";
-	ofstream myfile;
-	myfile.open(filename);
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
 		cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
-		N_encounters = 0;
-		a_initial = a[i];
-		t = 0.0;
 
-		N_enc = 0;
-		bs.resize(0);
-		bs_sorted.resize(0);
-		bs_closest.resize(0);
 		//b_max = YCGBMax(a[i], M_p, n_p, v_rel, T);
 		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
 		N_enc = randomPoisson(rate*T);
+		
 
-		/*
-		if(M_p < 700.0*msol/mass_scale){
-			N_closest = N_enc;
-		}
-
-		//cout << "Total number of encounters = " << N_enc << endl;
-
-		bs.resize(N_enc);
-		bs_sorted.resize(N_enc);
-		for (int j=0; j<N_enc; ++j){
-			bs[j] = drawB(b_max);
-			bs_sorted[j] = bs[j];
-		}
-		sort(bs_sorted.begin(), bs_sorted.end());
-
-		if (N_enc > N_closest){			
-			b_limit = bs_sorted[N_closest];
-			for (int j=0; j<N_enc; ++j){
-				if (bs[j] < b_limit){
-					bs_closest.push_back(bs[j]);
-				}
-			}
-		} else {
+		if (N_closest == 0){
 			bs_closest.resize(N_enc);
 			for (int j=0; j<N_enc; ++j){
-				bs_closest[j] = bs[j];
+				bs_closest[j] = drawB(b_max);
 			}
-		}
-		*/
-		bs_closest.resize(N_enc);
-		for (int j=0; j<N_enc; ++j){
-			bs_closest[j] = drawB(b_max);
+		} else {
+			bs.resize(N_enc);
+			bs_sorted.resize(N_enc);
+			for (int j=0; j<N_enc; ++j){
+				bs[j] = drawB(b_max);
+				bs_sorted[j] = bs[j];
+			}
+			sort(bs_sorted.begin(), bs_sorted.end());
+
+			if (N_enc > N_closest){			
+				b_limit = bs_sorted[N_closest];
+				bs_closest.resize(0);
+				for (int j=0; j<N_enc; ++j){
+					if (bs[j] < b_limit){
+						bs_closest.push_back(bs[j]);
+					}
+				}
+			} else {
+				bs_closest.resize(N_enc);
+				for (int j=0; j<N_enc; ++j){
+					bs_closest[j] = bs[j];
+				}
+			}
+
 		}
 
 
@@ -403,22 +382,11 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			v = drawVMaxwellian(v_rel, v_max);
 			//v = drawMaxwellian(v_rel);
 
-			if (bs_closest[j]<a[i]){
-				N_encounters_close += 1;
-			}
-			if (bs_closest[j]>a[i]){
-				N_encounters_far += 1;
-			}
-			if ((bs_closest[j]>0.01*a[i]) && (bs_closest[j]<100.0*a[i])){
-				N_encounters_mid += 1;
-			}
-			N_encounters += 1;
 			result = impulseEncounter(m1, m2, M_p, a[i], e[i], bs_closest[j], v);
 			a[i] = get<0>(result);
 			e[i] = get<1>(result);
 			notBound = get<2>(result);
 
-			t += randomExponential(rate);
 
 			/*
 			cout << setprecision(16) << "b, pc = " << bs_closest[j]*length_scale/parsec << endl;
@@ -431,25 +399,21 @@ tuple<vector<long double>, vector<long double>, int, int, int, int, int> MCEncou
 			//myfile << setprecision(16) << t*time_scale << " ," << v*length_scale/time_scale << " , " << b*length_scale << " , " << a[i]*length_scale << " , " << e[i] << " , " << N_encounters << endl;
 
 			if(notBound or (a[i]>=a_T)){
-				N_broken += 1;
 				a[i] = -1.0;
 				e[i] = -1.0;
-				myfile << setprecision(16) << N_encounters << ", " << t*time_scale << endl;
 				break;
 			}
 		}
 	}
-	cout << endl;
-	myfile.close();
-	return make_tuple(a, e, N_broken, N_encounters, N_encounters_close, N_encounters_far, N_encounters_mid);
+	return make_tuple(a, e);
 }
 
-tuple<long double, long double, long double, bool, long double> impulseEncounterIonised(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v, long double E, bool notBound)
+tuple<long double, long double, long double, bool, long double> impulseEncounterIonised(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v, long double E, long double r, bool notBound, bool &non_converged_binary, bool linear)
 {
 	//Star masses
 	array<long double, 2> m = {m1, m2};
 	//Open binary
-	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, m1, m2, E, notBound);
+	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, m1, m2, E, r, notBound, non_converged_binary, linear);
 
 	//cout << "a = " << a << endl;
 	//cout << "e = " << e << endl;
@@ -528,17 +492,21 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 
 	int N_enc;
-	long double E, M, n, En, t;
+	long double E, M, n, En, t, r;
 	bool hasBroken;
 	bool rebound;
 	int N_rebound = 0;
 	int N_close = 0;
+	int N_nonconverged = 0;
+	bool linear;
 
 	//long double En_previous;
 	//long double En;
 	//bool notBound_previous;
 	//ofstream myfile;
 	//myfile.open("dE_break_binary_1000Msol.csv");
+
+	bool non_converged_binary;
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
@@ -547,6 +515,8 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		hasBroken = false;
 		rebound = false;
 		notBound = false;
+		non_converged_binary = false;
+		linear = false;
 
 		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
@@ -560,7 +530,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		M = randomUniformDoubleOpen(0.0, 2.0*pi);
 		//cout << "M_0 = " << M << endl;
 		// Find eccentric anomaly
-		E = eccentricAnomaly(e[i], M);
+		E = eccentricAnomaly(e[i], M, non_converged_binary);
 		//cout << "E_0 = " << E << endl;
 
 		//Implement encounters
@@ -578,28 +548,35 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//Mean motion
 			n = sqrt(G*(m1+m2)/(pow(a[i],3)));
 			//cout << "n = " << n << endl;
-			if (e[i] < 1){
-				//Mean anomaly
-				M = E - e[i]*sin(E);
-			} else if (e[i] > 1){
-				//Mean anomaly
-				M = e[i]*sinh(E) - E;
+			if (linear){
+				r += sqrt(G*(m1+m2)/a[i])* randomExponential(rate);
 			} else {
-				cout << endl << "e = 1 or 0" << endl;
-				break;
+				if (e[i] < 1){
+					//Mean anomaly
+					M = E - e[i]*sin(E);
+				} else if (e[i] > 1){
+					//Mean anomaly
+					M = e[i]*sinh(E) - E;
+				} else {
+					cout << endl << "e = 1 or 0" << endl;
+					break;
+				}
+				t = randomExponential(rate);
+				//cout << "dt = " << t << endl;
+				M += n*t;
+				if (e[i] < 1){
+					M = fmod(M, 2.0*pi);
+				}
+				E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
 			}
-			t = randomExponential(rate);
-			//cout << "dt = " << t << endl;
-			M += n*t;
 			//cout << "M = " << M << endl;
 			//New eccentric anomaly
-			E = eccentricAnomalyIonised(e[i], M, notBound);
 			//cout << "Separation = " << a[i]*(1.0 - e[i]*cos(E)) << endl;
 			//cout << "Ecc pre-encounter = " << E << endl;
 			//cout << "M pre-encounter = " << E - e[i]*sin(E) << endl;
 
 			//cout << "Energy = " << En << endl;
-			result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, notBound);
+			result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, r, notBound, non_converged_binary, linear);
 			//En_previous = En;
 			//notBound_previous = notBound;
 			a[i] = get<0>(result);
@@ -609,19 +586,25 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			E = get<2>(result);
 			
 			notBound = get<3>(result);
-			//En = get<4>(result);
+			r = get<4>(result);
 			//cout << "Energy = " << En << endl;
 
 			//cout << "Separation = " << a[i]*(1.0 - e[i]*cos(E)) << endl;
 			//cout << endl << "Ecc = " << E << endl;
 			//cout << "M = " << E - e[i]*sin(E) << endl;
 
-			if(a[i]>=a_T){
+			if(r>=a_T){
 				//cout << "Binary broken!" << endl;
 				a[i] = -1.0;
 				e[i] = -1.0;
 				notBound = true;
 				break;
+			}
+
+			if (r>2.0*a[i]/(1.0-pow(1.0-pow(10.0, -10.0), 2.0))){
+				linear = true;
+			} else {
+				linear = false;
 			}
 
 			if (notBound){
@@ -641,8 +624,11 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << endl << "Not bound? " << notBound << ", a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << endl;
 			//cout << endl;
 			//cin.ignore();
-
-			
+			if (non_converged_binary){
+				cout << "Non-converged binary" << endl;
+				N_nonconverged ++;
+				break;
+			}
 		}
 		//if (notBound){
 			//cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
@@ -665,6 +651,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	cout << endl;
 	cout << "Number of binaries rebound = " << N_rebound << endl;
 	cout << "Number of binaries unbound within 100pc = " << N_close << endl;
+	cout << "Number of binaries not converged = " << N_nonconverged << endl;
 	return make_tuple(a, e);
 }
 
@@ -892,14 +879,14 @@ tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel
 		notBound = get<2>(result);
 
 		if (rebound && !(notBound)){
-			cout << endl << "Rebound binary!" << endl;
+			//cout << endl << "Rebound binary!" << endl;
 			N_rebound += 1;
 		}
 		//cout << endl;
-		cout << "a = " << a[i] << endl;
-		cout << "e = " << e[i] << endl;
+		//cout << "a = " << a[i] << endl;
+		//cout << "e = " << e[i] << endl;
 		//cout << "Ecc = " << Ecc << endl;
-		cin.ignore();
+		//cin.ignore();
 	}
 	cout << endl;
 	cout << "Number of rebound binaries = " << N_rebound << endl;
