@@ -468,193 +468,6 @@ tuple<long double, long double, long double, bool, long double> impulseEncounter
 	return orbitalElementsIonised(X, m1, m2);
 }
 
-
-tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
-{
-	//Minimum impact parameter
-	long double b_min = 0.0;
-	//Minimum relative velocity of encounter
-	long double v_min = 0.0;
-	//Maximum relative velocity of encounter
-	long double v_max = 100.0 * v_rel;
-	//Maximum semimajor axis
-	long double a_T = 1000.0 * parsec/length_scale;
-	//Number of binaries
-	int N_bin = static_cast<int>(a.size());
-	cout << "Number of binaries = " << N_bin << endl;
-	//Declare variable types
-	long double b_max, rate, v, b;
-	tuple<long double, long double, long double, bool, long double> result;
-	bool notBound;
-	//Number of binaries broken
-	int N_broken = 0;
-	//double t_start;
-
-
-	int N_enc;
-	long double E, M, n, En, t, r;
-	bool hasBroken;
-	bool rebound;
-	int N_rebound = 0;
-	int N_close = 0;
-	int N_nonconverged = 0;
-	bool linear;
-
-	//long double En_previous;
-	//long double En;
-	//bool notBound_previous;
-	//ofstream myfile;
-	//myfile.open("dE_break_binary_1000Msol.csv");
-
-	bool non_converged_binary;
-
-	//Iterate over binaries
-	for (int i=0; i<N_bin; ++i){
-		cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
-
-		hasBroken = false;
-		rebound = false;
-		notBound = false;
-		non_converged_binary = false;
-		linear = false;
-
-		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
-		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
-		N_enc = randomPoisson(rate*T);
-
-		//En_previous = -G*m1*m2/(2.0*a[i]);
-
-		//cout << "a_0 = " << a[i]*length_scale/au << " , N_enc = " << N_enc << endl;
-
-		// Randomise mean anomaly
-		M = randomUniformDoubleOpen(0.0, 2.0*pi);
-		//cout << "M_0 = " << M << endl;
-		// Find eccentric anomaly
-		E = eccentricAnomaly(e[i], M, non_converged_binary);
-		//cout << "E_0 = " << E << endl;
-
-		//Implement encounters
-		for (int j=0; j<N_enc; j++){
-			//cout << '\r' << "Encounter " << j+1 << " of " << N_enc;
-
-			//Draw impact parameter
-			b = drawB(b_max);
-			//cout << "b = " << b*length_scale << endl;
-			//Draw relative encounter velocity
-			v = drawVMaxwellian(v_rel, v_max);
-			//cout << "v = " << v*length_scale/time_scale << endl;
-
-			//Evolve E in time
-			//Mean motion
-			n = sqrt(G*(m1+m2)/(pow(a[i],3)));
-			//cout << "n = " << n << endl;
-			if (linear){
-				r += sqrt(G*(m1+m2)/a[i])* randomExponential(rate);
-			} else {
-				if (e[i] < 1){
-					//Mean anomaly
-					M = E - e[i]*sin(E);
-				} else if (e[i] > 1){
-					//Mean anomaly
-					M = e[i]*sinh(E) - E;
-				} else {
-					cout << endl << "e = 1 or 0" << endl;
-					break;
-				}
-				t = randomExponential(rate);
-				//cout << "dt = " << t << endl;
-				M += n*t;
-				if (e[i] < 1){
-					M = fmod(M, 2.0*pi);
-				}
-				E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
-			}
-			//cout << "M = " << M << endl;
-			//New eccentric anomaly
-			//cout << "Separation = " << a[i]*(1.0 - e[i]*cos(E)) << endl;
-			//cout << "Ecc pre-encounter = " << E << endl;
-			//cout << "M pre-encounter = " << E - e[i]*sin(E) << endl;
-
-			//cout << "Energy = " << En << endl;
-			result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, r, notBound, non_converged_binary, linear);
-			//En_previous = En;
-			//notBound_previous = notBound;
-			a[i] = get<0>(result);
-			//cout << "a = " << a[i] << endl;
-			e[i] = get<1>(result);
-			//cout << "e = " << e[i] << endl;
-			E = get<2>(result);
-			
-			notBound = get<3>(result);
-			r = get<4>(result);
-			//cout << "Energy = " << En << endl;
-
-			//cout << "Separation = " << a[i]*(1.0 - e[i]*cos(E)) << endl;
-			//cout << endl << "Ecc = " << E << endl;
-			//cout << "M = " << E - e[i]*sin(E) << endl;
-
-			if(r>=a_T){
-				//cout << "Binary broken!" << endl;
-				a[i] = -1.0;
-				e[i] = -1.0;
-				notBound = true;
-				break;
-			}
-
-			if (r>2.0*a[i]/(1.0-pow(1.0-pow(10.0, -10.0), 2.0))){
-				linear = true;
-			} else {
-				linear = false;
-			}
-
-			if (notBound){
-				//cout << endl << "Binary broken!" << endl;
-				//cout << endl;
-				hasBroken = true;
-			} else {
-				if (hasBroken){
-					rebound = true;
-				}
-			}
-
-			//if (notBound && !(notBound_previous)){
-				//myfile << setprecision(16) << (En - En_previous)/En_previous << endl;
-			//}
-
-			//cout << endl << "Not bound? " << notBound << ", a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << endl;
-			//cout << endl;
-			//cin.ignore();
-			if (non_converged_binary){
-				cout << "Non-converged binary" << endl;
-				N_nonconverged ++;
-				break;
-			}
-		}
-		//if (notBound){
-			//cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
-		//}
-		if (rebound && (notBound == false)) {
-			//cout << "Rebound binary!" << endl;
-			//cout << endl << "Rebound binary!" << endl;
-			N_rebound ++;
-		}
-		if ((a[i]>0.0) && (a[i]<100.0*parsec/length_scale) && notBound){
-			N_close ++;
-		}
-		//cout << endl;
-		//cout << "a = " << a[i] << endl;
-		//cout << "e = " << e[i] << endl;
-		//cout << endl << "Ecc = " << E << endl;
-		//cin.ignore();
-	}
-	//myfile.close();
-	cout << endl;
-	cout << "Number of binaries rebound = " << N_rebound << endl;
-	cout << "Number of binaries unbound within 100pc = " << N_close << endl;
-	cout << "Number of binaries not converged = " << N_nonconverged << endl;
-	return make_tuple(a, e);
-}
-
 vector<array<long double, 3>> impulseEncounterXV(vector<array<long double, 3>> X, long double M_p, long double m1, long double m2, long double b, long double v)
 {
 	//Star masses
@@ -709,6 +522,256 @@ vector<array<long double, 3>> impulseEncounterXV(vector<array<long double, 3>> X
 	}
 	return X;
 }
+
+tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
+{
+	//Minimum impact parameter
+	long double b_min = 0.0;
+	//Minimum relative velocity of encounter
+	long double v_min = 0.0;
+	//Maximum relative velocity of encounter
+	long double v_max = 100.0 * v_rel;
+	//Maximum semimajor axis
+	long double a_T = 1000.0 * parsec/length_scale;
+	//Number of binaries
+	int N_bin = static_cast<int>(a.size());
+	cout << "Number of binaries = " << N_bin << endl;
+	//Declare variable types
+	long double b_max, rate, v, b;
+	tuple<long double, long double, long double, bool, long double> result;
+	bool notBound;
+	//Number of binaries broken
+	int N_broken = 0;
+	//double t_start;
+
+
+	int N_enc;
+	long double E, M, n, En, t, r;
+	bool hasBroken;
+	bool rebound;
+	int N_rebound = 0;
+	int N_close = 0;
+	int N_nonconverged = 0;
+	bool linear;
+	vector<array<long double, 3>> X;
+
+	vector<long double> ms = {m1, m2};
+	bool ini_arrays=true;
+	array<long double,3> R;
+	tuple<long double, long double, bool> result2;
+	long double a_break;
+
+	//long double En_previous;
+	//long double En;
+	//bool notBound_previous;
+	//ofstream myfile;
+	//myfile.open("dE_break_binary_1000Msol.csv");
+
+	bool non_converged_binary;
+
+	//Iterate over binaries
+	for (int i=0; i<N_bin; ++i){
+		cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
+
+		hasBroken = false;
+		rebound = false;
+		notBound = false;
+		non_converged_binary = false;
+		linear = false;
+
+		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
+		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
+		N_enc = randomPoisson(rate*T);
+
+		//En_previous = -G*m1*m2/(2.0*a[i]);
+
+		//cout << "a_0 = " << a[i]*length_scale/au << " , N_enc = " << N_enc << endl;
+
+		// Randomise mean anomaly
+		M = randomUniformDoubleOpen(0.0, 2.0*pi);
+		//cout << "M_0 = " << M << endl;
+		// Find eccentric anomaly
+		E = eccentricAnomaly(e[i], M, non_converged_binary);
+		//cout << "E_0 = " << E << endl;
+
+		//Implement encounters
+		for (int j=0; j<N_enc; j++){
+			//cout << '\r' << "Encounter " << j+1 << " of " << N_enc;
+
+			//Draw impact parameter
+			b = drawB(b_max);
+			//cout << "b = " << b*length_scale << endl;
+			//Draw relative encounter velocity
+			v = drawVMaxwellian(v_rel, v_max);
+			//cout << "v = " << v*length_scale/time_scale << endl;
+
+			//Evolve E in time
+			//Mean motion
+			n = sqrt(G*(m1+m2)/(pow(a[i],3)));
+			//cout << "n = " << n << endl;
+
+			t = randomExponential(rate);
+
+			if (linear){
+				r += sqrt(G*(m1+m2)/a[i])* randomExponential(rate);
+			} else {
+				if (e[i] < 1){
+					//Mean anomaly
+					M = E - e[i]*sin(E);
+
+					M += n*t;
+					if (e[i] < 1){
+						M = fmod(M, 2.0*pi);
+					}
+					E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
+
+					result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, r, notBound, non_converged_binary, linear);
+					a[i] = get<0>(result);
+					e[i] = get<1>(result);
+					E = get<2>(result);
+					notBound = get<3>(result);
+					r = get<4>(result);
+					a_break = a[i];
+				} else if (e[i] > 1){
+					//Hyperbolic equations
+
+					/*
+					//Mean anomaly
+					M = e[i]*sinh(E) - E;
+					M += n*t;
+					E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
+					result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, r, notBound, non_converged_binary, linear);
+					a[i] = get<0>(result);
+					e[i] = get<1>(result);
+					E = get<2>(result);
+					notBound = get<3>(result);
+					r = get<4>(result);
+					*/
+
+					//linear
+					r += sqrt(G*(m1+m2)/a_break)* randomExponential(rate);
+					result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, r, notBound, non_converged_binary, true);
+					a[i] = get<0>(result);
+					e[i] = get<1>(result);
+					E = get<2>(result);
+					notBound = get<3>(result);
+					r = get<4>(result);
+
+					/*
+					//nbody integration
+					X = setupRandomBinaryVector(a[i], e[i], m1, m2);
+					X = evolve(2, ms, X, t, ini_arrays = ini_arrays);
+					X = impulseEncounterXV(X, M_p, m1, m2, b, v);
+
+					array<long double,3> R;
+					for (int k=0; k<3; ++k){
+						R[k] = X[0][k] - X[1][k];
+					}
+					r = norm(R);
+					result2 = orbitalElements(X, m1, m2);
+					a[i] = get<0>(result2);
+					e[i] = get<1>(result2);
+					notBound = get<2>(result2);
+					*/
+
+				} else {
+					cout << endl << "e = 1 or 0" << endl;
+					break;
+				}
+				//cout << "dt = " << t << endl;
+				//M += n*t;
+				//if (e[i] < 1){
+				//	M = fmod(M, 2.0*pi);
+				//}
+				//E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
+			}
+			//cout << "M = " << M << endl;
+			//New eccentric anomaly
+			//cout << "Separation = " << a[i]*(1.0 - e[i]*cos(E)) << endl;
+			//cout << "Ecc pre-encounter = " << E << endl;
+			//cout << "M pre-encounter = " << E - e[i]*sin(E) << endl;
+
+			//cout << "Energy = " << En << endl;
+			//result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, r, notBound, non_converged_binary, linear);
+			//En_previous = En;
+			//notBound_previous = notBound;
+			//a[i] = get<0>(result);
+			//cout << "a = " << a[i] << endl;
+			//e[i] = get<1>(result);
+			//cout << "e = " << e[i] << endl;
+			//E = get<2>(result);
+			
+			//notBound = get<3>(result);
+			//r = get<4>(result);
+			//cout << "Energy = " << En << endl;
+
+			//cout << "Separation = " << a[i]*(1.0 - e[i]*cos(E)) << endl;
+			//cout << endl << "Ecc = " << E << endl;
+			//cout << "M = " << E - e[i]*sin(E) << endl;
+
+			if(r>=a_T){
+				//cout << "Binary broken!" << endl;
+				a[i] = -1.0;
+				e[i] = -1.0;
+				notBound = true;
+				break;
+			}
+
+			//if (r>2.0*a[i]/(1.0-pow(1.0-pow(10.0, -10.0), 2.0))){
+				//linear = true;
+			//} else {
+				//linear = false;
+			//}
+
+			if (notBound){
+				//cout << endl << "Binary broken!" << endl;
+				//cout << endl;
+				hasBroken = true;
+			} else {
+				if (hasBroken){
+					rebound = true;
+				}
+			}
+
+			//if (notBound && !(notBound_previous)){
+				//myfile << setprecision(16) << (En - En_previous)/En_previous << endl;
+			//}
+
+			//cout << endl << "Not bound? " << notBound << ", a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << endl;
+			//cout << endl;
+			//cin.ignore();
+			if (non_converged_binary){
+				cout << "Non-converged binary" << endl;
+				N_nonconverged ++;
+				break;
+			}
+		}
+		//if (notBound){
+			//cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
+		//}
+		if (rebound && (notBound == false)) {
+			//cout << "Rebound binary!" << endl;
+			//cout << endl << "Rebound binary!" << endl;
+			N_rebound ++;
+		}
+		if ((a[i]>0.0) && (a[i]<100.0*parsec/length_scale) && notBound){
+			N_close ++;
+		}
+		//cout << endl;
+		//cout << "a = " << a[i] << endl;
+		//cout << "e = " << e[i] << endl;
+		//cout << endl << "Ecc = " << E << endl;
+		//cin.ignore();
+	}
+	//myfile.close();
+	cout << endl;
+	cout << "Number of binaries rebound = " << N_rebound << endl;
+	cout << "Number of binaries unbound within 100pc = " << N_close << endl;
+	cout << "Number of binaries not converged = " << N_nonconverged << endl;
+	return make_tuple(a, e);
+}
+
+
 
 tuple<vector<long double>, vector<long double>> MCEncountersXV(long double v_rel, long double n_p, long double T, long double m1, long double m2, long double M_p, vector<long double> a, vector<long double> e)
 {

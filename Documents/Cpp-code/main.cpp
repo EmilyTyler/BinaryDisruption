@@ -86,7 +86,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	vector<long double> e_ini = get<1>(initial_dists);
 
 	for(int i=0; i<N_bin; i++){
-		a_ini[i] = pow(10.0, 3.0)*au/length_scale;
+		a_ini[i] = pow(10.0, 5.0)*au/length_scale;
 	}
 	cout << setprecision(16) << "M_p, M_sol = " << M_p*mass_scale/msol << endl;
 	cout << "a_ini, au = " << a_ini[0]*length_scale/au << endl;
@@ -96,8 +96,8 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	//myfile.open(filename);
 	cout << "Evolving binaries" << endl;
 	//tuple<vector<long double>, vector<long double>> final_dists = MCEncountersXV(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
-	//tuple<vector<long double>, vector<long double>> final_dists = MCEncountersIonised(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
-	tuple<vector<long double>, vector<long double>> final_dists = MCEncountersNClosest(100, v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
+	tuple<vector<long double>, vector<long double>> final_dists = MCEncountersIonised(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
+	//tuple<vector<long double>, vector<long double>> final_dists = MCEncountersNClosest(100, v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
 	//Extract results
 	vector<long double> a_fin = get<0>(final_dists);
 	vector<long double> e_fin = get<1>(final_dists);
@@ -676,9 +676,9 @@ int main() {
 	//testEvolve();
 
 	//Run simulation
-	//evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
+	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);
 	
-	testImpulseApprox();
+	//testImpulseApprox();
 
 	//To do
 	//Test MCEncounters
