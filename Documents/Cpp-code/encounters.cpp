@@ -532,7 +532,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	//Maximum relative velocity of encounter
 	long double v_max = 100.0 * v_rel;
 	//Maximum semimajor axis
-	long double a_T = 1000.0 * parsec/length_scale;
+	long double a_T = 50.0 * parsec/length_scale;
 	//Number of binaries
 	int N_bin = static_cast<int>(a.size());
 	cout << "Number of binaries = " << N_bin << endl;
@@ -593,10 +593,18 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		// Find eccentric anomaly
 		E = eccentricAnomaly(e[i], M, non_converged_binary);
 		//cout << "E_0 = " << E << endl;
+		r = a[i];
 
 		//Implement encounters
 		for (int j=0; j<N_enc; j++){
 			//cout << '\r' << "Encounter " << j+1 << " of " << N_enc;
+			if(r>=a_T){
+				cout << "Binary broken!" << endl;
+				a[i] = -1.0;
+				e[i] = -1.0;
+				notBound = true;
+				break;
+			}
 
 			//Draw impact parameter
 			b = drawB(b_max);
@@ -635,7 +643,6 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				} else if (e[i] > 1){
 					//Hyperbolic equations
 
-					/*
 					//Mean anomaly
 					M = e[i]*sinh(E) - E;
 					M += n*t;
@@ -646,8 +653,10 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 					E = get<2>(result);
 					notBound = get<3>(result);
 					r = get<4>(result);
-					*/
+					//cout << "r = " << r*length_scale << endl;
 
+
+					/*
 					//linear
 					r += sqrt(G*(m1+m2)/a_break)* randomExponential(rate);
 					result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, r, notBound, non_converged_binary, true);
@@ -656,6 +665,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 					E = get<2>(result);
 					notBound = get<3>(result);
 					r = get<4>(result);
+					*/
 
 					/*
 					//nbody integration
@@ -675,7 +685,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 					*/
 
 				} else {
-					cout << endl << "e = 1 or 0" << endl;
+					cout << endl << "e = 1" << endl;
 					break;
 				}
 				//cout << "dt = " << t << endl;
@@ -716,12 +726,14 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				notBound = true;
 				break;
 			}
+			
 
 			//if (r>2.0*a[i]/(1.0-pow(1.0-pow(10.0, -10.0), 2.0))){
-				//linear = true;
-			//} else {
-				//linear = false;
-			//}
+			if ((E>9.21) && (e[i]>20000)){
+				linear = false;
+			} else {
+				linear = false;
+			}
 
 			if (notBound){
 				//cout << endl << "Binary broken!" << endl;
@@ -741,7 +753,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << endl;
 			//cin.ignore();
 			if (non_converged_binary){
-				cout << "Non-converged binary" << endl;
+				//cout << "Non-converged binary!" << endl;
 				N_nonconverged ++;
 				break;
 			}
