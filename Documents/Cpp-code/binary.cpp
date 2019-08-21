@@ -33,7 +33,7 @@ long double eccentricAnomaly(long double e, long double M, bool &non_converged_b
 
 		count += 1;
 		if (count > 100){
-			//cout << '\n' << "eccentricAnomaly did not converge" << ", E = " << E << ", M = " << M << ", e = " << e << endl;
+			cout << '\n' << "eccentricAnomaly did not converge" << ", E = " << E << ", M = " << M << ", e = " << e << endl;
 			non_converged_binary = true;
 			break;
 		}

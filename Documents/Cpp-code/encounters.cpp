@@ -532,7 +532,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	//Maximum relative velocity of encounter
 	long double v_max = 100.0 * v_rel;
 	//Maximum semimajor axis
-	long double a_T = 50.0 * parsec/length_scale;
+	long double a_T = 1000.0 * parsec/length_scale;
 	//Number of binaries
 	int N_bin = static_cast<int>(a.size());
 	cout << "Number of binaries = " << N_bin << endl;
@@ -561,6 +561,10 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	tuple<long double, long double, bool> result2;
 	long double a_break;
 
+	long double r_rebound_max = 0.0;
+	long double r_rebound_max_total = 0.0;
+	long double r_nonconverged_min = a_T;
+
 	//long double En_previous;
 	//long double En;
 	//bool notBound_previous;
@@ -578,6 +582,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		notBound = false;
 		non_converged_binary = false;
 		linear = false;
+		r_rebound_max = 0.0;
 
 		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
@@ -599,7 +604,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		for (int j=0; j<N_enc; j++){
 			//cout << '\r' << "Encounter " << j+1 << " of " << N_enc;
 			if(r>=a_T){
-				cout << "Binary broken!" << endl;
+				//cout << "Binary broken!" << endl;
 				a[i] = -1.0;
 				e[i] = -1.0;
 				notBound = true;
@@ -719,6 +724,15 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << endl << "Ecc = " << E << endl;
 			//cout << "M = " << E - e[i]*sin(E) << endl;
 
+			if (non_converged_binary){
+				r_nonconverged_min = min(r_nonconverged_min, r);
+				//cout << "Non-converged binary!" << endl;
+				//cout << "Separation, au = " << r*length_scale/au << endl;
+				notBound = false;
+				N_nonconverged ++;
+				break;
+			}
+
 			if(r>=a_T){
 				//cout << "Binary broken!" << endl;
 				a[i] = -1.0;
@@ -742,6 +756,11 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			} else {
 				if (hasBroken){
 					rebound = true;
+					r_rebound_max = max(r_rebound_max, r);
+					//hasBroken = false;
+					//cout << "Rebound binary!" << endl;
+					//cout << "Separation, pc = " << r*length_scale/parsec << endl;
+					//cout << "r_rebound_max, pc = " << r_rebound_max*length_scale/parsec << endl;
 				}
 			}
 
@@ -752,22 +771,23 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << endl << "Not bound? " << notBound << ", a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << endl;
 			//cout << endl;
 			//cin.ignore();
-			if (non_converged_binary){
-				//cout << "Non-converged binary!" << endl;
-				N_nonconverged ++;
-				break;
-			}
+
 		}
 		//if (notBound){
 			//cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
 		//}
 		if (rebound && (notBound == false)) {
-			//cout << "Rebound binary!" << endl;
-			//cout << endl << "Rebound binary!" << endl;
+			//cout << "Rebound binary bound at the end!!!!!!!!!!!!!!!!!!!!!" << endl;
+			//cout << endl << "Rebound binary bound at the end!!" << endl;
+			r_rebound_max_total = max(r_rebound_max_total, r_rebound_max);
 			N_rebound ++;
 		}
 		if ((a[i]>0.0) && (a[i]<100.0*parsec/length_scale) && notBound){
 			N_close ++;
+		}
+		if (notBound){
+			//cout << "Binary considered broken at the end" << endl;
+			N_broken ++;
 		}
 		//cout << endl;
 		//cout << "a = " << a[i] << endl;
@@ -780,6 +800,9 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	cout << "Number of binaries rebound = " << N_rebound << endl;
 	cout << "Number of binaries unbound within 100pc = " << N_close << endl;
 	cout << "Number of binaries not converged = " << N_nonconverged << endl;
+	cout << "Number of binaries broken = " << N_broken << endl;
+	cout << "Maximum Separation of rebound binaries, pc = " << r_rebound_max_total*length_scale/parsec << endl;
+	cout << "Minimum Separation of non-converged binaries, pc = " << r_nonconverged_min*length_scale/parsec << endl;
 	return make_tuple(a, e);
 }
 
