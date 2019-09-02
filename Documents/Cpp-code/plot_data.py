@@ -3,7 +3,7 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from scipy.constants import au, parsec
+from scipy.constants import au, parsec, giga, year
 
 '''
 data = np.zeros(10**7, dtype=float)
@@ -220,7 +220,7 @@ plt.legend()
 plt.show()
 '''
 
-
+'''
 N_bins = 100
 a_min = 10.0**(-5.0) * 0.17*parsec
 a_max = 10.0**4.0 * 0.17*parsec
@@ -250,5 +250,90 @@ ax.set_xscale('log')
 ax.set_yscale('log')
 plt.xlabel(r'$a/r_J$')
 plt.ylabel('Number of binaries')
+plt.legend()
+plt.show()
+'''
+
+'''
+#Plot a and e over time
+a = np.zeros(0)
+r = np.zeros(0)
+e = np.zeros(0)
+t = np.zeros(0)
+
+with open('binary_rebound_at_990pc.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	for row in reader:
+		a = np.append(a, float(row[0]))
+		r = np.append(r, float(row[1]))
+		e = np.append(e, float(row[2]))
+		t = np.append(t, float(row[3]))
+
+
+fig, ax1 = plt.subplots()
+
+color = 'red'
+ax1.set_xlabel('Time, Gyr')
+ax1.set_ylabel('Parsec', color=color)
+ax1.plot(t/(giga*year), a/parsec, color=color, label='Semi-major axis')
+#ax1.plot(t/(giga*year), r/parsec, color=color, linestyle='--', label = 'Separation')
+ax1.tick_params(axis='y', labelcolor=color)
+
+ax2 = ax1.twinx()
+
+color = 'dodgerblue'
+ax2.set_ylabel('Eccentricity', color=color)
+ax2.plot(t/(giga*year), e, color=color)
+ax2.tick_params(axis='y', labelcolor=color)
+
+#plt.legend()
+fig.tight_layout()
+plt.show()
+'''
+
+#Plot distribution of unbound binary separations
+r_10 = np.zeros(85068, dtype=float)
+with open('final_seps_unbound_binaries_10Msol.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	row_number = 0
+	for row in reader:
+		r_10[row_number] = float(row[0])
+		row_number += 1
+
+r_1 = np.zeros(3932, dtype=float)
+with open('final_seps_unbound_binaries_1Msol.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	row_number = 0
+	for row in reader:
+		r_1[row_number] = float(row[0])
+		row_number += 1
+
+N_bins = 500
+
+r_min = np.min(np.append(r_1, r_10))
+r_max = np.max(np.append(r_1, r_10))
+print('min =', r_min/parsec)
+print('max =', r_max/parsec)
+dr = (np.log(r_max) - np.log(r_min))/(N_bins)
+r_bins = np.array([r_min*np.exp(i*dr) for i in range(N_bins)])
+N_r1 = np.zeros(N_bins)
+N_r10 = np.zeros(N_bins)
+for i in range(np.size(r_1)):
+	j = int(np.floor(np.log(r_1[i]/r_min)/dr))
+	if (r_1[i] == r_max):
+		j = N_bins-1
+	N_r1[j] += 1
+for i in range(np.size(r_10)):
+	j = int(np.floor(np.log(r_10[i]/r_min)/dr))
+	if (r_10[i] == r_max):
+		j = N_bins-1
+	N_r10[j] += 1
+#Move bins into centre for plotting and calculations
+r_bins += 0.5*dr
+plt.semilogx(r_bins/parsec, N_r1, label=r'$M_p=1M_\odot$')
+plt.semilogx(r_bins/parsec, N_r10, label=r'$M_p=10M_\odot$')
+plt.xlabel(r'Separation, pc')
+plt.xlim([r_min/parsec, r_max/parsec])
+plt.ylabel(r'Number of binaries')
 plt.legend()
 plt.show()

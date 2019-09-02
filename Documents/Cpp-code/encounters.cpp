@@ -546,7 +546,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 
 	int N_enc;
-	long double E, M, n, En, t, r;
+	long double E, M, n, En, t, r, dt, r_previous;
 	bool hasBroken;
 	bool rebound;
 	int N_rebound = 0;
@@ -568,13 +568,15 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	//long double En_previous;
 	//long double En;
 	//bool notBound_previous;
-	//ofstream myfile;
-	//myfile.open("dE_break_binary_1000Msol.csv");
 
 	bool non_converged_binary;
 
+	ofstream myfile;
+	myfile.open("final_seps_unbound_binaries_1Msol.csv");
+
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
+	//for (int i=0; i<1608; ++i){
 		cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
 
 		hasBroken = false;
@@ -583,6 +585,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		non_converged_binary = false;
 		linear = false;
 		r_rebound_max = 0.0;
+		t = 0.0;
 
 		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
@@ -599,6 +602,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		E = eccentricAnomaly(e[i], M, non_converged_binary);
 		//cout << "E_0 = " << E << endl;
 		r = a[i];
+		r_previous = r;
 
 		//Implement encounters
 		for (int j=0; j<N_enc; j++){
@@ -623,7 +627,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			n = sqrt(G*(m1+m2)/(pow(a[i],3)));
 			//cout << "n = " << n << endl;
 
-			t = randomExponential(rate);
+			dt = randomExponential(rate);
 
 			if (linear){
 				r += sqrt(G*(m1+m2)/a[i])* randomExponential(rate);
@@ -632,7 +636,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 					//Mean anomaly
 					M = E - e[i]*sin(E);
 
-					M += n*t;
+					M += n*dt;
 					if (e[i] < 1){
 						M = fmod(M, 2.0*pi);
 					}
@@ -645,12 +649,14 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 					notBound = get<3>(result);
 					r = get<4>(result);
 					a_break = a[i];
+
+					
 				} else if (e[i] > 1){
 					//Hyperbolic equations
 
 					//Mean anomaly
 					M = e[i]*sinh(E) - E;
-					M += n*t;
+					M += n*dt;
 					E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
 					result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, r, notBound, non_converged_binary, linear);
 					a[i] = get<0>(result);
@@ -659,6 +665,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 					notBound = get<3>(result);
 					r = get<4>(result);
 					//cout << "r = " << r*length_scale << endl;
+
 
 
 					/*
@@ -700,6 +707,15 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				//}
 				//E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
 			}
+			t += dt;
+
+			//if (i==1607){
+			//	myfile << setprecision(16) << a[i]*length_scale << ", " << r*length_scale << ", " << e[i] << ", " << t*time_scale << endl;
+				//cout << "r = " << r*length_scale/parsec << endl;
+				//cout << "a = " << a[i]*length_scale/parsec << endl;
+				//cout << "e = " << e[i] << endl;
+				//cin.ignore();
+			//}
 			//cout << "M = " << M << endl;
 			//New eccentric anomaly
 			//cout << "Separation = " << a[i]*(1.0 - e[i]*cos(E)) << endl;
@@ -725,7 +741,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << "M = " << E - e[i]*sin(E) << endl;
 
 			if (non_converged_binary){
-				r_nonconverged_min = min(r_nonconverged_min, r);
+				r_nonconverged_min = min(r_nonconverged_min, r_previous);
 				//cout << "Non-converged binary!" << endl;
 				//cout << "Separation, au = " << r*length_scale/au << endl;
 				notBound = false;
@@ -756,8 +772,8 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			} else {
 				if (hasBroken){
 					rebound = true;
-					r_rebound_max = max(r_rebound_max, r);
-					//hasBroken = false;
+					r_rebound_max = max(r_rebound_max, r_previous);
+					hasBroken = false;
 					//cout << "Rebound binary!" << endl;
 					//cout << "Separation, pc = " << r*length_scale/parsec << endl;
 					//cout << "r_rebound_max, pc = " << r_rebound_max*length_scale/parsec << endl;
@@ -771,7 +787,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << endl << "Not bound? " << notBound << ", a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << endl;
 			//cout << endl;
 			//cin.ignore();
-
+			r_previous = r;
 		}
 		//if (notBound){
 			//cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
@@ -780,6 +796,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << "Rebound binary bound at the end!!!!!!!!!!!!!!!!!!!!!" << endl;
 			//cout << endl << "Rebound binary bound at the end!!" << endl;
 			r_rebound_max_total = max(r_rebound_max_total, r_rebound_max);
+			//cout << "Rebound separation = " << r_rebound_max*length_scale/parsec << endl;
 			N_rebound ++;
 		}
 		if ((a[i]>0.0) && (a[i]<100.0*parsec/length_scale) && notBound){
@@ -788,6 +805,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		if (notBound){
 			//cout << "Binary considered broken at the end" << endl;
 			N_broken ++;
+			myfile << setprecision(16) << r*length_scale << endl;
 		}
 		//cout << endl;
 		//cout << "a = " << a[i] << endl;
@@ -795,7 +813,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		//cout << endl << "Ecc = " << E << endl;
 		//cin.ignore();
 	}
-	//myfile.close();
+	myfile.close();
 	cout << endl;
 	cout << "Number of binaries rebound = " << N_rebound << endl;
 	cout << "Number of binaries unbound within 100pc = " << N_close << endl;
