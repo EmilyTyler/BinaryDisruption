@@ -565,6 +565,9 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	long double r_rebound_max_total = 0.0;
 	long double r_nonconverged_min = a_T;
 
+	vector<long double> rs;
+	vector<long double> ts;
+
 	//long double En_previous;
 	//long double En;
 	//bool notBound_previous;
@@ -572,7 +575,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	bool non_converged_binary;
 
 	ofstream myfile;
-	myfile.open("final_seps_unbound_binaries_1Msol.csv");
+	myfile.open("final_seps_unbound_binaries_1Msol_with_t.csv");
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
@@ -586,6 +589,8 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		linear = false;
 		r_rebound_max = 0.0;
 		t = 0.0;
+		rs.clear();
+		ts.clear();
 
 		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
@@ -709,6 +714,8 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			}
 			t += dt;
 
+			
+
 			//if (i==1607){
 			//	myfile << setprecision(16) << a[i]*length_scale << ", " << r*length_scale << ", " << e[i] << ", " << t*time_scale << endl;
 				//cout << "r = " << r*length_scale/parsec << endl;
@@ -766,6 +773,8 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			}
 
 			if (notBound){
+				rs.push_back(r);
+				ts.push_back(t);
 				//cout << endl << "Binary broken!" << endl;
 				//cout << endl;
 				hasBroken = true;
@@ -805,7 +814,10 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		if (notBound){
 			//cout << "Binary considered broken at the end" << endl;
 			N_broken ++;
-			myfile << setprecision(16) << r*length_scale << endl;
+			for (int j=0; j<static_cast<int>(rs.size()); j++){
+				myfile << setprecision(16) << rs[j]*length_scale << ", " << ts[j]*time_scale << ", " << i << endl;
+			}
+			//myfile << setprecision(16) << r*length_scale << endl;
 		}
 		//cout << endl;
 		//cout << "a = " << a[i] << endl;

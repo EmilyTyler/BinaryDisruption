@@ -4,7 +4,7 @@ from galpy.util import bovy_conversion
 import numpy as np
 
 #o = Orbit(vxvv=[1.,0.1,1.1,0.,0.1,0.])
-o = Orbit()
+o = Orbit.from_name('NLTT 525')
 o.turn_physical_off()
 
 #End time in Gyr
