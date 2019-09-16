@@ -567,6 +567,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 	vector<long double> rs;
 	vector<long double> ts;
+	vector<long double> Energies;
 
 	//long double En_previous;
 	//long double En;
@@ -575,11 +576,10 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	bool non_converged_binary;
 
 	ofstream myfile;
-	myfile.open("final_seps_unbound_binaries_1Msol_with_t.csv");
+	myfile.open("energy_v_time_bound_large_r_1Msol.csv");
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
-	//for (int i=0; i<1608; ++i){
 		cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
 
 		hasBroken = false;
@@ -591,6 +591,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		t = 0.0;
 		rs.clear();
 		ts.clear();
+		Energies.clear();
 
 		b_max = calcBMax(M_p, v_rel, a[i], m1, m2);
 		rate = encounterRate(n_p, v_rel, b_min, b_max, v_min, v_max);
@@ -635,7 +636,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			dt = randomExponential(rate);
 
 			if (linear){
-				r += sqrt(G*(m1+m2)/a[i])* randomExponential(rate);
+				r += sqrt(G*(m1+m2)/a[i])* dt;
 			} else {
 				if (e[i] < 1){
 					//Mean anomaly
@@ -654,6 +655,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 					notBound = get<3>(result);
 					r = get<4>(result);
 					a_break = a[i];
+					Energies.push_back(-G*m1*m2/(2.0*a[i]));
 
 					
 				} else if (e[i] > 1){
@@ -669,6 +671,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 					E = get<2>(result);
 					notBound = get<3>(result);
 					r = get<4>(result);
+					Energies.push_back(G*m1*m2/(2.0*a[i]));
 					//cout << "r = " << r*length_scale << endl;
 
 
@@ -713,7 +716,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				//E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
 			}
 			t += dt;
-
+			ts.push_back(t);
 			
 
 			//if (i==1607){
@@ -763,18 +766,26 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				notBound = true;
 				break;
 			}
+
+			if ((r*length_scale > 100.0*parsec) && !notBound){
+				cout << endl;
+				for (int k=0; k<static_cast<int>(Energies.size()); k++){
+					myfile << setprecision(16) << Energies[k]*mass_scale*length_scale*length_scale/(time_scale*time_scale) << ", " << ts[k]*time_scale << ", " << i << endl;
+				}
+				break;
+			}
 			
 
 			//if (r>2.0*a[i]/(1.0-pow(1.0-pow(10.0, -10.0), 2.0))){
-			if ((E>9.21) && (e[i]>20000)){
-				linear = false;
-			} else {
-				linear = false;
-			}
+			//if ((E>9.21) && (e[i]>20000)){
+			//	linear = false;
+			//} else {
+			//	linear = false;
+			//}
 
 			if (notBound){
-				rs.push_back(r);
-				ts.push_back(t);
+				//rs.push_back(r);
+				//ts.push_back(t);
 				//cout << endl << "Binary broken!" << endl;
 				//cout << endl;
 				hasBroken = true;
@@ -812,11 +823,14 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			N_close ++;
 		}
 		if (notBound){
-			//cout << "Binary considered broken at the end" << endl;
+			//cout << "Binary considered broken at the end, writing to file" << endl;
+			//cout << "Number of separations to add to file = " << static_cast<int>(rs.size()) << endl;
 			N_broken ++;
-			for (int j=0; j<static_cast<int>(rs.size()); j++){
-				myfile << setprecision(16) << rs[j]*length_scale << ", " << ts[j]*time_scale << ", " << i << endl;
-			}
+			//cin.ignore();
+			//for (int j=0; j<static_cast<int>(rs.size()); j++){
+				//cout << endl;
+				//myfile << setprecision(16) << rs[j]*length_scale << ", " << ts[j]*time_scale << ", " << i << endl;
+			//}
 			//myfile << setprecision(16) << r*length_scale << endl;
 		}
 		//cout << endl;

@@ -310,10 +310,12 @@ with open('final_seps_unbound_binaries_1Msol.csv') as csvfile:
 		r_1[row_number] = float(row[0])
 		row_number += 1
 
-N_bins = 500
+N_bins = 10
 
-r_min = np.min(np.append(r_1, r_10))
-r_max = np.max(np.append(r_1, r_10))
+
+
+r_min = 0.4*parsec
+r_max = 1000.0*parsec
 print('min =', r_min/parsec)
 print('max =', r_max/parsec)
 dr = (np.log(r_max) - np.log(r_min))/(N_bins)
@@ -322,14 +324,19 @@ N_r1 = np.zeros(N_bins)
 N_r10 = np.zeros(N_bins)
 for i in range(np.size(r_1)):
 	j = int(np.floor(np.log(r_1[i]/r_min)/dr))
-	if (r_1[i] == r_max):
-		j = N_bins-1
-	N_r1[j] += 1
+	if (r_1[i] < r_max):
+		N_r1[j] += 1
 for i in range(np.size(r_10)):
 	j = int(np.floor(np.log(r_10[i]/r_min)/dr))
-	if (r_10[i] == r_max):
-		j = N_bins-1
-	N_r10[j] += 1
+	if (r_10[i] < r_max):
+		N_r10[j] += 1
+
+print(N_r10)
+
+N_r1 /= np.sum(N_r1)
+N_r10 /= np.sum(N_r10)
+
+
 #Move bins into centre for plotting and calculations
 r_bins += 0.5*dr
 plt.semilogx(r_bins/parsec, N_r1, label=r'$M_p=1M_\odot$')
@@ -339,18 +346,18 @@ plt.xlim([r_min/parsec, r_max/parsec])
 plt.ylabel(r'Number of binaries')
 plt.legend()
 plt.show()
-'''
 
+'''
 #Plot distribution of unbound binary separations over time
 t_min = 0.0
 t_max = 10.0*giga*year
-N_t_bins = 10
+N_t_bins = 100
 dt = (t_max - t_min)/N_t_bins
 t_bins = np.array([t_min + i*dt for i in range(N_t_bins)])
 
-r_min = 0.01*parsec
+r_min = 0.4*parsec
 r_max = 1000.0*parsec
-N_r_bins = 10
+N_r_bins = 100
 dr = (np.log(r_max) - np.log(r_min))/(N_r_bins)
 r_bins = np.array([r_min*np.exp(i*dr) for i in range(N_r_bins)])
 
@@ -361,89 +368,97 @@ N_r100 = np.zeros((N_t_bins, N_r_bins), dtype=float)
 
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_1Msol_with_t_100.csv') as csvfile:
+with open('final_seps_unbound_binaries_1Msol_with_t.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		r = float(row[0])
 		t = float(row[1])
 		binary_number = int(row[2])
+		#print(binary_number)
 		i = int(np.floor((t - t_min)/dt))
-		j = int(np.floor(np.log(r/r_min)/dr))
 		#print("binary number = ", binary_number)
 		#print("i =", i)
 		#print("j =", j)
 		if (t == t_max):
 			i = N_t_bins-1
 		elif (t>t_max):
-			break
-		if (r == r_max):
-			j = N_r_bins-1
+			continue
 		if ((binary_number != binary_number_previous) or (i!=i_previous)):
+			j = int(np.floor(np.log(r/r_min)/dr))
+			if (r == r_max):
+				j = N_r_bins-1
 			N_r1[i,j] += 1
 			#print("Increment")
 			binary_number_previous = binary_number
 			i_previous = i
 		#input()
+#print(N_r1[N_t_bins-3])
+#print(N_r1[N_t_bins-2])
+
 
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_10Msol_with_t_100.csv') as csvfile:
+with open('final_seps_unbound_binaries_10Msol_with_t.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		r = float(row[0])
 		t = float(row[1])
 		binary_number = int(row[2])
-		i = int(np.floor((t - t_min)/dt))
-		j = int(np.floor(np.log(r/r_min)/dr))
+		#print(binary_number)
+		i = int(np.floor((t - t_min)/dt))		
 		if (t == t_max):
 			i = N_t_bins-1
 		elif (t>t_max):
-			break
-		if (r == r_max):
-			j = N_r_bins-1
+			continue
 		if ((binary_number != binary_number_previous) or (i!=i_previous)):
+			j = int(np.floor(np.log(r/r_min)/dr))
+			if (r == r_max):
+				j = N_r_bins-1
+			#print('Increment')
 			N_r10[i,j] += 1
 			binary_number_previous = binary_number
 			i_previous = i
+			#input()
+#print(N_r10[N_t_bins-1])
 
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_100Msol_with_t_100.csv') as csvfile:
+with open('final_seps_unbound_binaries_100Msol_with_t.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		r = float(row[0])
 		t = float(row[1])
 		binary_number = int(row[2])
 		i = int(np.floor((t - t_min)/dt))
-		j = int(np.floor(np.log(r/r_min)/dr))
 		if (t == t_max):
 			i = N_t_bins-1
 		elif (t>t_max):
-			break
-		if (r == r_max):
-			j = N_r_bins-1
+			continue
 		if ((binary_number != binary_number_previous) or (i!=i_previous)):
+			j = int(np.floor(np.log(r/r_min)/dr))
+			if (r == r_max):
+				j = N_r_bins-1
 			N_r100[i,j] += 1
 			binary_number_previous = binary_number
 			i_previous = i
 
-print(t_bins)
-print(N_r1)
 #Normalise
 for i in range(N_t_bins):
-	#N_r1[i] /= max([1, np.sum(N_r1[i])])
+	N_r1[i] /= max([1, np.sum(N_r1[i])])
 	N_r10[i] /= max([1, np.sum(N_r10[i])])
 	N_r100[i] /= max([1, np.sum(N_r100[i])])
 #Move bins into centre for plotting and calculations
 r_bins += 0.5*dr
 t_bins += 0.5*dt
 
+y_max = 0.45
+
 plt.semilogx(r_bins/parsec, N_r1[N_t_bins-1], label=r'$M_p=1M_\odot$')
 plt.semilogx(r_bins/parsec, N_r10[N_t_bins-1], label=r'$M_p=10M_\odot$')
 plt.semilogx(r_bins/parsec, N_r100[N_t_bins-1], label=r'$M_p=100M_\odot$')
 plt.xlabel(r'Separation, pc')
 plt.xlim([r_min/parsec, r_max/parsec])
-plt.ylim([-0.05,1.05])
+plt.ylim([-0.05,y_max])
 plt.ylabel(r'Fraction of currently broken binaries')
 plt.legend()
 plt.show()
@@ -453,23 +468,26 @@ base_interval = 10
 fig = plt.figure()
 ax=plt.gca()
 plt.xlim([r_min/parsec, r_max/parsec])
-plt.ylim([-0.05,1.05])
+plt.ylim([-0.05,y_max])
 plt.xlabel(r'Separation, pc')
 plt.ylabel(r'Fraction of currently broken binaries')
+plt.text(0.05, 0.9, r'$t = {}$Gyr'.format(round(t_bins[0]/(giga*year), 1)), transform=ax.transAxes)
 graph = ax.semilogx(r_bins/parsec, N_r1[0], label=r'$M_p=1M_\odot$', color = 'dodgerblue')
 graph = ax.semilogx(r_bins/parsec, N_r10[0], label=r'$M_p=10M_\odot$', color = 'darkorange')
 graph = ax.semilogx(r_bins/parsec, N_r100[0], label=r'$M_p=100M_\odot$', color = 'forestgreen')
+plt.legend(loc='upper right')
 def update(i):
 	i = min(i, N_t_bins-1)
 	ax.cla()
 	plt.xlim([r_min/parsec, r_max/parsec])
-	plt.ylim([-0.05,1.05])
+	plt.ylim([-0.05,y_max])
 	plt.xlabel(r'Separation, pc')
 	plt.ylabel(r'Fraction of currently broken binaries')
+	plt.text(0.05, 0.9, r'$t = {}$Gyr'.format(round(t_bins[i]/(giga*year), 1)), transform=ax.transAxes)
 	graph = ax.semilogx(r_bins/parsec, N_r1[i], label=r'$M_p=1M_\odot$', color = 'dodgerblue')
 	graph = ax.semilogx(r_bins/parsec, N_r10[i], label=r'$M_p=10M_\odot$', color = 'darkorange')
 	graph = ax.semilogx(r_bins/parsec, N_r100[i], label=r'$M_p=100M_\odot$', color = 'forestgreen')
-	plt.legend()
+	plt.legend(loc='upper right')
 	return(graph)        
 anim = animation.FuncAnimation(fig, update, interval=base_interval, repeat=True)
 plt.show()
