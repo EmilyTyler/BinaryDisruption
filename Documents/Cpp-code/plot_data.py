@@ -6,6 +6,9 @@ from mpl_toolkits.mplot3d import Axes3D
 from scipy.constants import au, parsec, giga, year
 from matplotlib import animation
 
+Writer = animation.writers['ffmpeg']
+writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+
 '''
 data = np.zeros(10**7, dtype=float)
 
@@ -451,24 +454,24 @@ for i in range(N_t_bins):
 r_bins += 0.5*dr
 t_bins += 0.5*dt
 
-y_max = 0.45
+y_max = 0.2
 
 plt.semilogx(r_bins/parsec, N_r1[N_t_bins-1], label=r'$M_p=1M_\odot$')
 plt.semilogx(r_bins/parsec, N_r10[N_t_bins-1], label=r'$M_p=10M_\odot$')
 plt.semilogx(r_bins/parsec, N_r100[N_t_bins-1], label=r'$M_p=100M_\odot$')
 plt.xlabel(r'Separation, pc')
 plt.xlim([r_min/parsec, r_max/parsec])
-plt.ylim([-0.05,y_max])
+plt.ylim([-0.02,y_max])
 plt.ylabel(r'Fraction of currently broken binaries')
 plt.legend()
 plt.show()
 
 #Generate animation
-base_interval = 10
+base_interval = 200
 fig = plt.figure()
 ax=plt.gca()
 plt.xlim([r_min/parsec, r_max/parsec])
-plt.ylim([-0.05,y_max])
+plt.ylim([-0.02,y_max])
 plt.xlabel(r'Separation, pc')
 plt.ylabel(r'Fraction of currently broken binaries')
 plt.text(0.05, 0.9, r'$t = {}$Gyr'.format(round(t_bins[0]/(giga*year), 1)), transform=ax.transAxes)
@@ -477,10 +480,9 @@ graph = ax.semilogx(r_bins/parsec, N_r10[0], label=r'$M_p=10M_\odot$', color = '
 graph = ax.semilogx(r_bins/parsec, N_r100[0], label=r'$M_p=100M_\odot$', color = 'forestgreen')
 plt.legend(loc='upper right')
 def update(i):
-	i = min(i, N_t_bins-1)
 	ax.cla()
 	plt.xlim([r_min/parsec, r_max/parsec])
-	plt.ylim([-0.05,y_max])
+	plt.ylim([-0.02,y_max])
 	plt.xlabel(r'Separation, pc')
 	plt.ylabel(r'Fraction of currently broken binaries')
 	plt.text(0.05, 0.9, r'$t = {}$Gyr'.format(round(t_bins[i]/(giga*year), 1)), transform=ax.transAxes)
@@ -489,5 +491,6 @@ def update(i):
 	graph = ax.semilogx(r_bins/parsec, N_r100[i], label=r'$M_p=100M_\odot$', color = 'forestgreen')
 	plt.legend(loc='upper right')
 	return(graph)        
-anim = animation.FuncAnimation(fig, update, interval=base_interval, repeat=True)
+anim = animation.FuncAnimation(fig, update, frames = range(0, N_t_bins), interval=base_interval, repeat=True, repeat_delay=600)
+anim.save('unbound_distribution.mp4', writer=writer)
 plt.show()
