@@ -282,9 +282,9 @@ array<array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long dou
 				{n*a*sinh(E)/(e*cosh(E) - 1.0), n*a*sqrt(e*e-1.0)*cosh(E)/(e*cosh(E) - 1.0), 0.0}} };
 		} else {
 			// Randomise mean anomaly
-			M = randomUniformDoubleOpen(0.0, 2.0*pi);
+			//M = randomUniformDoubleOpen(0.0, 2.0*pi);
 			// Find eccentric anomaly
-			E = eccentricAnomaly(e, M, non_converged_binary);
+			//E = eccentricAnomaly(e, M, non_converged_binary);
 			// Find true anomaly
 			//f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
 			// Separation of stars

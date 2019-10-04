@@ -668,7 +668,7 @@ int main() {
 	long double a_min = pow(10.0, 1.0) * au/length_scale;
 	long double a_max = pow(10.0, 5.5) * au/length_scale;
 
-	int N_bin = pow(10.0, 5.0);
+	int N_bin = pow(10, 3);
 
 	string filename = "";
 

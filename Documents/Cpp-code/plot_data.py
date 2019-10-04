@@ -360,7 +360,7 @@ t_bins = np.array([t_min + i*dt for i in range(N_t_bins)])
 
 r_min = 0.4*parsec
 r_max = 1000.0*parsec
-N_r_bins = 100
+N_r_bins = 500
 dr = (np.log(r_max) - np.log(r_min))/(N_r_bins)
 r_bins = np.array([r_min*np.exp(i*dr) for i in range(N_r_bins)])
 
@@ -374,6 +374,7 @@ i_previous = -1
 with open('final_seps_unbound_binaries_1Msol_with_t.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
+		print(row)
 		r = float(row[0])
 		t = float(row[1])
 		binary_number = int(row[2])
@@ -387,6 +388,7 @@ with open('final_seps_unbound_binaries_1Msol_with_t.csv') as csvfile:
 		elif (t>t_max):
 			continue
 		if ((binary_number != binary_number_previous) or (i!=i_previous)):
+			#print(row)
 			j = int(np.floor(np.log(r/r_min)/dr))
 			if (r == r_max):
 				j = N_r_bins-1
