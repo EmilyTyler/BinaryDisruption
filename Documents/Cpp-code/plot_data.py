@@ -368,84 +368,96 @@ N_r1 = np.zeros((N_t_bins, N_r_bins), dtype=float)
 N_r10 = np.zeros((N_t_bins, N_r_bins), dtype=float)
 N_r100 = np.zeros((N_t_bins, N_r_bins), dtype=float)
 
-
+t_min_actual=10.0*giga*year
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_1Msol_with_t.csv') as csvfile:
+with open('final_seps_unbound_binaries_1Msol_with_t_10e4bin.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
-		print(row)
-		r = float(row[0])
-		t = float(row[1])
-		binary_number = int(row[2])
-		#print(binary_number)
-		i = int(np.floor((t - t_min)/dt))
-		#print("binary number = ", binary_number)
-		#print("i =", i)
-		#print("j =", j)
-		if (t == t_max):
-			i = N_t_bins-1
-		elif (t>t_max):
-			continue
-		if ((binary_number != binary_number_previous) or (i!=i_previous)):
+		if (np.size(row)>0):
 			#print(row)
-			j = int(np.floor(np.log(r/r_min)/dr))
-			if (r == r_max):
-				j = N_r_bins-1
-			N_r1[i,j] += 1
-			#print("Increment")
-			binary_number_previous = binary_number
-			i_previous = i
-		#input()
+			r = float(row[0])
+			t = float(row[1])
+			binary_number = int(row[2])
+			#print(binary_number)
+			i = int(np.floor((t - t_min)/dt))
+			#print("binary number = ", binary_number)
+			#print("i =", i)
+			#print("j =", j)
+			t_min_actual=np.min([t_min_actual, t])
+			if (t == t_max):
+				i = N_t_bins-1
+			elif (t>t_max):
+				continue
+			if ((binary_number != binary_number_previous) or (i!=i_previous)):
+				#print(row)
+				j = int(np.floor(np.log(r/r_min)/dr))
+				if (r == r_max):
+					j = N_r_bins-1
+				N_r1[i,j] += 1
+				#print("Increment")
+				binary_number_previous = binary_number
+				i_previous = i
+			#input()
 #print(N_r1[N_t_bins-3])
 #print(N_r1[N_t_bins-2])
+print('t_min_actual =', t_min_actual/(giga*year))
 
 
+t_min_actual=10.0*giga*year
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_10Msol_with_t.csv') as csvfile:
+with open('final_seps_unbound_binaries_10Msol_with_t_10e4bin.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
-		r = float(row[0])
-		t = float(row[1])
-		binary_number = int(row[2])
-		#print(binary_number)
-		i = int(np.floor((t - t_min)/dt))		
-		if (t == t_max):
-			i = N_t_bins-1
-		elif (t>t_max):
-			continue
-		if ((binary_number != binary_number_previous) or (i!=i_previous)):
-			j = int(np.floor(np.log(r/r_min)/dr))
-			if (r == r_max):
-				j = N_r_bins-1
-			#print('Increment')
-			N_r10[i,j] += 1
-			binary_number_previous = binary_number
-			i_previous = i
-			#input()
-#print(N_r10[N_t_bins-1])
+		if (np.size(row)>0):
+			r = float(row[0])
+			t = float(row[1])
+			binary_number = int(row[2])
+			#print(binary_number)
+			i = int(np.floor((t - t_min)/dt))	
+			t_min_actual=np.min([t_min_actual, t])	
+			if (t == t_max):
+				i = N_t_bins-1
+			elif (t>t_max):
+				continue
+			if ((binary_number != binary_number_previous) or (i!=i_previous)):
+				j = int(np.floor(np.log(r/r_min)/dr))
+				if (r == r_max):
+					j = N_r_bins-1
+				#print('Increment')
+				N_r10[i,j] += 1
+				binary_number_previous = binary_number
+				i_previous = i
+				#input()
+#print(N_r10[N_t_bins-1])]
+print('t_min_actual =', t_min_actual/(giga*year))
 
+
+t_min_actual=10.0*giga*year
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_100Msol_with_t.csv') as csvfile:
+with open('final_seps_unbound_binaries_100Msol_with_t_10e4bin.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
-		r = float(row[0])
-		t = float(row[1])
-		binary_number = int(row[2])
-		i = int(np.floor((t - t_min)/dt))
-		if (t == t_max):
-			i = N_t_bins-1
-		elif (t>t_max):
-			continue
-		if ((binary_number != binary_number_previous) or (i!=i_previous)):
-			j = int(np.floor(np.log(r/r_min)/dr))
-			if (r == r_max):
-				j = N_r_bins-1
-			N_r100[i,j] += 1
-			binary_number_previous = binary_number
-			i_previous = i
+		if (np.size(row)>0):
+			r = float(row[0])
+			t = float(row[1])
+			binary_number = int(row[2])
+			i = int(np.floor((t - t_min)/dt))
+			t_min_actual=np.min([t_min_actual, t])
+			if (t == t_max):
+				i = N_t_bins-1
+			elif (t>t_max):
+				continue
+			if ((binary_number != binary_number_previous) or (i!=i_previous)):
+				j = int(np.floor(np.log(r/r_min)/dr))
+				if (r == r_max):
+					j = N_r_bins-1
+				N_r100[i,j] += 1
+				binary_number_previous = binary_number
+				i_previous = i
+print('t_min_actual =', t_min_actual/(giga*year))
 
 #Normalise
 for i in range(N_t_bins):
@@ -487,7 +499,7 @@ def update(i):
 	plt.ylim([-0.02,y_max])
 	plt.xlabel(r'Separation, pc')
 	plt.ylabel(r'Fraction of currently broken binaries')
-	plt.text(0.05, 0.9, r'$t = {}$Gyr'.format(round(t_bins[i]/(giga*year), 1)), transform=ax.transAxes)
+	plt.text(0.05, 0.9, r'$t = {}$Gyr'.format(round(t_bins[i]/(giga*year), 3)), transform=ax.transAxes)
 	graph = ax.semilogx(r_bins/parsec, N_r1[i], label=r'$M_p=1M_\odot$', color = 'dodgerblue')
 	graph = ax.semilogx(r_bins/parsec, N_r10[i], label=r'$M_p=10M_\odot$', color = 'darkorange')
 	graph = ax.semilogx(r_bins/parsec, N_r100[i], label=r'$M_p=100M_\odot$', color = 'forestgreen')

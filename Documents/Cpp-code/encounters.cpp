@@ -535,7 +535,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	long double a_T = 1000.0 * parsec/length_scale;
 	//Number of binaries
 	int N_bin = static_cast<int>(a.size());
-	cout << "Number of binaries = " << N_bin << endl;
+	//cout << "Number of binaries = " << N_bin << endl;
 	//Declare variable types
 	long double b_max, rate, v, b;
 	tuple<long double, long double, long double, bool, long double> result;
@@ -586,11 +586,12 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	bool non_converged_binary;
 
 	ofstream myfile;
-	myfile.open("energy_v_time_nonconverged_nbody_100Msol_eta0_000002_n10.csv");
+	myfile.open("final_seps_unbound_binaries_1Msol_with_t_10e4bin.csv");
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
-		cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
+		//cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
+		//cout << "Binary " << i+1 << " of " << N_bin << endl;
 
 		hasBroken = false;
 		rebound = false;
@@ -621,6 +622,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		r = a[i];
 		r_previous = r;
 
+		/*
 		//Set up Nbody starting conditions
 		n = sqrt(G*(m1+m2)/(pow(a[i],3)));
 		vector<array<long double, 3>> X_nbody = { {
@@ -644,6 +646,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			X_nbody[2][i] -= V[i];
 			X_nbody[3][i] -= V[i];
 		}
+		*/
 
 
 		//Implement encounters
@@ -718,7 +721,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 						notBound = get<3>(result);
 						r = get<4>(result);
 						a_break = a[i];
-						Energies.push_back(-G*m1*m2/(2.0*a[i]));
+						//Energies.push_back(-G*m1*m2/(2.0*a[i]));
 
 						
 					} else if ((e[i] > 1)){
@@ -755,7 +758,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 						E = get<2>(result);
 						notBound = get<3>(result);
 						r = get<4>(result);
-						Energies.push_back(G*m1*m2/(2.0*a[i]));
+						//Energies.push_back(G*m1*m2/(2.0*a[i]));
 						//cout << "r = " << r*length_scale << endl;
 
 
@@ -789,7 +792,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 						*/
 
 					} else {
-						cout << endl << "e = 1" << endl;
+						//cout << endl << "e = 1" << endl;
 						break;
 					}
 					//cout << "dt = " << t << endl;
@@ -803,8 +806,9 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				Energies.push_back(0.0);
 			}
 			t += dt;
-			ts.push_back(t);
+			//ts.push_back(t);
 
+			/*
 			//Nbody
 			X_nbody = evolve(2, ms, X_nbody, dt, ini_arrays = ini_arrays);
 
@@ -834,6 +838,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				a_nbody *= -1;
 			}
 			Energies_nbody.push_back(G*m1*m2/(2.0*a_nbody));
+			*/
 			
 
 			//if (i==1607){
@@ -901,8 +906,8 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//}
 
 			if (notBound){
-				//rs.push_back(r);
-				//ts.push_back(t);
+				rs.push_back(r);
+				ts.push_back(t);
 				//cout << endl << "Binary broken!" << endl;
 				//cout << endl;
 				hasBroken = true;
@@ -929,11 +934,13 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		//if (notBound){
 			//cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
 		//}
+		/*
 		if (non_converged_binary){
 			for (int k=0; k<static_cast<int>(Energies.size()); k++){
 				myfile << setprecision(16) << Energies[k]*mass_scale*length_scale*length_scale/(time_scale*time_scale) << ", " << Energies_nbody[k]*mass_scale*length_scale*length_scale/(time_scale*time_scale) << ", " <<ts[k]*time_scale << ", " << i << endl;
 			}
 		}
+		*/
 		if (rebound && (notBound == false)) {
 			//cout << "Rebound binary bound at the end!!!!!!!!!!!!!!!!!!!!!" << endl;
 			//cout << endl << "Rebound binary bound at the end!!" << endl;
@@ -949,10 +956,9 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << "Number of separations to add to file = " << static_cast<int>(rs.size()) << endl;
 			N_broken ++;
 			//cin.ignore();
-			//for (int j=0; j<static_cast<int>(rs.size()); j++){
-			//	cout << endl;
-			//	myfile << setprecision(16) << rs[j]*length_scale << "," << ts[j]*time_scale << "," << i << endl;
-			//}
+			for (int j=0; j<static_cast<int>(rs.size()); j++){
+				myfile << setprecision(16) << rs[j]*length_scale << "," << ts[j]*time_scale << "," << i << endl;
+			}
 			//myfile << setprecision(16) << r*length_scale << endl;
 		}
 		//cout << endl;
