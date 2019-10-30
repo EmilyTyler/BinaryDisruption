@@ -349,7 +349,7 @@ plt.xlim([r_min/parsec, r_max/parsec])
 plt.ylabel(r'Number of binaries')
 plt.legend()
 plt.show()
-
+'''
 '''
 #Plot distribution of unbound binary separations over time
 t_min = 0.0
@@ -468,14 +468,14 @@ for i in range(N_t_bins):
 r_bins += 0.5*dr
 t_bins += 0.5*dt
 
-y_max = 0.2
+y_max = 0.05
 
 plt.semilogx(r_bins/parsec, N_r1[N_t_bins-1], label=r'$M_p=1M_\odot$')
 plt.semilogx(r_bins/parsec, N_r10[N_t_bins-1], label=r'$M_p=10M_\odot$')
 plt.semilogx(r_bins/parsec, N_r100[N_t_bins-1], label=r'$M_p=100M_\odot$')
 plt.xlabel(r'Separation, pc')
 plt.xlim([r_min/parsec, r_max/parsec])
-plt.ylim([-0.02,y_max])
+plt.ylim([-0.005,y_max])
 plt.ylabel(r'Fraction of currently broken binaries')
 plt.legend()
 plt.show()
@@ -485,7 +485,7 @@ base_interval = 200
 fig = plt.figure()
 ax=plt.gca()
 plt.xlim([r_min/parsec, r_max/parsec])
-plt.ylim([-0.02,y_max])
+plt.ylim([-0.005,y_max])
 plt.xlabel(r'Separation, pc')
 plt.ylabel(r'Fraction of currently broken binaries')
 plt.text(0.05, 0.9, r'$t = {}$Gyr'.format(round(t_bins[0]/(giga*year), 1)), transform=ax.transAxes)
@@ -496,7 +496,7 @@ plt.legend(loc='upper right')
 def update(i):
 	ax.cla()
 	plt.xlim([r_min/parsec, r_max/parsec])
-	plt.ylim([-0.02,y_max])
+	plt.ylim([-0.005,y_max])
 	plt.xlabel(r'Separation, pc')
 	plt.ylabel(r'Fraction of currently broken binaries')
 	plt.text(0.05, 0.9, r'$t = {}$Gyr'.format(round(t_bins[i]/(giga*year), 3)), transform=ax.transAxes)
@@ -507,4 +507,70 @@ def update(i):
 	return(graph)        
 anim = animation.FuncAnimation(fig, update, frames = range(0, N_t_bins), interval=base_interval, repeat=True, repeat_delay=600)
 anim.save('unbound_distribution.mp4', writer=writer)
+plt.show()
+'''
+
+
+#Plot Jiang and Tremaine fig 4
+t_min = 0.0
+t_max = 10.0*giga*year
+N_t_bins = 100
+dt = (t_max - t_min)/N_t_bins
+t_bins = np.array([t_min + i*dt for i in range(N_t_bins)])
+
+r_min = 0.4*parsec
+r_max = 1000.0*parsec
+N_r_bins = 500
+dr = (np.log(r_max) - np.log(r_min))/(N_r_bins)
+r_bins = np.array([r_min*np.exp(i*dr) for i in range(N_r_bins)])
+dr_log = np.zeros(N_r_bins)
+for i in range(N_r_bins-1):
+	dr_log[i] = r_bins[i+1]-r_bins[i]
+dr_log[N_r_bins-1] = r_max - r_bins[N_r_bins-1]
+
+N_r1 = np.zeros((N_t_bins, N_r_bins), dtype=float)
+
+binary_number_previous = -1
+i_previous = -1
+with open('final_seps_unbound_binaries_1Msol_with_t_10e4bin.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	for row in reader:
+		if (np.size(row)>0):
+
+			r = float(row[0])
+			t = float(row[1])
+			binary_number = int(row[2])
+			i = int(np.floor((t - t_min)/dt))
+
+			if (t == t_max):
+				i = N_t_bins-1
+			elif (t>t_max):
+				continue
+			if ((binary_number != binary_number_previous) or (i!=i_previous)):
+				j = int(np.floor(np.log(r/r_min)/dr))
+				if (r == r_max):
+					j = N_r_bins-1
+				N_r1[i,j] += 1
+				binary_number_previous = binary_number
+				i_previous = i
+
+
+
+
+#Normalise
+for i in range(N_t_bins):
+	N_r1[i] /= max([1, np.sum(N_r1[i])])*(dr_log/(parsec))
+
+#Move bins into centre for plotting and calculations
+r_bins += 0.5*dr
+t_bins += 0.5*dt
+
+y_max = 0.05
+
+plt.plot(np.log10(r_bins/(1.7*parsec)), N_r1[N_t_bins-1], label=r'$a_i=0.59r_J$')
+plt.xlabel(r'$\mathrm{log}_{10}(r/r_J)$')
+plt.xlim([-2, 4])
+plt.ylim([0,0.8])
+plt.ylabel(r'Probability Density')
+plt.legend()
 plt.show()

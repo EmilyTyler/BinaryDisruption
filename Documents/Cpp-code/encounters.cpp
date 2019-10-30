@@ -569,7 +569,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	vector<long double> Energies;
 	vector<array<long double, 3>> X_nbody;
 	vector<long double> Energies_nbody;
-	long double a_nbody;
+	long double a_nbody, e_nbody;
 	bool notBound_nbody;
 
 	//long double En_previous;
@@ -586,7 +586,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	bool non_converged_binary;
 
 	ofstream myfile;
-	myfile.open("final_seps_unbound_binaries_1Msol_with_t_10e4bin.csv");
+	myfile.open("energy_v_time_nonconverged_nbody_1Msol_eta0_00000002_n10_new.csv");
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
@@ -622,7 +622,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		r = a[i];
 		r_previous = r;
 
-		/*
+		
 		//Set up Nbody starting conditions
 		n = sqrt(G*(m1+m2)/(pow(a[i],3)));
 		vector<array<long double, 3>> X_nbody = { {
@@ -646,7 +646,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			X_nbody[2][i] -= V[i];
 			X_nbody[3][i] -= V[i];
 		}
-		*/
+		
 
 
 		//Implement encounters
@@ -695,6 +695,10 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 						E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
 
 						X = setupRandomBinaryIonised(a[i], e[i], m1, m2, E, r, notBound, non_converged_binary, linear);
+						//cout << setprecision(16) << X[0][0] << ", " << X[0][1] << ", " << X[0][2] << endl;
+						//cout << X[1][0] << ", " << X[1][1] << ", " << X[1][2] << endl;
+						//cout << X[2][0] << ", " << X[2][1] << ", " << X[2][2] << endl;
+						//cout << X[2][0] << ", " << X[2][1] << ", " << X[2][2] << endl;
 						for (int k=0; k<2; ++k){
 							//90 degree deflection radius
 							b_90 = G*(M_p + ms[k])/(v*v);
@@ -702,26 +706,30 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 							b_star = calcBStar(X[k], v_vec, v, b_vec);
 							//Calculate norm of b_star
 							b_star_norm = norm(b_star);
+							//cout << setprecision(16) << b_star_norm << endl;
 							//Calculate speed change in b_star direction
 							v_perp = 2.0*M_p*v/(ms[k]+M_p) * (b_star_norm/b_90)/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
 							//Calculate speed change in -v_vec direction
 							v_para = 2.0*M_p*v/(ms[k]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+							//cout << v_para << endl;
 							//Change star velocity
 							//cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
-							for (int l=0; l<3; ++l){
-								X[k+2][l] += v_perp * b_star[l]/b_star_norm - v_para * v_vec[l]/v;
-							}
+							//for (int l=0; l<3; ++l){
+							//	X[k+2][l] += v_perp * b_star[l]/b_star_norm - v_para * v_vec[l]/v;
+							//}
 						}
 						result = orbitalElementsIonised(X, m1, m2);
 
 						//result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, r, notBound, non_converged_binary, linear);
 						a[i] = get<0>(result);
+						//cout << a[i] << endl;
 						e[i] = get<1>(result);
+						//cout << e[i] << endl;
 						E = get<2>(result);
 						notBound = get<3>(result);
 						r = get<4>(result);
 						a_break = a[i];
-						//Energies.push_back(-G*m1*m2/(2.0*a[i]));
+						Energies.push_back(-G*m1*m2/(2.0*a[i]));
 
 						
 					} else if ((e[i] > 1)){
@@ -733,6 +741,10 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 						E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
 
 						X = setupRandomBinaryIonised(a[i], e[i], m1, m2, E, r, notBound, non_converged_binary, linear);
+						//cout << setprecision(16) << X[0][0] << ", " << X[0][1] << ", " << X[0][2] << endl;
+						//cout << X[1][0] << ", " << X[1][1] << ", " << X[1][2] << endl;
+						//cout << X[2][0] << ", " << X[2][1] << ", " << X[2][2] << endl;
+						//cout << X[2][0] << ", " << X[2][1] << ", " << X[2][2] << endl;
 						for (int k=0; k<2; ++k){
 							//90 degree deflection radius
 							b_90 = G*(M_p + ms[k])/(v*v);
@@ -740,25 +752,29 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 							b_star = calcBStar(X[k], v_vec, v, b_vec);
 							//Calculate norm of b_star
 							b_star_norm = norm(b_star);
+							//cout << setprecision(16) << b_star_norm << endl;
 							//Calculate speed change in b_star direction
 							v_perp = 2.0*M_p*v/(ms[k]+M_p) * (b_star_norm/b_90)/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
 							//Calculate speed change in -v_vec direction
 							v_para = 2.0*M_p*v/(ms[k]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+							//cout << v_para << endl;
 							//Change star velocity
 							//cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
-							for (int l=0; l<3; ++l){
-								X[k+2][l] += v_perp * b_star[l]/b_star_norm - v_para * v_vec[l]/v;
-							}
+							//for (int l=0; l<3; ++l){
+							//	X[k+2][l] += v_perp * b_star[l]/b_star_norm - v_para * v_vec[l]/v;
+							//}
 						}
 						result = orbitalElementsIonised(X, m1, m2);
 
 						//result = impulseEncounterIonised(m1, m2, M_p, a[i], e[i], b, v, E, r, notBound, non_converged_binary, linear);
 						a[i] = get<0>(result);
+						//cout << a[i] << endl;
 						e[i] = get<1>(result);
+						//cout << e[i] << endl;
 						E = get<2>(result);
 						notBound = get<3>(result);
 						r = get<4>(result);
-						//Energies.push_back(G*m1*m2/(2.0*a[i]));
+						Energies.push_back(G*m1*m2/(2.0*a[i]));
 						//cout << "r = " << r*length_scale << endl;
 
 
@@ -806,11 +822,16 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				Energies.push_back(0.0);
 			}
 			t += dt;
-			//ts.push_back(t);
+			ts.push_back(t);
 
-			/*
+			//cout << "Nbody" << endl;
+
 			//Nbody
 			X_nbody = evolve(2, ms, X_nbody, dt, ini_arrays = ini_arrays);
+			//cout << setprecision(16) << X_nbody[0][0] << ", " << X_nbody[0][1] << ", " << X_nbody[0][2] << endl;
+			//cout << X_nbody[1][0] << ", " << X_nbody[1][1] << ", " << X_nbody[1][2] << endl;
+			//cout << X_nbody[2][0] << ", " << X_nbody[2][1] << ", " << X_nbody[2][2] << endl;
+			//cout << X_nbody[2][0] << ", " << X_nbody[2][1] << ", " << X_nbody[2][2] << endl;
 
 			for (int k=0; k<2; ++k){
 				//90 degree deflection radius
@@ -819,26 +840,31 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				b_star = calcBStar(X_nbody[k], v_vec, v, b_vec);
 				//Calculate norm of b_star
 				b_star_norm = norm(b_star);
+				//cout << setprecision(16) << b_star_norm << endl;
 				//Calculate speed change in b_star direction
 				v_perp = 2.0*M_p*v/(ms[k]+M_p) * (b_star_norm/b_90)/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
 				//Calculate speed change in -v_vec direction
 				v_para = 2.0*M_p*v/(ms[k]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
+				//cout << v_para << endl;
 				//Change star velocity
 				//cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
-				for (int l=0; l<3; ++l){
-					X_nbody[k+2][l] += v_perp * b_star[l]/b_star_norm - v_para * v_vec[l]/v;
-				}
+				//for (int l=0; l<3; ++l){
+				//	X_nbody[k+2][l] += v_perp * b_star[l]/b_star_norm - v_para * v_vec[l]/v;
+				//}
 			}
 
 			//X_nbody = impulseEncounterXV(X_nbody, M_p, m1, m2, b, v);
 			result2 = orbitalElements(X_nbody, m1, m2);
 			a_nbody= get<0>(result2);
+			e_nbody = get<1>(result2);
+			//cout << a_nbody << endl;
+			//cout << e_nbody << endl;
 			notBound_nbody = get<2>(result2);
 			if (!notBound_nbody){
 				a_nbody *= -1;
 			}
 			Energies_nbody.push_back(G*m1*m2/(2.0*a_nbody));
-			*/
+			
 			
 
 			//if (i==1607){
@@ -906,8 +932,8 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//}
 
 			if (notBound){
-				rs.push_back(r);
-				ts.push_back(t);
+				//rs.push_back(r);
+				//ts.push_back(t);
 				//cout << endl << "Binary broken!" << endl;
 				//cout << endl;
 				hasBroken = true;
@@ -934,13 +960,13 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		//if (notBound){
 			//cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
 		//}
-		/*
+		
 		if (non_converged_binary){
 			for (int k=0; k<static_cast<int>(Energies.size()); k++){
 				myfile << setprecision(16) << Energies[k]*mass_scale*length_scale*length_scale/(time_scale*time_scale) << ", " << Energies_nbody[k]*mass_scale*length_scale*length_scale/(time_scale*time_scale) << ", " <<ts[k]*time_scale << ", " << i << endl;
 			}
 		}
-		*/
+		
 		if (rebound && (notBound == false)) {
 			//cout << "Rebound binary bound at the end!!!!!!!!!!!!!!!!!!!!!" << endl;
 			//cout << endl << "Rebound binary bound at the end!!" << endl;
@@ -956,9 +982,9 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << "Number of separations to add to file = " << static_cast<int>(rs.size()) << endl;
 			N_broken ++;
 			//cin.ignore();
-			for (int j=0; j<static_cast<int>(rs.size()); j++){
-				myfile << setprecision(16) << rs[j]*length_scale << "," << ts[j]*time_scale << "," << i << endl;
-			}
+			//for (int j=0; j<static_cast<int>(rs.size()); j++){
+			//	myfile << setprecision(16) << rs[j]*length_scale << "," << ts[j]*time_scale << "," << i << endl;
+			//}
 			//myfile << setprecision(16) << r*length_scale << endl;
 		}
 		//cout << endl;
