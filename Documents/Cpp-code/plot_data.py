@@ -350,6 +350,7 @@ plt.ylabel(r'Number of binaries')
 plt.legend()
 plt.show()
 '''
+
 '''
 #Plot distribution of unbound binary separations over time
 t_min = 0.0
@@ -367,6 +368,115 @@ r_bins = np.array([r_min*np.exp(i*dr) for i in range(N_r_bins)])
 N_r1 = np.zeros((N_t_bins, N_r_bins), dtype=float)
 N_r10 = np.zeros((N_t_bins, N_r_bins), dtype=float)
 N_r100 = np.zeros((N_t_bins, N_r_bins), dtype=float)
+N_r1_fixedbmax = np.zeros((N_t_bins, N_r_bins), dtype=float)
+N_r10_fixedbmax = np.zeros((N_t_bins, N_r_bins), dtype=float)
+N_r100_fixedbmax = np.zeros((N_t_bins, N_r_bins), dtype=float)
+
+t_min_actual=10.0*giga*year
+binary_number_previous = -1
+i_previous = -1
+with open('final_seps_unbound_binaries_1Msol_with_t_10e4bin_bmax1pc.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	for row in reader:
+		if (np.size(row)>0):
+			#print(row)
+			r = float(row[0])
+			t = float(row[1])
+			binary_number = int(row[2])
+			#print(binary_number)
+			i = int(np.floor((t - t_min)/dt))
+			#print("binary number = ", binary_number)
+			#print("i =", i)
+			#print("j =", j)
+			t_min_actual=np.min([t_min_actual, t])
+			if (t == t_max):
+				i = N_t_bins-1
+			elif (t>t_max):
+				continue
+			if ((binary_number != binary_number_previous) or (i!=i_previous)):
+				#print(row)
+				j = int(np.floor(np.log(r/r_min)/dr))
+				if (r == r_max):
+					j = N_r_bins-1
+				N_r1_fixedbmax[i,j] += 1
+				#print("Increment")
+				binary_number_previous = binary_number
+				i_previous = i
+			#input()
+#print(N_r1[N_t_bins-3])
+#print(N_r1[N_t_bins-2])
+print('t_min_actual =', t_min_actual/(giga*year))
+
+t_min_actual=10.0*giga*year
+binary_number_previous = -1
+i_previous = -1
+with open('final_seps_unbound_binaries_10Msol_with_t_10e4bin_bmax1pc.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	for row in reader:
+		if (np.size(row)>0):
+			#print(row)
+			r = float(row[0])
+			t = float(row[1])
+			binary_number = int(row[2])
+			#print(binary_number)
+			i = int(np.floor((t - t_min)/dt))
+			#print("binary number = ", binary_number)
+			#print("i =", i)
+			#print("j =", j)
+			t_min_actual=np.min([t_min_actual, t])
+			if (t == t_max):
+				i = N_t_bins-1
+			elif (t>t_max):
+				continue
+			if ((binary_number != binary_number_previous) or (i!=i_previous)):
+				#print(row)
+				j = int(np.floor(np.log(r/r_min)/dr))
+				if (r == r_max):
+					j = N_r_bins-1
+				N_r10_fixedbmax[i,j] += 1
+				#print("Increment")
+				binary_number_previous = binary_number
+				i_previous = i
+			#input()
+#print(N_r1[N_t_bins-3])
+#print(N_r1[N_t_bins-2])
+print('t_min_actual =', t_min_actual/(giga*year))
+
+t_min_actual=10.0*giga*year
+binary_number_previous = -1
+i_previous = -1
+with open('final_seps_unbound_binaries_100Msol_with_t_10e4bin_bmax1pc.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	for row in reader:
+		if (np.size(row)>0):
+			#print(row)
+			r = float(row[0])
+			t = float(row[1])
+			binary_number = int(row[2])
+			#print(binary_number)
+			i = int(np.floor((t - t_min)/dt))
+			#print("binary number = ", binary_number)
+			#print("i =", i)
+			#print("j =", j)
+			t_min_actual=np.min([t_min_actual, t])
+			if (t == t_max):
+				i = N_t_bins-1
+			elif (t>t_max):
+				continue
+			if ((binary_number != binary_number_previous) or (i!=i_previous)):
+				#print(row)
+				j = int(np.floor(np.log(r/r_min)/dr))
+				if (r == r_max):
+					j = N_r_bins-1
+				N_r100_fixedbmax[i,j] += 1
+				#print("Increment")
+				binary_number_previous = binary_number
+				i_previous = i
+			#input()
+#print(N_r1[N_t_bins-3])
+#print(N_r1[N_t_bins-2])
+print('t_min_actual =', t_min_actual/(giga*year))
+
 
 t_min_actual=10.0*giga*year
 binary_number_previous = -1
@@ -464,6 +574,9 @@ for i in range(N_t_bins):
 	N_r1[i] /= max([1, np.sum(N_r1[i])])
 	N_r10[i] /= max([1, np.sum(N_r10[i])])
 	N_r100[i] /= max([1, np.sum(N_r100[i])])
+	N_r1_fixedbmax[i] /= max([1, np.sum(N_r1_fixedbmax[i])])
+	N_r10_fixedbmax[i] /= max([1, np.sum(N_r10_fixedbmax[i])])
+	N_r100_fixedbmax[i] /= max([1, np.sum(N_r100_fixedbmax[i])])
 #Move bins into centre for plotting and calculations
 r_bins += 0.5*dr
 t_bins += 0.5*dt
@@ -473,13 +586,17 @@ y_max = 0.05
 plt.semilogx(r_bins/parsec, N_r1[N_t_bins-1], label=r'$M_p=1M_\odot$')
 plt.semilogx(r_bins/parsec, N_r10[N_t_bins-1], label=r'$M_p=10M_\odot$')
 plt.semilogx(r_bins/parsec, N_r100[N_t_bins-1], label=r'$M_p=100M_\odot$')
+plt.semilogx(r_bins/parsec, N_r1_fixedbmax[N_t_bins-1], label=r'$M_p=1M_\odot$, fixed $b_\mathrm{max}$')
+plt.semilogx(r_bins/parsec, N_r10_fixedbmax[N_t_bins-1], label=r'$M_p=10M_\odot$, fixed $b_\mathrm{max}$')
+plt.semilogx(r_bins/parsec, N_r100_fixedbmax[N_t_bins-1], label=r'$M_p=100M_\odot$, fixed $b_\mathrm{max}$')
 plt.xlabel(r'Separation, pc')
 plt.xlim([r_min/parsec, r_max/parsec])
 plt.ylim([-0.005,y_max])
 plt.ylabel(r'Fraction of currently broken binaries')
 plt.legend()
 plt.show()
-
+'''
+'''
 #Generate animation
 base_interval = 200
 fig = plt.figure()
@@ -532,7 +649,7 @@ N_r1 = np.zeros((N_t_bins, N_r_bins), dtype=float)
 
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_1Msol_with_t_10e4bin.csv') as csvfile:
+with open('final_seps_unbound_binaries_JT_with_t_10e4bin.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		if (np.size(row)>0):
@@ -567,7 +684,7 @@ t_bins += 0.5*dt
 
 y_max = 0.05
 
-plt.plot(np.log10(r_bins/(1.7*parsec)), N_r1[N_t_bins-1], label=r'$a_i=0.59r_J$')
+plt.plot(np.log10(r_bins/(1.7*parsec)), N_r1[N_t_bins-1], label=r'$a_i=0.1r_J$')
 plt.xlabel(r'$\mathrm{log}_{10}(r/r_J)$')
 plt.xlim([-2, 4])
 plt.ylim([0,0.8])
