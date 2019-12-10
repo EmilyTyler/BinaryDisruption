@@ -21,4 +21,9 @@ long double dot(std::array<long double,3> x, std::array<long double,3> y);
 
 std::vector<long double> where_positive(std::vector<long double> x);
 
+std::vector<long double> rotate(std::vector<long double> vec, long double x_angle, long double y_angle, long double z_angle);
+std::array<long double, 3> rotate(std::array<long double, 3> vec, long double x_angle, long double y_angle, long double z_angle);
+
+std::vector<std::array<long double,3>> x_yPlaneAndAlignX(std::vector<std::array<long double,3>> X, long double x_align, long double m1, long double m2);
+
 #endif

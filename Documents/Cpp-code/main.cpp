@@ -56,14 +56,14 @@ tuple<vector<long double>, vector<long double>> initialDistributions(int N_bin, 
 	a.shrink_to_fit();
 	//Declare variables
 	long double c;
-	if (alpha == 1.0){
+	if (alpha == 1.0L){
 		c = log(a_min)/log(a_max/a_min);
 		for (int i=0; i<N_bin; ++i){
-			a[i] = pow(a_max/a_min, (randomUniformDoubleClosed(0.0, 1.0) + c));
+			a[i] = pow(a_max/a_min, (randomUniformDoubleClosed(0.0L, 1.0L) + c));
 		}
 	} else {
 		for (int i=0; i<N_bin; ++i){
-			a[i] = pow((randomUniformDoubleClosed(0.0, 1.0)*(pow(a_max, 1.0-alpha) - pow(a_min, 1.0-alpha)) + pow(a_min, 1.0-alpha)), 1.0/(1.0 - alpha));
+			a[i] = pow((randomUniformDoubleClosed(0.0L, 1.0L)*(pow(a_max, 1.0L-alpha) - pow(a_min, 1.0L-alpha)) + pow(a_min, 1.0L-alpha)), 1.0L/(1.0L - alpha));
 		}
 	}
 	//Eccentricity array
@@ -73,7 +73,7 @@ tuple<vector<long double>, vector<long double>> initialDistributions(int N_bin, 
 	//Reduce capacity
 	e.shrink_to_fit();
 	for (int i=0; i<N_bin; ++i){
-		e[i] = pow(randomUniformDoubleClosed(0.0, 1.0), 1.0/3.0);
+		e[i] = pow(randomUniformDoubleClosed(0.0L, 1.0L), 1.0L/3.0L);
 	}
 	return make_tuple(a, e);
 }
@@ -658,17 +658,17 @@ int main() {
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
-	long double M_p = 100.*msol/mass_scale;
-	long double rho = 0.009 * msol/pow(parsec, 3.0) * (pow(length_scale, 3.0)/mass_scale);
+	long double M_p = 100.0L*msol/mass_scale;
+	long double rho = 0.009L * msol/pow(parsec, 3.0L) * (pow(length_scale, 3.0L)/mass_scale);
 	long double n_p = rho/M_p;
-	long double v_rel = 200.0*1000.0 *(time_scale/length_scale);
-	long double T = 10.0 * giga * year /time_scale;
+	long double v_rel = 200.0L*1000.0L *(time_scale/length_scale);
+	long double T = 10.0L * giga * year /time_scale;
 
-	long double alpha = 1.0;
-	long double a_min = pow(10.0, 1.0) * au/length_scale;
-	long double a_max = pow(10.0, 5.5) * au/length_scale;
+	long double alpha = 1.0L;
+	long double a_min = pow(10.0L, 1.0L) * au/length_scale;
+	long double a_max = pow(10.0L, 5.5L) * au/length_scale;
 
-	int N_bin = pow(10,4);
+	int N_bin = pow(10,1);
 
 	string filename = "";
 

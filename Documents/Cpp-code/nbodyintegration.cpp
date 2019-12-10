@@ -40,7 +40,7 @@ void calc_alpha(int N){
 		for (int l=0; l<i; ++l){
 			alpha[i][l] = dot(x[i][l], v[i][l])/dot(x[i][l], x[i][l]);
 		}
-		alpha[i][i] = 0.0;
+		alpha[i][i] = 0.0L;
 		for (int l=i+1; l<N; ++l){
 			alpha[i][l] = dot(x[i][l], v[i][l])/dot(x[i][l], x[i][l]);
 		}
@@ -53,7 +53,7 @@ void calc_beta(int N){
 		for (int l=0; l<i; ++l){
 			beta[i][l] = (dot(v[i][l], v[i][l]) + dot(x[i][l], a[i][l]))/dot(x[i][l], x[i][l]) + alpha[i][l]*alpha[i][l];
 		}
-		beta[i][i] = 0.0;
+		beta[i][i] = 0.0L;
 		for (int l=i+1; l<N; ++l){
 			beta[i][l] = (dot(v[i][l], v[i][l]) + dot(x[i][l], a[i][l]))/dot(x[i][l], x[i][l]) + alpha[i][l]*alpha[i][l];
 		}
@@ -64,11 +64,11 @@ void calc_beta(int N){
 void calc_gama(int N){
 	for (int i=0; i<N; ++i){
 		for (int k=0; k<i; ++k){
-			gama[i][k] = (3.0*dot(v[i][k], a[i][k]) + dot(x[i][k], j[i][k]))/dot(x[i][k], x[i][k]) + alpha[i][k]*(3.0*beta[i][k] - 4.0*alpha[i][k]*alpha[i][k]);
+			gama[i][k] = (3.0L*dot(v[i][k], a[i][k]) + dot(x[i][k], j[i][k]))/dot(x[i][k], x[i][k]) + alpha[i][k]*(3.0L*beta[i][k] - 4.0L*alpha[i][k]*alpha[i][k]);
 		}
-		gama[i][i] = 0.0;
+		gama[i][i] = 0.0L;
 		for (int k=i+1; k<N; ++k){
-			gama[i][k] = (3.0*dot(v[i][k], a[i][k]) + dot(x[i][k], j[i][k]))/dot(x[i][k], x[i][k]) + alpha[i][k]*(3.0*beta[i][k] - 4.0*alpha[i][k]*alpha[i][k]);
+			gama[i][k] = (3.0L*dot(v[i][k], a[i][k]) + dot(x[i][k], j[i][k]))/dot(x[i][k], x[i][k]) + alpha[i][k]*(3.0L*beta[i][k] - 4.0L*alpha[i][k]*alpha[i][k]);
 		}
 	}
 }
@@ -86,18 +86,18 @@ void calc_acc(int N, vector<array<long double,3>> X, vector<long double> M){
 	for (int k=0; k<3; ++k){
 		for (int i=0; i<N; ++i){
 			for (int l=0; l<i; ++l){
-					A[i][l][k] = M[l]*x[i][l][k]/(pow(norm(x[i][l]), 3.0));
+					A[i][l][k] = M[l]*x[i][l][k]/(pow(norm(x[i][l]), 3.0L));
 			}
-			A[i][i][k] = 0.0;
+			A[i][i][k] = 0.0L;
 			for (int l=i+1; l<N; ++l){
-					A[i][l][k] = M[l]*x[i][l][k]/(pow(norm(x[i][l]), 3.0));
+					A[i][l][k] = M[l]*x[i][l][k]/(pow(norm(x[i][l]), 3.0L));
 			}
 		}
 	}
 	//Calculate acc
 	for (int k=0; k<3; ++k){
 		for (int i=0; i<N; ++i){
-			acc[i][k] = 0.0;
+			acc[i][k] = 0.0L;
 			for (int l=0; l<N; ++l){	
 					acc[i][k] += G*A[i][l][k];
 			}
@@ -122,18 +122,18 @@ void calc_jerk(int N, vector<array<long double,3>> V, vector<long double> M){
 	for (int k=0; k<3; ++k){
 		for (int i=0; i<N; ++i){
 			for (int l=0; l<i; ++l){
-				J[i][l][k] = M[l]*v[i][l][k]/pow(norm(x[i][l]), 3.0) - 3.0*alpha[i][l]*A[i][l][k]; 
+				J[i][l][k] = M[l]*v[i][l][k]/pow(norm(x[i][l]), 3.0L) - 3.0L*alpha[i][l]*A[i][l][k]; 
 			}
-			J[i][i][k] = 0.0;
+			J[i][i][k] = 0.0L;
 			for (int l=i+1; l<N; ++l){
-				J[i][l][k] = M[l]*v[i][l][k]/pow(norm(x[i][l]), 3.0) - 3.0*alpha[i][l]*A[i][l][k];
+				J[i][l][k] = M[l]*v[i][l][k]/pow(norm(x[i][l]), 3.0L) - 3.0L*alpha[i][l]*A[i][l][k];
 			}
 		}
 	}
 	//Calculate jerk
 	for (int k=0; k<3; ++k){
 		for (int i=0; i<N; ++i){
-			jerk[i][k] = 0.0;
+			jerk[i][k] = 0.0L;
 			for (int l=0; l<N; ++l){	
 					jerk[i][k] += G*J[i][l][k];
 			}
@@ -157,18 +157,18 @@ void calc_snap(int N, vector<long double> M){
 	for(int k=0; k<3; ++k){
 		for (int i=0; i<N; ++i){
 			for (int l=0; l<i; ++l){
-				S[i][l][k] = M[l]*a[i][l][k]/pow(norm(x[i][l]), 3.0) - 6.0*alpha[i][l]*J[i][l][k] - 3.0*beta[i][l]*A[i][l][k];
+				S[i][l][k] = M[l]*a[i][l][k]/pow(norm(x[i][l]), 3.0L) - 6.0L*alpha[i][l]*J[i][l][k] - 3.0L*beta[i][l]*A[i][l][k];
 			}
-			S[i][i][k] = 0.0;
+			S[i][i][k] = 0.0L;
 			for (int l=i+1; l<N; ++l){
-				S[i][l][k] = M[l]*a[i][l][k]/pow(norm(x[i][l]), 3.0) - 6.0*alpha[i][l]*J[i][l][k] - 3.0*beta[i][l]*A[i][l][k];
+				S[i][l][k] = M[l]*a[i][l][k]/pow(norm(x[i][l]), 3.0L) - 6.0L*alpha[i][l]*J[i][l][k] - 3.0L*beta[i][l]*A[i][l][k];
 			}
 		}
 	}
 	//Calculate snap
 	for (int k=0; k<3; ++k){
 		for (int i=0; i<N; ++i){
-			snap[i][k] = 0.0;
+			snap[i][k] = 0.0L;
 			for (int l=0; l<N; ++l){	
 					snap[i][k] += G*S[i][l][k];
 			}
@@ -192,18 +192,18 @@ void calc_crackle(int N, vector<long double> M){
 	for(int k=0; k<3; ++k){
 		for (int i=0; i<N; ++i){
 			for (int l=0; l<i; ++l){
-				C[i][l][k] = M[l]*j[i][l][k]/pow(norm(x[i][l]), 3.0) - 9.0*alpha[i][l]*S[i][l][k] - 9.0*beta[i][l]*J[i][l][k] - 3.0*gama[i][l]*A[i][l][k];
+				C[i][l][k] = M[l]*j[i][l][k]/pow(norm(x[i][l]), 3.0L) - 9.0L*alpha[i][l]*S[i][l][k] - 9.0L*beta[i][l]*J[i][l][k] - 3.0L*gama[i][l]*A[i][l][k];
 			}
-			C[i][i][k] = 0.0;
+			C[i][i][k] = 0.0L;
 			for (int l=i+1; l<N; ++l){
-				C[i][l][k] = M[l]*j[i][l][k]/pow(norm(x[i][l]), 3.0) - 9.0*alpha[i][l]*S[i][l][k] - 9.0*beta[i][l]*J[i][l][k] - 3.0*gama[i][l]*A[i][l][k];
+				C[i][l][k] = M[l]*j[i][l][k]/pow(norm(x[i][l]), 3.0L) - 9.0L*alpha[i][l]*S[i][l][k] - 9.0L*beta[i][l]*J[i][l][k] - 3.0L*gama[i][l]*A[i][l][k];
 			}
 		}
 	}
 	//Calculate crackle
 	for (int k=0; k<3; ++k){
 		for (int i=0; i<N; ++i){
-			crackle[i][k] = 0.0;
+			crackle[i][k] = 0.0L;
 			for (int l=0; l<N; ++l){	
 					crackle[i][k] += G*C[i][l][k];
 			}
@@ -218,7 +218,7 @@ long double timestep(int N, long double eta){
 	timesteps.resize(N);
 	for (int i=0; i<N; ++i){
 		//cout << sqrt(eta*(norm(acc[i])*norm(snap[i]) + pow(norm(jerk[i]), 2.0))/(norm(jerk[i])*norm(crackle[i]) + pow(norm(snap[i]), 2.0))) << endl;
-		timesteps[i] = sqrt(eta*(norm(acc[i])*norm(snap[i]) + pow(norm(jerk[i]), 2.0))/(norm(jerk[i])*norm(crackle[i]) + pow(norm(snap[i]), 2.0)));
+		timesteps[i] = sqrt(eta*(norm(acc[i])*norm(snap[i]) + pow(norm(jerk[i]), 2.0L))/(norm(jerk[i])*norm(crackle[i]) + pow(norm(snap[i]), 2.0L)));
 	}
 	long double min_dt = timesteps[0];
 	for (int i=1; i<N; ++i){
@@ -293,14 +293,14 @@ long double singleTimestep(int N, vector<array<long double, 3>> &X, vector<long 
     //cout << "Total energy2, internal units = " << M[0]*M[1]*(dot(v[1][0], v[1][0])/(2*(M[0]+M[1])) - G/(norm(x[1][0]))) << endl;
     A_0 = acc;
     J_0 = jerk;
-    if ((dt_max>0.0) && (dt_max<dt)){
+    if ((dt_max>0.0L) && (dt_max<dt)){
     	dt = dt_max;
     }
     //Predict positions and velocities
     for (int i=0; i<N; ++i){
     	for (int l=0; l<3; ++l){
-    		X_1[i][l] = X_0[i][l] + V_0[i][l]*dt + A_0[i][l]*dt*dt/2.0 + J_0[i][l]*pow(dt,3.0)/6.0;
-    		V_1[i][l] = V_0[i][l] + A_0[i][l]*dt + J_0[i][l]*dt*dt/2.0;
+    		X_1[i][l] = X_0[i][l] + V_0[i][l]*dt + A_0[i][l]*dt*dt/2.0L + J_0[i][l]*pow(dt,3.0L)/6.0L;
+    		V_1[i][l] = V_0[i][l] + A_0[i][l]*dt + J_0[i][l]*dt*dt/2.0L;
     	}
     }
     //Iterate n times
@@ -313,8 +313,8 @@ long double singleTimestep(int N, vector<array<long double, 3>> &X, vector<long 
         //Obtain corrected positions and velocities
         for (int i=0; i<N; ++i){
         	for (int l=0; l<3; ++l){
-        		X_1[i][l] = X_0[i][l] + (V_1[i][l]+V_0[i][l])*dt/2.0 + (A_0[i][l]-A_1[i][l])*dt*dt/12.0;
-	        	V_1[i][l] = V_0[i][l] + (A_1[i][l]+A_0[i][l])*dt/2.0 + (J_0[i][l]-J_1[i][l])*dt*dt/12.0;
+        		X_1[i][l] = X_0[i][l] + (V_1[i][l]+V_0[i][l])*dt/2.0L + (A_0[i][l]-A_1[i][l])*dt*dt/12.0L;
+	        	V_1[i][l] = V_0[i][l] + (A_1[i][l]+A_0[i][l])*dt/2.0L + (J_0[i][l]-J_1[i][l])*dt*dt/12.0L;
         	}
         }
     }
@@ -411,7 +411,7 @@ void initialise_arrays(int N)
 vector<array<long double, 3>> evolve(int N, vector<long double> M, vector<array<long double, 3>> X, long double T, int n=1, long double eta = 0.02, bool ini_arrays = true)
 {
 	//Current time
-	long double t = 0.0;
+	long double t = 0.0L;
 	long double dt_max, dt;
 	if (ini_arrays){
 		//cout << "Initialising arrays" << endl;
@@ -419,7 +419,7 @@ vector<array<long double, 3>> evolve(int N, vector<long double> M, vector<array<
 	}
 	n=10;
 	//eta = 0.000002;
-	eta = 0.00000002;
+	eta = 0.00000002L;
 	//ofstream myfile;
 	//myfile.open("test_nbody.csv");
 	while (t<T){

@@ -16,6 +16,7 @@ std::tuple<long double, long double, bool> orbitalElements(std::array<std::array
 std::tuple<long double, long double, bool> orbitalElements(std::vector<std::array<long double, 3>> X, long double m1, long double m2);
 
 std::tuple<long double, long double, long double, bool, long double> orbitalElementsIonised(std::array<std::array<long double, 3>, 4> X, long double m1, long double m2);
+std::tuple<long double, long double, long double, bool, long double> orbitalElementsIonised(std::vector<std::array<long double, 3>> X, long double m1, long double m2);
 
 //Tested with orbitalElements
 // Open a binary: find the position and velocity vectors given the semi-major axis and eccentricity

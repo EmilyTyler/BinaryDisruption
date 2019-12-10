@@ -5,13 +5,13 @@ from scipy.constants import au, parsec, giga, year, G
 import matplotlib.ticker as mticker
 
 
-'''
+
 Es = np.zeros((0,0), dtype=float)
 ts = np.zeros((0,0), dtype=float)
 i_previous = -1
 binary_number = -1
 row_number = 0
-with open('energy_v_time_bound_large_r_100Msol.csv') as csvfile:
+with open('energy_v_time_nonconvergent_nbody_fallback_100Msol_10e1bin.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		#print(row_number, binary_number)
@@ -63,7 +63,7 @@ ts = np.zeros((0,0), dtype=float)
 i_previous = -1
 binary_number = -1
 row_number = 0
-with open('energy_v_time_nonconverged_nbody_1Msol_eta0_00000002_n10_new.csv') as csvfile:
+with open('energy_v_time_nonconvergent_nbody_100Msol_10e1bin.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		#print(row_number, binary_number)
@@ -114,3 +114,4 @@ for i in range(np.size(Es[:,0])):
 	plt.legend()
 	plt.show()
 
+'''

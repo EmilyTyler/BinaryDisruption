@@ -351,7 +351,7 @@ plt.legend()
 plt.show()
 '''
 
-'''
+
 #Plot distribution of unbound binary separations over time
 t_min = 0.0
 t_max = 10.0*giga*year
@@ -375,7 +375,7 @@ N_r100_fixedbmax = np.zeros((N_t_bins, N_r_bins), dtype=float)
 t_min_actual=10.0*giga*year
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_1Msol_with_t_10e4bin_bmax1pc.csv') as csvfile:
+with open('final_seps_unbound_binaries_1Msol_with_t_10e4bin_bmax10pc.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		if (np.size(row)>0):
@@ -406,11 +406,11 @@ with open('final_seps_unbound_binaries_1Msol_with_t_10e4bin_bmax1pc.csv') as csv
 #print(N_r1[N_t_bins-3])
 #print(N_r1[N_t_bins-2])
 print('t_min_actual =', t_min_actual/(giga*year))
-
+'''
 t_min_actual=10.0*giga*year
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_10Msol_with_t_10e4bin_bmax1pc.csv') as csvfile:
+with open('final_seps_unbound_binaries_10Msol_with_t_10e4bin_bmax10pc.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		if (np.size(row)>0):
@@ -441,11 +441,12 @@ with open('final_seps_unbound_binaries_10Msol_with_t_10e4bin_bmax1pc.csv') as cs
 #print(N_r1[N_t_bins-3])
 #print(N_r1[N_t_bins-2])
 print('t_min_actual =', t_min_actual/(giga*year))
-
+'''
+'''
 t_min_actual=10.0*giga*year
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_100Msol_with_t_10e4bin_bmax1pc.csv') as csvfile:
+with open('final_seps_unbound_binaries_100Msol_with_t_10e4bin_bmax10pc.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		if (np.size(row)>0):
@@ -477,7 +478,7 @@ with open('final_seps_unbound_binaries_100Msol_with_t_10e4bin_bmax1pc.csv') as c
 #print(N_r1[N_t_bins-2])
 print('t_min_actual =', t_min_actual/(giga*year))
 
-
+'''
 t_min_actual=10.0*giga*year
 binary_number_previous = -1
 i_previous = -1
@@ -572,11 +573,17 @@ print('t_min_actual =', t_min_actual/(giga*year))
 #Normalise
 for i in range(N_t_bins):
 	N_r1[i] /= max([1, np.sum(N_r1[i])])
+	print(np.sum(N_r1[i]))
 	N_r10[i] /= max([1, np.sum(N_r10[i])])
+	print(np.sum(N_r10[i]))
 	N_r100[i] /= max([1, np.sum(N_r100[i])])
+	print(np.sum(N_r100[i]))
 	N_r1_fixedbmax[i] /= max([1, np.sum(N_r1_fixedbmax[i])])
+	print(np.sum(N_r1_fixedbmax[i]))
 	N_r10_fixedbmax[i] /= max([1, np.sum(N_r10_fixedbmax[i])])
+	print(np.sum(N_r10_fixedbmax[i]))
 	N_r100_fixedbmax[i] /= max([1, np.sum(N_r100_fixedbmax[i])])
+	print(np.sum(N_r100_fixedbmax[i]))
 #Move bins into centre for plotting and calculations
 r_bins += 0.5*dr
 t_bins += 0.5*dt
@@ -595,7 +602,7 @@ plt.ylim([-0.005,y_max])
 plt.ylabel(r'Fraction of currently broken binaries')
 plt.legend()
 plt.show()
-'''
+
 '''
 #Generate animation
 base_interval = 200
@@ -627,7 +634,7 @@ anim.save('unbound_distribution.mp4', writer=writer)
 plt.show()
 '''
 
-
+'''
 #Plot Jiang and Tremaine fig 4
 t_min = 0.0
 t_max = 10.0*giga*year
@@ -691,3 +698,4 @@ plt.ylim([0,0.8])
 plt.ylabel(r'Probability Density')
 plt.legend()
 plt.show()
+'''
