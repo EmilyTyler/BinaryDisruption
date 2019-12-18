@@ -587,12 +587,12 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 	bool non_converged_binary;
 
-	ofstream myfile;
-	myfile.open("energy_v_time_nonconvergent_nbody_fallback_100Msol_10e1bin.csv");
+	//ofstream myfile;
+	//myfile.open("energy_v_time_nonconvergent_nbody_fallback_100Msol_10e1bin.csv");
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
-		//cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
+		cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
 		//cout << "Binary " << i+1 << " of " << N_bin << endl;
 
 		hasBroken = false;
@@ -1124,14 +1124,14 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << endl << "Ecc = " << E << endl;
 			//cout << "M = " << E - e[i]*sin(E) << endl;
 
-			if (non_converged_binary){
-				r_nonconverged_min = min(r_nonconverged_min, r_previous);
+			//if (non_converged_binary){
+				//r_nonconverged_min = min(r_nonconverged_min, r_previous);
 				//cout << "Non-converged binary!" << endl;
 				//cout << "Separation, au = " << r*length_scale/au << endl;
 				//notBound = false;
 				//N_nonconverged ++;
 				//break;
-			}
+			//}
 
 			if(r>=a_T){
 				//cout << "Binary broken!" << endl;
@@ -1187,13 +1187,13 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << "Unbound binary at end time. a/au = " << a[i]*length_scale/au << ", e = " << e[i] << ", E = " << E << ", N_enc = " << N_enc << endl;
 		//}
 		
-		if (non_converged_binary){
-			for (int k=0; k<static_cast<int>(Energies.size()); k++){
+		//if (non_converged_binary){
+			//for (int k=0; k<static_cast<int>(Energies.size()); k++){
 				//myfile << setprecision(16) << Energies[k]*mass_scale*length_scale*length_scale/(time_scale*time_scale) << ", " << Energies_nbody[k]*mass_scale*length_scale*length_scale/(time_scale*time_scale) << ", " <<ts[k]*time_scale << ", " << i << endl;
-				myfile << setprecision(16) << Energies[k]*mass_scale*length_scale*length_scale/(time_scale*time_scale) << ", " << ts[k]*time_scale << ", " << i << endl;
-			}
-			N_nonconverged ++;
-		}
+				//myfile << setprecision(16) << Energies[k]*mass_scale*length_scale*length_scale/(time_scale*time_scale) << ", " << ts[k]*time_scale << ", " << i << endl;
+			//}
+			//N_nonconverged ++;
+		//}
 		
 		if (rebound && (notBound == false)) {
 			//cout << "Rebound binary bound at the end!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1221,7 +1221,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		//cout << endl << "Ecc = " << E << endl;
 		//cin.ignore();
 	}
-	myfile.close();
+	//myfile.close();
 	cout << endl;
 	cout << "Number of binaries rebound = " << N_rebound << endl;
 	cout << "Number of binaries unbound within 100pc = " << N_close << endl;
