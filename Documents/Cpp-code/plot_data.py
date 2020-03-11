@@ -351,7 +351,7 @@ plt.legend()
 plt.show()
 '''
 
-
+'''
 #Plot distribution of unbound binary separations over time
 t_min = 0.0
 t_max = 10.0*giga*year
@@ -406,6 +406,7 @@ with open('final_seps_unbound_binaries_1Msol_with_t_10e4bin_bmax10pc.csv') as cs
 #print(N_r1[N_t_bins-3])
 #print(N_r1[N_t_bins-2])
 print('t_min_actual =', t_min_actual/(giga*year))
+'''
 '''
 t_min_actual=10.0*giga*year
 binary_number_previous = -1
@@ -478,7 +479,7 @@ with open('final_seps_unbound_binaries_100Msol_with_t_10e4bin_bmax10pc.csv') as 
 #print(N_r1[N_t_bins-2])
 print('t_min_actual =', t_min_actual/(giga*year))
 
-'''
+
 t_min_actual=10.0*giga*year
 binary_number_previous = -1
 i_previous = -1
@@ -603,7 +604,7 @@ plt.ylabel(r'Fraction of currently broken binaries')
 plt.legend()
 plt.show()
 
-'''
+
 #Generate animation
 base_interval = 200
 fig = plt.figure()
@@ -634,8 +635,79 @@ anim.save('unbound_distribution.mp4', writer=writer)
 plt.show()
 '''
 
+#Plot distribution of unbound binary separations without time
+r_min = 0.001*parsec
+r_max = 1000.0*parsec
+N_r_bins = 300
+dr = (np.log(r_max) - np.log(r_min))/(N_r_bins)
+r_bins = np.array([r_min*np.exp(i*dr) for i in range(N_r_bins)])
+dr_log = np.zeros(N_r_bins)
+for i in range(N_r_bins-1):
+	dr_log[i] = r_bins[i+1]-r_bins[i]
+dr_log[N_r_bins-1] = r_max - r_bins[N_r_bins-1]
+
+N_r1 = np.zeros(N_r_bins, dtype=float)
+N_r10 = np.zeros(N_r_bins, dtype=float)
+N_r100 = np.zeros(N_r_bins, dtype=float)
+with open('final_seps_rebound_binaries_J+TICs_a0_05rJ_10e5bin_new.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	i=0
+	for row in reader:
+		i+=1
+		if (np.size(row)>0):
+			r = float(row[0])
+			if (r < r_max):
+				j = int(np.floor(np.log(r/r_min)/dr))
+				N_r1[j] += 1
+print(i)
+i=0
+with open('final_seps_rebound_binaries_J+TICs_a0_1rJ_10e5bin_new.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	for row in reader:
+		i += 1
+		if (np.size(row)>0):
+			r = float(row[0])
+			if (r < r_max):
+				j = int(np.floor(np.log(r/r_min)/dr))
+				N_r10[j] += 1
+print(i)
+i=0
+with open('final_seps_rebound_binaries_J+TICs_a0_2rJ_10e5bin_new.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	for row in reader:
+		i+=1
+		if (np.size(row)>0):
+			r = float(row[0])
+			if (r < r_max):
+				j = int(np.floor(np.log(r/r_min)/dr))
+				N_r100[j] += 1
+print(i)
+#Normalise
+#N_r1 /= np.sum(N_r1)*(dr_log/(1.7*parsec))
+#N_r10 /= np.sum(N_r10)*(dr_log/(1.7*parsec))
+#N_r100 /= np.sum(N_r100)*(dr_log/(1.7*parsec))
+N_r1 /= np.sum(N_r1)
+N_r10 /= np.sum(N_r10)
+N_r100 /= np.sum(N_r100)
+
+#Move bins into centre for plotting and calculations
+r_bins += 0.5*dr
+
+y_max = 0.07
+
+plt.semilogx(r_bins/(1.7*parsec), N_r1, label=r'$a_i=0.05r_j$')
+plt.semilogx(r_bins/(1.7*parsec), N_r10, label=r'$a_i=0.1r_j$')
+plt.semilogx(r_bins/(1.7*parsec), N_r100, label=r'$a_i=0.2r_j$')
+plt.xlabel(r'$r/r_J$')
+plt.xlim([10.0**(-2.0), 10.0**(4.0)])
+plt.ylim([0,0.8])
+plt.ylabel(r'Fraction of rebound binaries at 10Gyr with separation $r$')
+plt.legend()
+plt.show()
+
+
 '''
-#Plot Jiang and Tremaine fig 4
+#Plot Jiang and Tremaine fig 4 with t
 t_min = 0.0
 t_max = 10.0*giga*year
 N_t_bins = 100
@@ -656,7 +728,7 @@ N_r1 = np.zeros((N_t_bins, N_r_bins), dtype=float)
 
 binary_number_previous = -1
 i_previous = -1
-with open('final_seps_unbound_binaries_JT_with_t_10e4bin.csv') as csvfile:
+with open('final_seps_unbound_binaries_JT_10e5bin.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		if (np.size(row)>0):
@@ -692,6 +764,43 @@ t_bins += 0.5*dt
 y_max = 0.05
 
 plt.plot(np.log10(r_bins/(1.7*parsec)), N_r1[N_t_bins-1], label=r'$a_i=0.1r_J$')
+plt.xlabel(r'$\mathrm{log}_{10}(r/r_J)$')
+plt.xlim([-2, 4])
+plt.ylim([0,0.8])
+plt.ylabel(r'Probability Density')
+plt.legend()
+plt.show()
+'''
+'''
+#Plot Jiang and Tremaine fig 4 without t
+r_min = 0.4*parsec
+r_max = 1000.0*parsec
+N_r_bins = 500
+dr = (np.log(r_max) - np.log(r_min))/(N_r_bins)
+r_bins = np.array([r_min*np.exp(i*dr) for i in range(N_r_bins)])
+dr_log = np.zeros(N_r_bins)
+for i in range(N_r_bins-1):
+	dr_log[i] = r_bins[i+1]-r_bins[i]
+dr_log[N_r_bins-1] = r_max - r_bins[N_r_bins-1]
+
+N_r = np.zeros(N_r_bins, dtype=float)
+
+with open('final_seps_unbound_binaries_JT_10e5bin_aT17000pc.csv') as csvfile:
+	reader = csv.reader(csvfile, delimiter=',')
+	for row in reader:
+		if (np.size(row)>0):
+			r = float(row[0])
+			if (r < r_max):
+				j = int(np.floor(np.log(r/r_min)/dr))
+				N_r[j] += 1
+
+#Normalise
+N_r /= np.sum(N_r)*(dr_log/(1.7*parsec))
+
+#Move bins into centre for plotting and calculations
+r_bins += 0.5*dr
+
+plt.plot(np.log10(r_bins/(1.7*parsec)), N_r, label=r'$a_i=0.1r_J$')
 plt.xlabel(r'$\mathrm{log}_{10}(r/r_J)$')
 plt.xlim([-2, 4])
 plt.ylim([0,0.8])

@@ -89,7 +89,7 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 		a_ini[i] = parsec/length_scale;
 	}
 	cout << setprecision(16) << "M_p, M_sol = " << M_p*mass_scale/msol << endl;
-	cout << "a_ini, au = " << a_ini[0]*length_scale/au << endl;
+	//cout << "a_ini, au = " << a_ini[0]*length_scale/au << endl;
 
 	//Final semimajor axis and eccentricity distributions
 	//ofstream myfile;
@@ -658,7 +658,7 @@ int main() {
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
-	long double M_p = 100.0L*msol/mass_scale;
+	long double M_p = 1.0L*msol/mass_scale;
 	long double rho = 0.009L * msol/pow(parsec, 3.0L) * (pow(length_scale, 3.0L)/mass_scale);
 	long double n_p = rho/M_p;
 	long double v_rel = 200.0L*1000.0L *(time_scale/length_scale);
@@ -668,8 +668,9 @@ int main() {
 	long double a_min = pow(10.0L, 1.0L) * au/length_scale;
 	long double a_max = pow(10.0L, 5.5L) * au/length_scale;
 
-	int N_bin = pow(10,5);
+	int N_bin = pow(10,4);
 
+	//string filename = "final_separation_distribution_J+Tparams_initial_J+Tlog_dist_rebound_included_Nbin10e6.csv";
 	string filename = "";
 
 	//Test evolve

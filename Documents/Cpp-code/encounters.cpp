@@ -533,7 +533,8 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	//Maximum relative velocity of encounter
 	long double v_max = 100.0L * v_rel;
 	//Maximum semimajor axis
-	long double a_T = 1000.0L * parsec/length_scale;
+	//long double a_T = 1000.0L * parsec/length_scale;
+	long double a_T =20000.0L * parsec/length_scale;
 	//Number of binaries
 	int N_bin = static_cast<int>(a.size());
 	//cout << "Number of binaries = " << N_bin << endl;
@@ -587,8 +588,8 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 	bool non_converged_binary;
 
-	//ofstream myfile;
-	//myfile.open("energy_v_time_nonconvergent_nbody_fallback_100Msol_10e1bin.csv");
+	ofstream myfile;
+	myfile.open("separation_over_time_and_report_broken_binaries_Mp1Msol_Nbin10e4_a_i1pc_report_unbound_separately.csv");
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
@@ -929,7 +930,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//	Energies.push_back(0.0L);
 			//}
 			t += dt;
-			ts.push_back(t);
+			//ts.push_back(t);
 			
 			//Nbody
 			//r_vec_nbody = {X_nbody[0][0]-X_nbody[1][0], X_nbody[0][1]-X_nbody[1][1], X_nbody[0][2]-X_nbody[1][2]};
@@ -1138,6 +1139,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				a[i] = -1.0L;
 				e[i] = -1.0L;
 				notBound = true;
+				myfile << setprecision(16) << r*length_scale << ", " << 1 << endl;
 				break;
 			}
 
@@ -1158,12 +1160,19 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//}
 
 			if (notBound){
+				if (!hasBroken){
+					myfile << setprecision(16) << r*length_scale << ", " << 1 << endl;
+				}
+				//a[i] = -1.0L;
+				//e[i] = -1.0L;
+				//break;
 				//rs.push_back(r);
 				//ts.push_back(t);
 				//cout << endl << "Binary broken!" << endl;
 				//cout << endl;
 				hasBroken = true;
 			} else {
+				myfile << setprecision(16) << r*length_scale << ", " << 0 << endl;
 				if (hasBroken){
 					rebound = true;
 					r_rebound_max = max(r_rebound_max, r_previous);
@@ -1194,6 +1203,8 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//}
 			//N_nonconverged ++;
 		//}
+
+
 		
 		if (rebound && (notBound == false)) {
 			//cout << "Rebound binary bound at the end!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -1201,6 +1212,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			r_rebound_max_total = max(r_rebound_max_total, r_rebound_max);
 			//cout << "Rebound separation = " << r_rebound_max*length_scale/parsec << endl;
 			N_rebound ++;
+			//myfile << setprecision(16) << r*length_scale << endl;
 		}
 		if ((a[i]>0.0L) && (a[i]<100.0L*parsec/length_scale) && notBound){
 			N_close ++;
@@ -1215,13 +1227,16 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//}
 			//myfile << setprecision(16) << r*length_scale << endl;
 		}
+		if (a[i]>0.0L){
+			a[i] = r;
+		}
 		//cout << endl;
 		//cout << "a = " << a[i] << endl;
 		//cout << "e = " << e[i] << endl;
 		//cout << endl << "Ecc = " << E << endl;
 		//cin.ignore();
 	}
-	//myfile.close();
+	myfile.close();
 	cout << endl;
 	cout << "Number of binaries rebound = " << N_rebound << endl;
 	cout << "Number of binaries unbound within 100pc = " << N_close << endl;
