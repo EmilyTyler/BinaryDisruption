@@ -85,9 +85,9 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	vector<long double> a_ini = get<0>(initial_dists);
 	vector<long double> e_ini = get<1>(initial_dists);
 
-	for(int i=0; i<N_bin; i++){
-		a_ini[i] = parsec/length_scale;
-	}
+	//for(int i=0; i<N_bin; i++){
+	//	a_ini[i] = parsec/length_scale;
+	//}
 	cout << setprecision(16) << "M_p, M_sol = " << M_p*mass_scale/msol << endl;
 	//cout << "a_ini, au = " << a_ini[0]*length_scale/au << endl;
 
@@ -668,7 +668,7 @@ int main() {
 	long double a_min = pow(10.0L, 1.0L) * au/length_scale;
 	long double a_max = pow(10.0L, 5.5L) * au/length_scale;
 
-	int N_bin = pow(10,4);
+	int N_bin = pow(10,6);
 
 	//string filename = "final_separation_distribution_J+Tparams_initial_J+Tlog_dist_rebound_included_Nbin10e6.csv";
 	string filename = "";

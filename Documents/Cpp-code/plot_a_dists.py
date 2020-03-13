@@ -152,6 +152,7 @@ loadData('final_semi_major_axes_distribution_10Msol_initial_log_dist_rebound_not
 loadData('final_semi_major_axes_distribution_100Msol_initial_log_dist_rebound_not_included_Nbin10e6.csv', r'Rebound not included, $100M_\odot$', False, plot_color='darkorange', plot_linestyle='-')
 
 
+
 #Move to centre of bins for plotting
 #a_bins *= np.exp(0.5*dloga)
 
@@ -172,6 +173,8 @@ loadData('final_separation_distribution_100Msol_initial_log_dist_rebound_include
 loadData('final_separation_distribution_1Msol_initial_log_dist_rebound_not_included_Nbin10e6.csv', r'Rebound not included, $1M_\odot$', False, plot_color='darkorange', plot_linestyle='--')
 loadData('final_separation_distribution_10Msol_initial_log_dist_rebound_not_included_Nbin10e6.csv', r'Rebound not included, $10M_\odot$', False, plot_color='darkorange', plot_linestyle='-.')
 loadData('final_separation_distribution_100Msol_initial_log_dist_rebound_not_included_Nbin10e6.csv', r'Rebound not included, $100M_\odot$', False, plot_color='darkorange', plot_linestyle='-')
+#With J+T params
+loadData('final_separation_distribution_J+Tparams_initial_J+Tlog_dist_rebound_included_Nbin10e6.csv', r'Rebound included, J+T params', False, plot_color='forestgreen', plot_linestyle='-')
 ax = plt.gca()
 ax.set_xscale('log')
 ax.set_yscale('log')
