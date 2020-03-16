@@ -591,9 +591,9 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	ofstream myfile_rebound;
 	ofstream myfile_unbound;
 	ofstream myfile_bound;
-	myfile_rebound.open("final_separation_distribution_1Msol_initial_log_dist_rebound_only_Nbin10e6.csv");
-	myfile_unbound.open("final_separation_distribution_1Msol_initial_log_dist_unbound_only_Nbin10e6.csv");
-	myfile_bound.open("final_separation_distribution_1Msol_initial_log_dist_always_bound_only_Nbin10e6.csv");
+	myfile_rebound.open("final_separation_distribution_10Msol_initial_log_dist_rebound_only_Nbin10e6.csv");
+	myfile_unbound.open("final_separation_distribution_10Msol_initial_log_dist_unbound_only_Nbin10e6.csv");
+	myfile_bound.open("final_separation_distribution_10Msol_initial_log_dist_always_bound_only_Nbin10e6.csv");
 
 
 	//Iterate over binaries
