@@ -588,12 +588,15 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 	bool non_converged_binary;
 
-	ofstream myfile_rebound;
-	ofstream myfile_unbound;
-	ofstream myfile_bound;
-	myfile_rebound.open("final_separation_distribution_100Msol_initial_log_dist_rebound_only_Nbin10e6.csv");
-	myfile_unbound.open("final_separation_distribution_100Msol_initial_log_dist_unbound_only_Nbin10e6.csv");
-	myfile_bound.open("final_separation_distribution_100Msol_initial_log_dist_always_bound_only_Nbin10e6.csv");
+	//ofstream myfile_rebound;
+	//ofstream myfile_unbound;
+	//ofstream myfile_bound;
+	//myfile_rebound.open("final_separation_distribution_100Msol_initial_log_dist_rebound_only_Nbin10e6.csv");
+	//myfile_unbound.open("final_separation_distribution_100Msol_initial_log_dist_unbound_only_Nbin10e6.csv");
+	//myfile_bound.open("final_separation_distribution_100Msol_initial_log_dist_always_bound_only_Nbin10e6.csv");
+
+	ofstream myfile;
+	myfile.open('separation_over_time_and_report_broken_binaries_Mp100Msol_Nbin10e4_a_i1pc_report_unbound_separately.csv');
 
 
 	//Iterate over binaries
@@ -1144,7 +1147,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				a[i] = -1.0L;
 				e[i] = -1.0L;
 				notBound = true;
-				//myfile << setprecision(16) << r*length_scale << ", " << 1 << endl;
+				myfile << setprecision(16) << r*length_scale << ", " << 1 << endl;
 				break;
 			}
 
@@ -1165,9 +1168,9 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//}
 
 			if (notBound){
-				//if (!hasBroken){
-				//	myfile << setprecision(16) << r*length_scale << ", " << 1 << endl;
-				//}
+				if (!hasBroken){
+					myfile << setprecision(16) << r*length_scale << ", " << 1 << endl;
+				}
 				//a[i] = -1.0L;
 				//e[i] = -1.0L;
 				//break;
@@ -1177,7 +1180,7 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 				//cout << endl;
 				hasBroken = true;
 			} else {
-				//myfile << setprecision(16) << r*length_scale << ", " << 0 << endl;
+				myfile << setprecision(16) << r*length_scale << ", " << 0 << endl;
 				if (hasBroken){
 					rebound = true;
 					r_rebound_max = max(r_rebound_max, r_previous);
@@ -1218,13 +1221,13 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//cout << "Rebound separation = " << r_rebound_max*length_scale/parsec << endl;
 			N_rebound ++;
 			//myfile << setprecision(16) << r*length_scale << endl;
-			myfile_rebound << setprecision(16) << r*length_scale << endl;
+			//myfile_rebound << setprecision(16) << r*length_scale << endl;
 		}
 		if ((a[i]>0.0L) && (a[i]<100.0L*parsec/length_scale) && notBound){
 			N_close ++;
 		}
 		if (notBound){
-			myfile_unbound << setprecision(16) << r*length_scale << endl;
+			//myfile_unbound << setprecision(16) << r*length_scale << endl;
 			//cout << "Binary considered broken at the end, writing to file" << endl;
 			//cout << "Number of separations to add to file = " << static_cast<int>(rs.size()) << endl;
 			N_broken ++;
@@ -1234,9 +1237,9 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			//}
 			//myfile << setprecision(16) << r*length_scale << endl;
 		}
-		if ((!rebound) && (!notBound)){
-			myfile_bound << setprecision(16) << r*length_scale << endl;
-		}
+		//if ((!rebound) && (!notBound)){
+		//	myfile_bound << setprecision(16) << r*length_scale << endl;
+		//}
 		if (a[i]>0.0L){
 			a[i] = r;
 		}
@@ -1246,9 +1249,10 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 		//cout << endl << "Ecc = " << E << endl;
 		//cin.ignore();
 	}
-	myfile_bound.close();
-	myfile_unbound.close();
-	myfile_rebound.close();
+	//myfile_bound.close();
+	//myfile_unbound.close();
+	//myfile_rebound.close();
+	myfile.close();
 	cout << endl;
 	cout << "Number of binaries rebound = " << N_rebound << endl;
 	cout << "Number of binaries unbound within 100pc = " << N_close << endl;

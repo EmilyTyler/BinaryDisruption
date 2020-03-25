@@ -1,12 +1,12 @@
 import matplotlib.pyplot as plt
 import csv
 import numpy as np
-from scipy.constants import au
+from scipy.constants import au, parsec
 plt.rc('font', family='serif')
 
-a_min = 10.0**(-2.0) * au
-a_max = 10.0**15.0 * au
-N_bins = 40
+a_min = 10.0**(-7.0) * parsec
+a_max = 10.0**7.0 * parsec
+N_bins = 150
 
 dloga = (np.log(a_max)-np.log(a_min))/(N_bins)
 a_bins = np.array([a_min*np.exp(i*dloga) for i in range(N_bins)])
@@ -40,6 +40,23 @@ def loadData(filename, plot_label, plot_initial, plot_color, plot_linestyle, yof
 	if (plot_initial):
 		plt.plot(a_bins/au, N_a_ini*yoffset, label = 'Initial distribution', color=plot_color, linestyle=':')
 	plt.plot(a_bins/au, N_a_fin*yoffset, label = plot_label, color=plot_color, linestyle=plot_linestyle)
+
+def loadDataNoInitial(filename, plot_label, plot_color, plot_linestyle, y_offset=1.0):
+	a_fin = np.zeros(N_bin)
+	with open(filename) as csvfile:
+	        reader = csv.reader(csvfile, delimiter=',')
+	        i = 0
+	        for row in reader:
+	        	a_fin[i] = float(row[0])
+	        	i += 1
+	N_a_fin = np.zeros(N_bins)
+	for i in range(N_bin):
+		if (a_fin[i] > a_min) and (a_fin[i] < a_max):
+			j = int(np.floor(np.log(a_fin[i]/a_min)/dloga))
+			N_a_fin[j] += 1
+	plt.plot(a_bins/parsec, N_a_fin*y_offset, label = plot_label, color=plot_color, linestyle=plot_linestyle)
+
+
 
 def loadYCGData(filename, plot_label, plot_color, plot_linestyle, y_offset=90/N_bins):
 	a = np.zeros(0)
@@ -142,7 +159,7 @@ loadData('binary_pop_10Msol_5bmax.csv', r'5 $b_\mathrm{max}$', False, plot_color
 
 #New 100 closest plots
 #loadData('binary_pop_100closest_1000Msol.csv', r'Our simulation, 100 closest, $1000M_\odot$', False, plot_color='darkorange', plot_linestyle='-')
-
+'''
 #New plots, including rebound binaries
 loadData('final_semi_major_axes_distribution_1Msol_initial_log_dist_rebound_included_Nbin10e6.csv', r'Rebound included, $1M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
 loadData('final_semi_major_axes_distribution_10Msol_initial_log_dist_rebound_included_Nbin10e6.csv', r'Rebound included, $10M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
@@ -165,7 +182,8 @@ plt.ylim(6.0*10.0**(-1.0), 3.0*10.0**5.0)
 plt.ylabel('Number of binaries')
 plt.legend()
 plt.show()
-
+'''
+'''
 #Plot separations
 loadData('final_separation_distribution_1Msol_initial_log_dist_rebound_included_Nbin10e6.csv', r'Rebound included, $1M_\odot$', False, plot_color='dodgerblue', plot_linestyle='--')
 loadData('final_separation_distribution_10Msol_initial_log_dist_rebound_included_Nbin10e6.csv', r'Rebound included, $10M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
@@ -183,4 +201,26 @@ plt.xlim(a_min/au, a_max/au)
 plt.ylim(6.0*10.0**(-1.0), 3.0*10.0**5.0)
 plt.ylabel('Number of binaries')
 plt.legend()
-plt.show()                
+plt.show()    
+'''
+
+#Plot rebound, always bound and unbound separately
+loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always bound, $1M_\odot$', plot_color='dodgerblue', plot_linestyle='--')  
+loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_unbound_only_Nbin10e6.csv', r'Unbound, $1M_\odot$', plot_color='darkorange', plot_linestyle='--')
+loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_rebound_only_Nbin10e6.csv', r'Rebound, $1M_\odot$', plot_color='forestgreen', plot_linestyle='--')          
+loadDataNoInitial('final_separation_distribution_10Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always bound, $10M_\odot$', plot_color='dodgerblue', plot_linestyle='-.')  
+loadDataNoInitial('final_separation_distribution_10Msol_initial_log_dist_unbound_only_Nbin10e6.csv', r'Unbound, $10M_\odot$', plot_color='darkorange', plot_linestyle='-.')
+loadDataNoInitial('final_separation_distribution_10Msol_initial_log_dist_rebound_only_Nbin10e6.csv', r'Rebound, $10M_\odot$', plot_color='forestgreen', plot_linestyle='-.') 
+loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always bound, $100M_\odot$', plot_color='dodgerblue', plot_linestyle='-')  
+loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_unbound_only_Nbin10e6.csv', r'Unbound, $100M_\odot$', plot_color='darkorange', plot_linestyle='-')
+loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_rebound_only_Nbin10e6.csv', r'Rebound, $100M_\odot$', plot_color='forestgreen', plot_linestyle='-') 
+
+ax = plt.gca()
+ax.set_xscale('log')
+#ax.set_yscale('log')
+plt.xlabel('Separation, pc')
+plt.xlim(a_min/parsec, a_max/parsec)
+#plt.ylim(6.0*10.0**(-1.0), 3.0*10.0**5.0)
+plt.ylabel('Number of binaries')
+plt.legend()
+plt.show()    
