@@ -596,12 +596,12 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 	//myfile_bound.open("final_separation_distribution_100Msol_initial_log_dist_always_bound_only_Nbin10e6.csv");
 
 	ofstream myfile;
-	myfile.open("separation_over_time_and_report_broken_binaries_Mp100Msol_Nbin10e4_a_i1pc_report_unbound_separately.csv");
+	myfile.open("separation_over_time_and_report_broken_binaries_Mp100Msol_Nbin10e4_a_i1pc.csv");
 
 
 	//Iterate over binaries
 	for (int i=0; i<N_bin; ++i){
-		cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
+		//cout << '\r' << "Binary " << i+1 << " of " << N_bin << flush;
 		//cout << "Binary " << i+1 << " of " << N_bin << endl;
 
 		hasBroken = false;

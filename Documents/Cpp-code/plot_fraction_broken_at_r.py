@@ -20,7 +20,7 @@ broke_at_r = np.zeros(N_r_bins)
 bound_at_r = np.zeros(N_r_bins)
 
 
-with open("separation_over_time_and_report_broken_binaries_Mp1Msol_Nbin10e4_a_i1pc_report_unbound_separately.csv") as csvfile:
+with open("separation_over_time_and_report_broken_binaries_Mp1Msol_Nbin10e4_a_i1pc.csv") as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		r = float(row[0])
