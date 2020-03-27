@@ -658,7 +658,7 @@ int main() {
 
 	long double m1 = msol/mass_scale;
 	long double m2 = msol/mass_scale;
-	long double M_p = 1.0L*msol/mass_scale;
+	long double M_p = 100.0L*msol/mass_scale;
 	long double rho = 0.009L * msol/pow(parsec, 3.0L) * (pow(length_scale, 3.0L)/mass_scale);
 	long double n_p = rho/M_p;
 	long double v_rel = 200.0L*1000.0L *(time_scale/length_scale);
