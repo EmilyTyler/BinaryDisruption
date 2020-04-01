@@ -668,7 +668,7 @@ int main() {
 	long double a_min = pow(10.0L, 1.0L) * au/length_scale;
 	long double a_max = pow(10.0L, 5.5L) * au/length_scale;
 
-	int N_bin = pow(10,4);
+	int N_bin = pow(10,5);
 
 	//string filename = "final_separation_distribution_J+Tparams_initial_J+Tlog_dist_rebound_included_Nbin10e6.csv";
 	string filename = "";
