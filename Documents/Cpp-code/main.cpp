@@ -663,7 +663,7 @@ int main() {
 
 	long double alpha = 1.0L;
 	long double a_min = pow(10.0L, 1.0L) * au/length_scale;
-	long double a_max = pow(10.0L, 3.0L) * au/length_scale;
+	long double a_max = 3.0*pow(10.0L, 5.0L) * au/length_scale;
 
 	int N_bin = pow(10,5);
 
