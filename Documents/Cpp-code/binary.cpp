@@ -304,46 +304,33 @@ vector<array<long double, 3>> setupRandomBinaryVector(long double a, long double
 	return X;
 }
 
-array<array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long double e, long double m1, long double m2, long double E, long double r, bool notBound, bool &non_converged_binary, bool linear){
+array<array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long double e, long double m1, long double m2, long double E, long double r, bool notBound, bool &non_converged_binary){
 	long double M, f, n;
 	array<array<long double, 3>, 4> X;
 	//Mean motion
 	n = sqrt(G*(m1+m2)/(pow(a,3.0L)));
-	if (linear){
+	if (notBound){
+		// Position and velocity vectors
 		X = { {
-				{0.0L, 0.0L, 0.0L},
-				{r, 0.0L, 0.0L},
-				{0.0L, 0.0L, 0.0L}, 
-				{sqrt(G*(m1+m2)/a), 0.0L, 0.0L}} };
+			{0.0L, 0.0L, 0.0L},
+			{a*(cosh(E) - e), a*sqrt(e*e-1.0L)*sinh(E), 0.0L},
+			{0.0L, 0.0L, 0.0L}, 
+			{n*a*sinh(E)/(e*cosh(E) - 1.0L), n*a*sqrt(e*e-1.0L)*cosh(E)/(e*cosh(E) - 1.0L), 0.0L}} };
 	} else {
-		if (notBound){
-			// Position and velocity vectors
-			X = { {
-				{0.0L, 0.0L, 0.0L},
-				{a*(cosh(E) - e), a*sqrt(e*e-1.0L)*sinh(E), 0.0L},
-				{0.0L, 0.0L, 0.0L}, 
-				{n*a*sinh(E)/(e*cosh(E) - 1.0L), n*a*sqrt(e*e-1.0L)*cosh(E)/(e*cosh(E) - 1.0L), 0.0L}} };
-		} else {
-			// Randomise mean anomaly
-			//M = randomUniformDoubleOpen(0.0, 2.0*pi);
-			// Find eccentric anomaly
-			//E = eccentricAnomaly(e, M, non_converged_binary);
-			// Find true anomaly
-			//f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
-			// Separation of stars
-			//r = a*(1.0 - e*e)/(1.0 + e*cos(f));
-			// Position and velocity vectors
-			//X = { {
-				//{0.0, 0.0, 0.0},
-				//{r*cos(f), r*sin(f), 0.0},
-				//{0.0, 0.0, 0.0}, 
-				//{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
-			X = { {
-				{0.0L, 0.0L, 0.0L},
-				{a*(cos(E)-e), a*sqrt(1.0L-e*e)*sin(E), 0.0L},
-				{0.0L, 0.0L, 0.0L}, 
-				{-n*a/(1.0L-e*cos(E))*sin(E), n*a/(1.0L-e*cos(E))*sqrt(1.0L-e*e)*cos(E), 0.0L}} };
-		}
+		// Randomise mean anomaly
+		M = randomUniformDoubleOpen(0.0, 2.0*pi);
+		//Find eccentric anomaly
+		E = eccentricAnomaly(e, M, non_converged_binary);
+		// Find true anomaly
+		f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
+		// Separation of stars
+		r = a*(1.0 - e*e)/(1.0 + e*cos(f));
+		// Position and velocity vectors
+		X = { {
+			{0.0, 0.0, 0.0},
+			{r*cos(f), r*sin(f), 0.0},
+			{0.0, 0.0, 0.0}, 
+			{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
 	}
 	// Centre of mass position vector
 	array<long double, 3> R;
@@ -360,12 +347,6 @@ array<array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long dou
 		X[2][i] -= V[i];
 		X[3][i] -= V[i];
 	}
-	//cout << "E = " << E << endl;
-	//cout << "X = " << endl;
-	//for (int i=0; i<4; i++){
-		//cout << X[i][0] << ", " << X[i][1] << ", " << X[i][2] << endl;
-	//}
-	//cout << endl;
 	return X;
 }
 

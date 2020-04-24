@@ -23,7 +23,7 @@ std::tuple<long double, long double, long double, bool, long double> orbitalElem
 std::array<std::array<long double, 3>, 4> setupRandomBinary(long double a, long double e, long double m1, long double m2);
 std::vector<std::array<long double, 3>> setupRandomBinaryVector(long double a, long double e, long double m1, long double m2);
 
-std::array<std::array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long double e, long double m1, long double m2, long double E, long double r, bool notBound, bool &non_converged_binary, bool linear);
+std::array<std::array<long double, 3>, 4> setupRandomBinaryIonised(long double a, long double e, long double m1, long double m2, long double E, long double r, bool notBound, bool &non_converged_binary);
 
 long double evolveF (long double f, long double dt, long double e, long double m1, long double m2, long double p);
 

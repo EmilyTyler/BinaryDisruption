@@ -28,7 +28,7 @@ vector_maths.o: vector_maths.cpp
 nbodyintegration.o: nbodyintegration.cpp vector_maths.h constants.h
     $(CC) -c nbodyintegration.cpp $(CXXFLAGS)
 
-main.o: main.cpp constants.h random_direction.h random_numbers.h vector_maths.h MC_velocity.h binary.h encounters.h nbodyintegration.h
+main.o: main.cpp constants.h random_numbers.h vector_maths.h nbodyintegration.h random_direction.h MC_velocity.h binary.h encounters.h 
     $(CC) -c main.cpp $(CXXFLAGS)
 
 clean:

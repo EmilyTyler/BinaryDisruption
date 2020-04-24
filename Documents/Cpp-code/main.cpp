@@ -85,15 +85,15 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	vector<long double> a_ini = get<0>(initial_dists);
 	vector<long double> e_ini = get<1>(initial_dists);
 
-	for(int i=0; i<N_bin; i++){
-		a_ini[i] = parsec/length_scale;
-	}
+	//for(int i=0; i<N_bin; i++){
+	//	a_ini[i] = parsec/length_scale;
+	//}
 	cout << setprecision(16) << "M_p, M_sol = " << M_p*mass_scale/msol << endl;
 	//cout << "a_ini, au = " << a_ini[0]*length_scale/au << endl;
 
 	//Final semimajor axis and eccentricity distributions
-	//ofstream myfile;
-	//myfile.open(filename);
+	ofstream myfile;
+	myfile.open(filename);
 	cout << "Evolving binaries" << endl;
 	//tuple<vector<long double>, vector<long double>> final_dists = MCEncountersXV(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
 	tuple<vector<long double>, vector<long double>> final_dists = MCEncountersIonised(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
@@ -102,11 +102,11 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	vector<long double> a_fin = get<0>(final_dists);
 	vector<long double> e_fin = get<1>(final_dists);
 	//Save results to file
-	//cout << "Saving" << endl;
-	//for (int i=0; i<N_bin; ++i){
-	//	myfile << setprecision(16) << a_ini[i]*length_scale << " , " << e_ini[i] << " , " << a_fin[i]*length_scale << ", " << e_fin[i] << endl; 
-	//}
-    //myfile.close();
+	cout << "Saving" << endl;
+	for (int i=0; i<N_bin; ++i){
+		myfile << setprecision(16) << a_ini[i]*length_scale << " , " << e_ini[i] << " , " << a_fin[i]*length_scale << ", " << e_fin[i] << endl; 
+	}
+    myfile.close();
     cout << "Finished" << endl;
 }
 
@@ -528,7 +528,7 @@ void testEvolve(){
 	long double e = 1.5;
 	long double T = 1.0*year/time_scale;
 	bool arg3 = false;
-	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, M[0], M[1], 0.0, 0.0, true, arg3, false);
+	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, M[0], M[1], 0.0, 0.0, true, arg3);
 	vector<array<long double, 3>> X_0;
 	X_0.resize(4);
 	for (int i=0; i<4; ++i){
@@ -653,25 +653,21 @@ void testImpulseApprox(){
 
 int main() {
 
-	//recurrenceSolve();
-	
-
-	long double m1 = msol/mass_scale;
-	long double m2 = msol/mass_scale;
-	long double M_p = 100.0L*msol/mass_scale;
-	long double rho = 0.009L * msol/pow(parsec, 3.0L) * (pow(length_scale, 3.0L)/mass_scale);
+	long double m1 = 0.5*msol/mass_scale;
+	long double m2 = 0.5*msol/mass_scale;
+	long double M_p = 10.0L*msol/mass_scale;
+	long double rho = 0.007L * msol/pow(parsec, 3.0L) * (pow(length_scale, 3.0L)/mass_scale);
 	long double n_p = rho/M_p;
 	long double v_rel = 200.0L*1000.0L *(time_scale/length_scale);
 	long double T = 10.0L * giga * year /time_scale;
 
 	long double alpha = 1.0L;
 	long double a_min = pow(10.0L, 1.0L) * au/length_scale;
-	long double a_max = pow(10.0L, 5.5L) * au/length_scale;
+	long double a_max = pow(10.0L, 3.0L) * au/length_scale;
 
 	int N_bin = pow(10,5);
 
-	//string filename = "final_separation_distribution_J+Tparams_initial_J+Tlog_dist_rebound_included_Nbin10e6.csv";
-	string filename = "";
+	string filename = "final_separation_distribution_MRAparams_Mp10_Nbin10e5.csv";
 
 	//Test evolve
 	//testEvolve();
