@@ -4,10 +4,12 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from scipy.constants import au, parsec, giga, year
-from matplotlib import animation
+#from matplotlib import animation
 
-Writer = animation.writers['ffmpeg']
-writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+#Writer = animation.writers['ffmpeg']
+#writer = Writer(fps=15, metadata=dict(artist='Me'), bitrate=1800)
+
+plt.rc('font', family='serif')
 
 '''
 data = np.zeros(10**7, dtype=float)
@@ -636,9 +638,9 @@ plt.show()
 '''
 
 #Plot distribution of unbound binary separations without time
-r_min = 0.001*parsec
-r_max = 1000.0*parsec
-N_r_bins = 300
+r_min = 1.0*parsec
+r_max = 20000.0*parsec
+N_r_bins = 400
 dr = (np.log(r_max) - np.log(r_min))/(N_r_bins)
 r_bins = np.array([r_min*np.exp(i*dr) for i in range(N_r_bins)])
 dr_log = np.zeros(N_r_bins)
@@ -649,7 +651,7 @@ dr_log[N_r_bins-1] = r_max - r_bins[N_r_bins-1]
 N_r1 = np.zeros(N_r_bins, dtype=float)
 N_r10 = np.zeros(N_r_bins, dtype=float)
 N_r100 = np.zeros(N_r_bins, dtype=float)
-with open('final_seps_rebound_binaries_J+TICs_a0_05rJ_10e5bin_new.csv') as csvfile:
+with open('final_separation_distribution_1Msol_initial_log_dist_unbound_only_Nbin10e6.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	i=0
 	for row in reader:
@@ -661,7 +663,7 @@ with open('final_seps_rebound_binaries_J+TICs_a0_05rJ_10e5bin_new.csv') as csvfi
 				N_r1[j] += 1
 print(i)
 i=0
-with open('final_seps_rebound_binaries_J+TICs_a0_1rJ_10e5bin_new.csv') as csvfile:
+with open('final_separation_distribution_10Msol_initial_log_dist_unbound_only_Nbin10e6.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		i += 1
@@ -672,7 +674,7 @@ with open('final_seps_rebound_binaries_J+TICs_a0_1rJ_10e5bin_new.csv') as csvfil
 				N_r10[j] += 1
 print(i)
 i=0
-with open('final_seps_rebound_binaries_J+TICs_a0_2rJ_10e5bin_new.csv') as csvfile:
+with open('final_separation_distribution_100Msol_initial_log_dist_unbound_only_Nbin10e6.csv') as csvfile:
 	reader = csv.reader(csvfile, delimiter=',')
 	for row in reader:
 		i+=1
@@ -686,22 +688,20 @@ print(i)
 #N_r1 /= np.sum(N_r1)*(dr_log/(1.7*parsec))
 #N_r10 /= np.sum(N_r10)*(dr_log/(1.7*parsec))
 #N_r100 /= np.sum(N_r100)*(dr_log/(1.7*parsec))
-N_r1 /= np.sum(N_r1)
-N_r10 /= np.sum(N_r10)
-N_r100 /= np.sum(N_r100)
+#N_r1 /= np.sum(N_r1)
+#N_r10 /= np.sum(N_r10)
+#N_r100 /= np.sum(N_r100)
 
 #Move bins into centre for plotting and calculations
 r_bins += 0.5*dr
 
-y_max = 0.07
-
-plt.semilogx(r_bins/(1.7*parsec), N_r1, label=r'$a_i=0.05r_j$')
-plt.semilogx(r_bins/(1.7*parsec), N_r10, label=r'$a_i=0.1r_j$')
-plt.semilogx(r_bins/(1.7*parsec), N_r100, label=r'$a_i=0.2r_j$')
-plt.xlabel(r'$r/r_J$')
-plt.xlim([10.0**(-2.0), 10.0**(4.0)])
-plt.ylim([0,0.8])
-plt.ylabel(r'Fraction of rebound binaries at 10Gyr with separation $r$')
+plt.semilogx(r_bins/(parsec), N_r1, label=r'$M_p=1M_\odot$')
+plt.semilogx(r_bins/(parsec), N_r10, label=r'$M_p=10M_\odot$')
+plt.semilogx(r_bins/(parsec), N_r100, label=r'$M_p=100M_\odot$')
+plt.xlabel(r'$r$/pc')
+plt.xlim([1.0, 2.0*10.0**(4.0)])
+#plt.ylim([0,0.8])
+plt.ylabel(r'Number of unbound binaries with separation $r$ at 10Gyr')
 plt.legend()
 plt.show()
 

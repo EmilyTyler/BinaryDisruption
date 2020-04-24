@@ -4,8 +4,8 @@ import numpy as np
 from scipy.constants import au, parsec
 plt.rc('font', family='serif')
 
-a_min = 10.0**(-7.0) * parsec
-a_max = 10.0**7.0 * parsec
+a_min = 5.0*10.0**(-5.0) * parsec
+a_max = 2.0*10.0**4.0 * parsec
 N_bins = 150
 
 dloga = (np.log(a_max)-np.log(a_min))/(N_bins)
@@ -205,22 +205,22 @@ plt.show()
 '''
 
 #Plot rebound, always bound and unbound separately
-loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always bound, $1M_\odot$', plot_color='dodgerblue', plot_linestyle='--')  
-loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_unbound_only_Nbin10e6.csv', r'Unbound, $1M_\odot$', plot_color='darkorange', plot_linestyle='--')
-loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_rebound_only_Nbin10e6.csv', r'Rebound, $1M_\odot$', plot_color='forestgreen', plot_linestyle='--')          
-loadDataNoInitial('final_separation_distribution_10Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always bound, $10M_\odot$', plot_color='dodgerblue', plot_linestyle='-.')  
-loadDataNoInitial('final_separation_distribution_10Msol_initial_log_dist_unbound_only_Nbin10e6.csv', r'Unbound, $10M_\odot$', plot_color='darkorange', plot_linestyle='-.')
-loadDataNoInitial('final_separation_distribution_10Msol_initial_log_dist_rebound_only_Nbin10e6.csv', r'Rebound, $10M_\odot$', plot_color='forestgreen', plot_linestyle='-.') 
-loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always bound, $100M_\odot$', plot_color='dodgerblue', plot_linestyle='-')  
-loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_unbound_only_Nbin10e6.csv', r'Unbound, $100M_\odot$', plot_color='darkorange', plot_linestyle='-')
-loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_rebound_only_Nbin10e6.csv', r'Rebound, $100M_\odot$', plot_color='forestgreen', plot_linestyle='-') 
+loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always Bound, $M_p=1M_\odot$', plot_color='dodgerblue', plot_linestyle='--')  
+loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_unbound_only_Nbin10e6.csv', r'Unbound, $M_p=1M_\odot$', plot_color='darkorange', plot_linestyle='--')
+loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_rebound_only_Nbin10e6.csv', r'Rebound, $M_p=1M_\odot$', plot_color='forestgreen', plot_linestyle='--')          
+loadDataNoInitial('final_separation_distribution_10Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always Bound, $M_p=10M_\odot$', plot_color='dodgerblue', plot_linestyle='-.')  
+loadDataNoInitial('final_separation_distribution_10Msol_initial_log_dist_unbound_only_Nbin10e6.csv', r'Unbound, $M_p=10M_\odot$', plot_color='darkorange', plot_linestyle='-.')
+loadDataNoInitial('final_separation_distribution_10Msol_initial_log_dist_rebound_only_Nbin10e6.csv', r'Rebound, $M_p=10M_\odot$', plot_color='forestgreen', plot_linestyle='-.') 
+loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always Bound, $M_p=100M_\odot$', plot_color='dodgerblue', plot_linestyle='-')  
+loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_unbound_only_Nbin10e6.csv', r'Unbound, $M_p=100M_\odot$', plot_color='darkorange', plot_linestyle='-')
+loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_rebound_only_Nbin10e6.csv', r'Rebound, $M_p=100M_\odot$', plot_color='forestgreen', plot_linestyle='-') 
 
 ax = plt.gca()
 ax.set_xscale('log')
-#ax.set_yscale('log')
-plt.xlabel('Separation, pc')
+ax.set_yscale('log')
+plt.xlabel(r'$r$/pc')
 plt.xlim(a_min/parsec, a_max/parsec)
 #plt.ylim(6.0*10.0**(-1.0), 3.0*10.0**5.0)
-plt.ylabel('Number of binaries')
-plt.legend()
+plt.ylabel(r'Number of binaries with separation $r$')
+plt.legend(ncol=2, loc='upper center', bbox_to_anchor=(0.5, -0.15))
 plt.show()    
