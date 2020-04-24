@@ -785,7 +785,6 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 		}
 
-
 		
 		if (rebound && (notBound == false)) {
 			N_rebound ++;
@@ -797,9 +796,9 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 			N_broken ++;
 		}
 		//Write separation rather than semi-major axis
-		if (a[i]>0.0L){
-			a[i] = r;
-		}
+		//if (a[i]>0.0L){
+		//	a[i] = r;
+		//}
 	}
 	cout << endl;
 	cout << "Number of binaries rebound = " << N_rebound << endl;
