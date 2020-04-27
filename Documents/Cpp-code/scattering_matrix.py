@@ -13,7 +13,7 @@ r_bins = np.array([r_min*np.exp(i*dr) for i in range(N_r_bins)])
 #Probability that a binary with initial semi-major axis r_bins[i] will have final separation r_bins[j] is prob[i,j]
 prob = np.zeros((N_r_bins, N_r_bins))
 N_binaries = 0
-with open("final_separation_distribution_MRAparams_Mp1000_Nbin10e5.csv") as csvfile:
+with open("final_semimajoraxis_distribution_MRAparams_Mp1000_Nbin10e6.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
         a_ini = float(row[0])

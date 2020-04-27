@@ -8,7 +8,6 @@
 #include <iostream>
 #include <iomanip>
 #include <ctime>
-#include <fstream>
 
 #include "constants.h"
 #include "random_direction.h"
