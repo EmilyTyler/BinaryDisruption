@@ -31,7 +31,6 @@ long double encounterRate(long double n_p, long double v_rel, long double b0, lo
 long double calcBMax(long double M_p, long double v_rel, long double a, long double m1, long double m2, long double delta = pow(10.0L, -3.0L))
 {
 	return pow((64.0L*G*M_p*M_p*pow(a,3.0L)/((m1+m2)*v_rel*v_rel*delta*delta)), 0.25L);
-	//return parsec/length_scale;
 }
 
 long double BHTBMax(long double M_p, long double v_rel, long double a, long double m1, long double m2, long double e)
@@ -592,187 +591,100 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 
 		//Implement encounters
 		for (int j=0; j<N_enc; j++){
-			//cout << '\r' << "Encounter " << j+1 << " of " << N_enc;
-			//cout << "j+1 = " << j+1 << endl;
-			if(r>=a_T){
-				//cout << "Binary broken!" << endl;
-				a[i] = -1.0L;
-				e[i] = -1.0L;
-				notBound = true;
-				break;
-			}
 
 			//Draw impact parameter
 			b = drawB(b_max);
-			//cout << "b = " << b*length_scale << endl;
 			//Draw relative encounter velocity
 			v = drawVMaxwellian(v_rel, v_max);
-			//cout << "v = " << v*length_scale/time_scale << endl;
-
+			//Generate impact parameter and PBH velocity vectors
 			bvvectors = impactAndVelocityVectors(b, v);
 			b_vec = get<0>(bvvectors);
 			v_vec = get<1>(bvvectors);
-
 	
 			//Evolve E in time
 			//Mean motion
 			n = sqrt(G*(m1+m2)/(pow(a[i],3)));
+			//Time to evolve for
 			dt = randomExponential(rate);
-			if ((e[i] < 1)){
-
-				//Mean anomaly
+			//Calculate mean anomaly
+			if (e[i] < 1.0L){
 				M = E - e[i]*sin(E);
-
-				M += n*dt;
-				if (e[i] < 1){
-					M = fmod(M, 2.0L*pi);
-				}
-				E_before_evolution = E;
-				E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
-
-
-				if (non_converged_binary){
-					E = E_before_evolution;
-					n = sqrt(G*(m1+m2)/(pow(a[i],3.0L)));
-					if (notBound){
-						X_nbody = { {
-							{0.0L, 0.0L, 0.0L},
-							{a[i]*(cosh(E) - e[i]), a[i]*sqrt(e[i]*e[i]-1.0L)*sinh(E), 0.0L},
-							{0.0L, 0.0L, 0.0L}, 
-							{n*a[i]*sinh(E)/(e[i]*cosh(E) - 1.0L), n*a[i]*sqrt(e[i]*e[i]-1.0L)*cosh(E)/(e[i]*cosh(E) - 1.0L), 0.0L}} };
-					} else {
-						X_nbody = { {
-							{0.0L, 0.0L, 0.0L},
-							{a[i]*(cos(E)-e[i]), a[i]*sqrt(1.0L-e[i]*e[i])*sin(E), 0.0L},
-							{0.0L, 0.0L, 0.0L}, 
-							{-n*a[i]/(1.0L-e[i]*cos(E))*sin(E), n*a[i]/(1.0L-e[i]*cos(E))*sqrt(1.0L-e[i]*e[i])*cos(E), 0.0L}} };
-					}
-					X_nbody = evolve(2, ms, X_nbody, dt, ini_arrays = ini_arrays);
-					result2 = orbitalElementsIonised(X_nbody, m1, m2);
-					a[i]= get<0>(result2);
-					e[i] = get<1>(result2);
-					E = get<2>(result2);
-					notBound = get<3>(result2);
-					r = get<4>(result2);
-				}
-				
-
-				X = setupRandomBinaryIonised(a[i], e[i], m1, m2, E, r, notBound, non_converged_binary);
-				result = orbitalElementsIonised(X, m1, m2);
-				a[i] = get<0>(result);
-				e[i] = get<1>(result);
-				E = get<2>(result);
-				X = setupRandomBinaryIonised(a[i], e[i], m1, m2, E, r, notBound, non_converged_binary);
-			
-				for (int k=0; k<2; ++k){
-					//90 degree deflection radius
-					b_90 = G*(M_p + ms[k])/(v*v);
-					//Calculate impact parameter for this star
-					b_star = calcBStar(X[k], v_vec, v, b_vec);
-					//cout << setprecision(16) << b_star[0] << ", " << b_star[1] << ", " << b_star[2] << endl;
-					//Calculate norm of b_star
-					b_star_norm = norm(b_star);
-					//cout << setprecision(16) << b_star_norm << endl;
-					//Calculate speed change in b_star direction
-					v_perp = 2.0L*M_p*v/(ms[k]+M_p) * (b_star_norm/b_90)/(1.0L + b_star_norm*b_star_norm/(b_90*b_90));
-					//cout << setprecision(16) << v_perp << endl;
-					//Calculate speed change in -v_vec direction
-					v_para = 2.0L*M_p*v/(ms[k]+M_p) * 1.0L/(1.0L + b_star_norm*b_star_norm/(b_90*b_90));
-					//cout << setprecision(16) << v_para << endl;
-					//Change star velocity
-					//cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
-					for (int l=0; l<3; ++l){
-						X[k+2][l] += v_perp * b_star[l]/b_star_norm - v_para * v_vec[l]/v;
-					}
-				}
-				result = orbitalElementsIonised(X, m1, m2);
-				a[i] = get<0>(result);
-				e[i] = get<1>(result);
-				E = get<2>(result);
-				notBound = get<3>(result);
-				r = get<4>(result);
-				
-			} else if ((e[i] > 1)){
-				//Hyperbolic equations
-
-				//Mean anomaly
+			} else {
 				M = e[i]*sinh(E) - E;
-				M += n*dt;
-				E_before_evolution = E;
-				E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
-
-				if (non_converged_binary){
-					E = E_before_evolution;
-					n = sqrt(G*(m1+m2)/(pow(a[i],3.0L)));
-					if (notBound){
-						X_nbody = { {
-							{0.0L, 0.0L, 0.0L},
-							{a[i]*(cosh(E) - e[i]), a[i]*sqrt(e[i]*e[i]-1.0L)*sinh(E), 0.0L},
-							{0.0L, 0.0L, 0.0L}, 
-							{n*a[i]*sinh(E)/(e[i]*cosh(E) - 1.0L), n*a[i]*sqrt(e[i]*e[i]-1.0L)*cosh(E)/(e[i]*cosh(E) - 1.0L), 0.0L}} };
-					} else {
-						X_nbody = { {
-							{0.0L, 0.0L, 0.0L},
-							{a[i]*(cos(E)-e[i]), a[i]*sqrt(1.0L-e[i]*e[i])*sin(E), 0.0L},
-							{0.0L, 0.0L, 0.0L}, 
-							{-n*a[i]/(1.0L-e[i]*cos(E))*sin(E), n*a[i]/(1.0L-e[i]*cos(E))*sqrt(1.0L-e[i]*e[i])*cos(E), 0.0L}} };
-					}
-
-					X_nbody = evolve(2, ms, X_nbody, dt, ini_arrays = ini_arrays);
-					result2 = orbitalElementsIonised(X_nbody, m1, m2);
-					a[i]= get<0>(result2);
-					e[i] = get<1>(result2);
-					E = get<2>(result2);
-					notBound = get<3>(result2);
-					r = get<4>(result2);
-				}
-
-				X = setupRandomBinaryIonised(a[i], e[i], m1, m2, E, r, notBound, non_converged_binary);
-				result = orbitalElementsIonised(X, m1, m2);
-				a[i] = get<0>(result);
-				e[i] = get<1>(result);
-				E = get<2>(result);
-				X = setupRandomBinaryIonised(a[i], e[i], m1, m2, E, r, notBound, non_converged_binary);
-
-				for (int k=0; k<2; ++k){
-					//90 degree deflection radius
-					b_90 = G*(M_p + ms[k])/(v*v);
-					//Calculate impact parameter for this star
-					b_star = calcBStar(X[k], v_vec, v, b_vec);
-					//Calculate norm of b_star
-					b_star_norm = norm(b_star);
-					//cout << setprecision(16) << b_star_norm << endl;
-					//Calculate speed change in b_star direction
-					v_perp = 2.0L*M_p*v/(ms[k]+M_p) * (b_star_norm/b_90)/(1.0L + b_star_norm*b_star_norm/(b_90*b_90));
-					//Calculate speed change in -v_vec direction
-					v_para = 2.0L*M_p*v/(ms[k]+M_p) * 1.0L/(1.0L + b_star_norm*b_star_norm/(b_90*b_90));
-					//cout << v_para << endl;
-					//Change star velocity
-					//cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
-					for (int l=0; l<3; ++l){
-						X[k+2][l] += v_perp * b_star[l]/b_star_norm - v_para * v_vec[l]/v;
-					}
-				}
-				result = orbitalElementsIonised(X, m1, m2);
-
-				a[i] = get<0>(result);
-				e[i] = get<1>(result);
-				E = get<2>(result);
-				notBound = get<3>(result);
-				r = get<4>(result);
 			}
+			//Evolve mean anomaly forward in time
+			M += n*dt;
+			if (e[i] < 1){
+				M = fmod(M, 2.0L*pi);
+			}
+			E_before_evolution = E;
+			//Calculate new eccentric anomaly
+			E = eccentricAnomalyIonised(e[i], M, notBound, non_converged_binary);
 
+			//If calculating eccentric anomaly doesn't work use n body integration to evolve instead
+			if (non_converged_binary){
+				E = E_before_evolution;
+				n = sqrt(G*(m1+m2)/(pow(a[i],3.0L)));
+				if (notBound){
+					X_nbody = { {
+						{0.0L, 0.0L, 0.0L},
+						{a[i]*(cosh(E) - e[i]), a[i]*sqrt(e[i]*e[i]-1.0L)*sinh(E), 0.0L},
+						{0.0L, 0.0L, 0.0L}, 
+						{n*a[i]*sinh(E)/(e[i]*cosh(E) - 1.0L), n*a[i]*sqrt(e[i]*e[i]-1.0L)*cosh(E)/(e[i]*cosh(E) - 1.0L), 0.0L}} };
+				} else {
+					X_nbody = { {
+						{0.0L, 0.0L, 0.0L},
+						{a[i]*(cos(E)-e[i]), a[i]*sqrt(1.0L-e[i]*e[i])*sin(E), 0.0L},
+						{0.0L, 0.0L, 0.0L}, 
+						{-n*a[i]/(1.0L-e[i]*cos(E))*sin(E), n*a[i]/(1.0L-e[i]*cos(E))*sqrt(1.0L-e[i]*e[i])*cos(E), 0.0L}} };
+				}
+				X_nbody = evolve(2, ms, X_nbody, dt, ini_arrays = ini_arrays);
+				result2 = orbitalElementsIonised(X_nbody, m1, m2);
+				a[i]= get<0>(result2);
+				e[i] = get<1>(result2);
+				E = get<2>(result2);
+				notBound = get<3>(result2);
+				r = get<4>(result2);
+			}
+			X = setupRandomBinaryIonised(a[i], e[i], m1, m2, E, r, notBound, non_converged_binary);
+			result = orbitalElementsIonised(X, m1, m2);
+			a[i] = get<0>(result);
+			e[i] = get<1>(result);
+			E = get<2>(result);
+			X = setupRandomBinaryIonised(a[i], e[i], m1, m2, E, r, notBound, non_converged_binary);
+			//Implement encounter
+			for (int k=0; k<2; ++k){
+				//90 degree deflection radius
+				b_90 = G*(M_p + ms[k])/(v*v);
+				//Calculate impact parameter for this star
+				b_star = calcBStar(X[k], v_vec, v, b_vec);
+				//Calculate norm of b_star
+				b_star_norm = norm(b_star);
+				//Calculate speed change in b_star direction
+				v_perp = 2.0L*M_p*v/(ms[k]+M_p) * (b_star_norm/b_90)/(1.0L + b_star_norm*b_star_norm/(b_90*b_90));
+				//Calculate speed change in -v_vec direction
+				v_para = 2.0L*M_p*v/(ms[k]+M_p) * 1.0L/(1.0L + b_star_norm*b_star_norm/(b_90*b_90));
+				//Change star velocity
+				for (int l=0; l<3; ++l){
+					X[k+2][l] += v_perp * b_star[l]/b_star_norm - v_para * v_vec[l]/v;
+				}
+			}
+			result = orbitalElementsIonised(X, m1, m2);
+			a[i] = get<0>(result);
+			e[i] = get<1>(result);
+			E = get<2>(result);
+			notBound = get<3>(result);
+			r = get<4>(result);
+			//Increment time
 			t += dt;
-
+			//Check if separation exceeds cut off radius
 			if(r>=a_T){
 				a[i] = -1.0L;
 				e[i] = -1.0L;
 				notBound = true;
 				break;
 			}
-
-
-
+			//Check if rebound
 			if (notBound){
 				hasBroken = true;
 			} else {
@@ -781,7 +693,6 @@ tuple<vector<long double>, vector<long double>> MCEncountersIonised(long double 
 					hasBroken = false;
 				}
 			}
-
 		}
 
 		
