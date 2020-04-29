@@ -665,9 +665,9 @@ int main() {
 	long double a_min = pow(10.0L, 1.0L) * au/length_scale;
 	long double a_max = 3.0*pow(10.0L, 5.0L) * au/length_scale;
 
-	int N_bin = pow(10,6);
+	int N_bin = pow(10,5);
 
-	string filename = "final_semimajoraxis_distribution_MRAparams_Mp1000_Nbin10e6.csv";
+	string filename = "final_semimajoraxis_distribution_MRAparams_Mp1000_Nbin10e5.csv";
 
 	//Test evolve
 	//testEvolve();
