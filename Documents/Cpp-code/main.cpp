@@ -96,170 +96,23 @@ void evolvePopulation(string filename, int N_bin, long double a_min, long double
 	myfile.open(filename);
 	cout << "Evolving binaries" << endl;
 	//tuple<vector<long double>, vector<long double>> final_dists = MCEncountersXV(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
-	tuple<vector<long double>, vector<long double>> final_dists = MCEncountersIonised(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
+	tuple<vector<long double>, vector<long double>, vector<long double>, vector<long double>> final_dists = MCEncountersIonised(v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
 	//tuple<vector<long double>, vector<long double>> final_dists = MCEncountersNClosest(100, v_rel, n_p, T, m1, m2, M_p, a_ini, e_ini);
 	//Extract results
 	vector<long double> a_fin = get<0>(final_dists);
 	vector<long double> e_fin = get<1>(final_dists);
+	vector<long double> r_ini = get<2>(final_dists);
+	vector<long double> r_fin = get<3>(final_dists);
 	//Save results to file
 	cout << "Saving" << endl;
 	for (int i=0; i<N_bin; ++i){
-		myfile << setprecision(16) << a_ini[i]*length_scale << " , " << e_ini[i] << " , " << a_fin[i]*length_scale << ", " << e_fin[i] << endl; 
+		myfile << setprecision(16) << a_ini[i]*length_scale << "," << r_ini[i]*length_scale << "," << e_ini[i] << "," << a_fin[i]*length_scale << "," << r_fin[i]*length_scale << "," << e_fin[i] << endl; 
 	}
     myfile.close();
     cout << "Finished" << endl;
 }
 
-void WSWEncounterTest(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
-	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 8);
-	//b's to run encounters
-	const int N_b = 1;
-	array<long double, N_b> b = {6.0};
-	//array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
-	for(int i=0; i<N_b; ++i){
-		b[i] = pow(10.0,b[i])*au/length_scale;
-	}
-	//Declare variables
-	tuple<long double, long double, long double, long double, long double, array<long double, 3>, array<long double, 3>, long double> result;
-	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv, b_input, delta_v_norm, v_initial_norm, theta, phi;
-	array<long double,3> v_initial, delta_v;
-	cout << "Simulating encounters" << endl;	
-	ofstream myfile;
-	myfile.open(filename);
-	//Theoretical average energy change
-	long double dE_avg_analytic;
-	//Theoretical standard deviation
-	long double std_dev_analytic;
-	if (b[0] < a){
-		dE_avg_analytic = 2.0*(G*M_p/(b[0]*v))*(G*M_p/(b[0]*v));
-		std_dev_analytic = sqrt(4.0/3.0*G*(m1+m2)/a*(G*M_p/(b[0]*v))*(G*M_p/(b[0]*v)));
-	} else{
-		dE_avg_analytic = 4.0/3.0 * (G*M_p/(b[0]*v))*(G*M_p/(b[0]*v)) * (a/b[0])*(a/b[0]) * (1.0 + 3.0*e*e/2.0);
-		std_dev_analytic = sqrt(4.0/5.0*G*(m1+m2)/a*(G*M_p/(b[0]*v))*(G*M_p/(b[0]*v))*(a/b[0])*(a/b[0])*(1.0 - e*e/3.0) + 16.0/45.0*pow(G*M_p/(b[0]*v), 4.0)*pow(a/b[0], 4.0)*(1.0 +15.0*e*e));
-	}
-	dE_avg_analytic *= m1*m2/(m1+m2);
-	//Maximum energy change
-	long double dE_max = m1*m2/(m1+m2)*(sqrt(G*(m1+m2)*(1.0+e)/(a*(1.0-e)))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)) + 0.5*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)));
-	long double dE_min = m1*m2/(m1+m2)*(-sqrt(G*(m1+m2)*(1.0+e)/(a*(1.0-e)))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)) + 0.5*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v))*(2.0*G*M_p*a*(1.0+e)/(b[0]*b[0]*v)));
-	unsigned int N_enc_so_far = 0;
-	int counter = 0;
-	long double dE_mean = 0.0;
-	long double dE2_mean = 0.0;
-	long double dE_v_dv_mean = 0.0;
-	long double dE_dv_dv_mean = 0.0;
-	long double dE_mean_old = 0.0;
-	long double std_dev; 
-	long double b_star_min = 100.0*b[0]*length_scale;
-	long double b_star_max = 0.0; 
-	long double b_max = calcBMax(M_p, v, a, m1, m2);
-
-	tuple<array<long double,3>, array<long double,3>> result2;
-	while(N_enc_so_far < N_enc){
-		for(int i=0; i<N_b; ++i){
-			
-			b_input = b[0];
-			result = testImpulseEncounter(m1, m2, M_p, a, e, b_input, v);
-			//Convert to SI units
-			E_ini = get<0>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-			E_fin = get<1>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-			
-			b_star = get<2>(result) * length_scale;
-
-			dE_v_dv = get<3>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-			dE_dv_dv = get<4>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-
-			v_initial = get<5>(result);
-			for (int j=0; j<3; j++){
-				v_initial[j] *= length_scale/time_scale;
-			}
-			v_initial_norm = norm(v_initial);
-
-			delta_v = get<6>(result);
-			for (int j=0; j<3; j++){
-				delta_v[j] *= length_scale/time_scale;
-			}
-			delta_v_norm = norm(delta_v);
-
-			theta = get<7>(result);
-
-			//cout << "b_star = " << b_star/au << endl;
-
-			//cout << "Minimum impact parameter, au = " << b_star_min/au << endl;
-			//cout << "Maximum impact parameter, au = " << b_star_max/au << endl;
-			//Write to file
-			//myfile << setprecision(16) << E_ini << ", " << E_fin << ", " << b_star << endl;
-			
-			if ((0.9*b[0] < b_star/length_scale) && (b_star/length_scale < 1.1*b[0])){
-				N_enc_so_far += 1;
-				//myfile << setprecision(16) << E_fin-E_ini << " , " << dE_v_dv << " , " << dE_dv_dv << endl;
-
-				
-				dE_mean = dE_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)/N_enc_so_far;
-				dE2_mean = dE2_mean*(N_enc_so_far-1)/N_enc_so_far + (E_fin-E_ini)*(E_fin-E_ini)/N_enc_so_far;
-				dE_v_dv_mean = dE_v_dv_mean*(N_enc_so_far-1)/N_enc_so_far + dE_v_dv/N_enc_so_far;
-				dE_dv_dv_mean = dE_dv_dv_mean*(N_enc_so_far-1)/N_enc_so_far + dE_dv_dv/N_enc_so_far;
-				
-				if (N_enc_so_far > pow(10.0, counter*0.1)-1){
-				//if (N_enc_so_far % static_cast<int>(pow(10, 6)) == 0){
-					std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
-					//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
-					myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << N_enc_so_far << endl;
-					//cout << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
-					//myfile << setprecision(16) << E_fin-E_ini<< " , " << dE_v_dv << " , " << dE_dv_dv << endl;
-					//v_initial = get<1>(impactAndVelocityVectors(b[0], v));
-					//v_initial_norm = norm(v_initial);
-					//myfile << setprecision(16) << dE_v_dv << " , " << asin(abs(v_initial[2])/v_initial_norm) << endl;
-					//cout << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << " , " << dE_v_dv << endl;
-					//myfile << setprecision(16) << v_initial_norm << " , " << delta_v_norm << " , " << cos(theta) << " , " << dE_v_dv << endl;
-					counter += 1;
-					
-				}
-				
-				
-				b_star_min = min(b_star_min, b_star);
-				b_star_max = max(b_star_max, b_star);
-				
-							
-				if (copysign(1, dE_mean) != copysign(1, dE_mean_old)){
-					cout << endl;
-					cout << "Number of encounters so far = " << N_enc_so_far << endl;
-					cout << "Old mean energy change = " << dE_mean_old << endl;
-					cout << "Energy change = " << E_fin-E_ini << endl;
-					cout << "Maximum energy change = " << dE_max* mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
-					cout << "Minimum energy change = " << dE_min* mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
-					cout << "New mean energy change = " << dE_mean << endl;
-					cout << "New standard deviation = " << sqrt(dE2_mean - dE_mean*dE_mean) << endl;
-					cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
-					cout << "Analytical standard deviation = " << std_dev_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
-					cout << "Number required for convergence = " << pow(std_dev_analytic/(0.1*dE_avg_analytic) ,2.0) << endl;
-					cout << endl;
-				}
-				
-				dE_mean_old = dE_mean;
-				/*
-				if (abs(E_fin-E_ini) < pow(10.0, 25.0)){
-					cout << E_fin-E_ini << " , " << dE_v_dv + dE_dv_dv -(E_fin-E_ini)<< endl;
-				}
-				*/
-			}
-			
-
-		}
-	}
-	myfile.close();
-	cout << "Analytical average energy change = " << dE_avg_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
-	cout << "Average of v dv term = " << dE_v_dv_mean << endl;
-	cout << "Average of dv dv term = " << dE_dv_dv_mean << endl;
-	cout << "Average energy change = " << dE_mean << endl;
-	cout << endl;
-	cout << "Analytical standard deviation = " << std_dev_analytic * mass_scale*(length_scale*length_scale/(time_scale*time_scale)) << endl;
-	cout << "Number required for convergence = " << pow(std_dev_analytic/(0.1*dE_avg_analytic) ,2.0) << endl;
-	cout << "Minimum impact parameter, au = " << b_star_min/au << endl;
-	cout << "Maximum impact parameter, au = " << b_star_max/au << endl;
-    cout << "Finished" << endl;
-}
-
+/*
 void BHT_survival_probability(){
 	cout << "Initialising" << endl;
 	//Input parameters
@@ -412,79 +265,7 @@ void BHT_survival_probability(){
 	cout << endl;
 	cout << "Finished" << endl;	
 }
-
-void WSWEncounterTest_MeanvB(string filename, long double m1, long double m2, long double M_p, long double a, long double e, long double v){
-	//Number of encounters for each b
-	const unsigned int N_enc = pow(10, 6);
-	//b's to run encounters 
-	const int N_b = 41;
-	//array<long double, N_b> b = {3.0, 3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5, 7.0, 7.5, 8.0};
-	array<long double, N_b> b = {3.0, 3.125, 3.25, 3.375, 3.5, 3.625, 3.75, 3.875, 4.0, 4.125, 4.25, 4.375, 4.5, 4.625, 4.75, 4.875, 5.0, 5.125, 5.25, 5.375, 5.5, 5.625, 5.75, 5.875, 6.0, 6.125, 6.25, 6.375, 6.5, 6.625, 6.75, 6.875, 7.0, 7.125, 7.25, 7.375, 7.5, 7.625, 7.75, 7.875, 8.0};
-	for(int i=0; i<N_b; ++i){
-		b[i] = pow(10.0,b[i])*au/length_scale;
-	}
-	//Declare variables
-	tuple<long double, long double, long double, long double, long double, array<long double,3>, array<long double,3>, long double> result;
-	long double E_ini, E_fin, b_star, dE_v_dv, dE_dv_dv;
-	cout << "Simulating encounters" << endl;	
-	ofstream myfile;
-	myfile.open(filename);
-	unsigned int N_enc_so_far = 0;
-	long double dE_mean = 0.0;
-	long double dE2_mean = 0.0;
-	long double dE_v_dv_mean = 0.0;
-	long double dE_dv_dv_mean = 0.0;
-	long double std_dev; 
-	//Theoretical average energy change
-	long double dE_avg_analytic;
-	//Theoretical standard deviation
-	long double std_dev_analytic;
-	for(int i=0; i<N_b; ++i){
-		N_enc_so_far = 0;
-		dE_mean = 0.0;
-		dE2_mean = 0.0;
-		dE_v_dv_mean = 0.0;
-		dE_dv_dv_mean = 0.0;
-		while(N_enc_so_far < N_enc){
-			result = testImpulseEncounter(m1, m2, M_p, a, e, b[i], v);
-			//Convert to SI units
-			E_ini = get<0>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-			E_fin = get<1>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-			b_star = get<2>(result) * length_scale;
-			dE_v_dv = get<3>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-			dE_dv_dv = get<4>(result) * mass_scale*(length_scale*length_scale/(time_scale*time_scale));
-			
-			if ((0.9*b[i] < b_star/length_scale) && (b_star/length_scale < 1.1*b[i])){
-				N_enc_so_far += 1;
-				dE_mean += E_fin-E_ini;
-				dE2_mean += (E_fin-E_ini)*(E_fin-E_ini);
-				dE_v_dv_mean += dE_v_dv;
-				dE_dv_dv_mean += dE_dv_dv;
-			}
-		}
-		//Normalise
-		dE_mean /= N_enc;
-		dE2_mean /= N_enc;
-		dE_v_dv_mean /= N_enc;
-		dE_dv_dv_mean /= N_enc;
-		std_dev = sqrt(dE2_mean - dE_mean*dE_mean);
-		//cout << setprecision(16) << dE_mean << " , " << std_dev << " , " << b[i]*length_scale << endl;
-		//myfile << setprecision(16) << dE_mean << " , " << std_dev << " , " << b[i]*length_scale << endl;
-
-		if (b[i] < a){
-			dE_avg_analytic = 2.0*(G*M_p/(b[i]*v))*(G*M_p/(b[i]*v));
-			std_dev_analytic = sqrt(4.0/3.0*G*(m1+m2)/a*(G*M_p/(b[i]*v))*(G*M_p/(b[i]*v)));
-		} else{
-			dE_avg_analytic = 4.0/3.0 * (G*M_p/(b[i]*v))*(G*M_p/(b[i]*v)) * (a/b[i])*(a/b[i]) * (1.0 + 3.0*e*e/2.0);
-			std_dev_analytic = sqrt(4.0/5.0*G*(m1+m2)/a*(G*M_p/(b[i]*v))*(G*M_p/(b[i]*v))*(a/b[i])*(a/b[i])*(1.0 - e*e/3.0) + 16.0/45.0*pow(G*M_p/(b[i]*v), 4.0)*pow(a/b[i], 4.0)*(1.0 +15.0*e*e));
-		}
-		dE_avg_analytic *= m1*m2/(m1+m2);
-		cout << setprecision(16) << dE_dv_dv_mean / (dE_avg_analytic* mass_scale*(length_scale*length_scale/(time_scale*time_scale))) << " , " << b[i]*length_scale << endl;
-		myfile << setprecision(16) << dE_dv_dv_mean / (dE_avg_analytic* mass_scale*(length_scale*length_scale/(time_scale*time_scale))) << " , " << b[i]*length_scale << endl;
-	}
-	myfile.close();
-    cout << "Finished" << endl;
-}
+*/
 
 
 //Solve recurrence relation for max N_enc as a function of a_0
@@ -528,7 +309,7 @@ void testEvolve(){
 	long double e = 1.5;
 	long double T = 1.0*year/time_scale;
 	bool arg3 = false;
-	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, M[0], M[1], 0.0, 0.0, true, arg3);
+	array<array<long double, 3>, 4> X = setupRandomBinaryIonised(a, e, M[0], M[1], 0.0, true, arg3);
 	vector<array<long double, 3>> X_0;
 	X_0.resize(4);
 	for (int i=0; i<4; ++i){
@@ -667,7 +448,7 @@ int main() {
 
 	int N_bin = pow(10,5);
 
-	string filename = "final_semimajoraxis_distribution_MRAparams_Mp10_Nbin10e5.csv";
+	string filename = "final_r_and_a_distributions_MRAparams_Mp10_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv";
 
 	//Test evolve
 	//testEvolve();

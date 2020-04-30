@@ -217,8 +217,8 @@ loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_unboun
 loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_rebound_only_Nbin10e6.csv', r'Rebound, $M_p=100M_\odot$', plot_color='forestgreen', plot_linestyle='-') 
 
 
-loadData('final_semimajoraxis_distribution_MRAparams_Mp10_Nbin10e6.csv', r'$M_p=10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
-loadData('final_semimajoraxis_distribution_MRAparams_Mp100_Nbin10e6.csv', r'$M_p=100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
+loadData('final_semimajoraxis_distribution_MRAparams_Mp10_Nbin10e5.csv', r'$M_p=10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
+loadData('final_semimajoraxis_distribution_MRAparams_Mp100_Nbin10e5.csv', r'$M_p=100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
 loadData('final_semimajoraxis_distribution_MRAparams_Mp1000_Nbin10e6.csv', r'$M_p=1000M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-')
 
 ax = plt.gca()
