@@ -436,7 +436,7 @@ int main() {
 
 	long double m1 = 0.5*msol/mass_scale;
 	long double m2 = 0.5*msol/mass_scale;
-	long double M_p = 1000.0L*msol/mass_scale;
+	long double M_p = 10.0L*msol/mass_scale;
 	long double rho = 0.007L * msol/pow(parsec, 3.0L) * (pow(length_scale, 3.0L)/mass_scale);
 	long double n_p = rho/M_p;
 	long double v_rel = 200.0L*1000.0L *(time_scale/length_scale);
@@ -446,9 +446,9 @@ int main() {
 	long double a_min = pow(10.0L, 1.0L) * au/length_scale;
 	long double a_max = 3.0*pow(10.0L, 5.0L) * au/length_scale;
 
-	int N_bin = pow(10,5);
+	int N_bin = pow(10,6);
 
-	string filename = "final_r_and_a_distributions_MRAparams_Mp1000_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv";
+	string filename = "final_r_and_a_distributions_MRAparams_Mp10_Nbin10e6_format_ai_ri_ei_af_rf_ef.csv";
 
 	//Test evolve
 	//testEvolve();

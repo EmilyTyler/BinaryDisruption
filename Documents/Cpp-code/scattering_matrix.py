@@ -8,7 +8,7 @@ plt.rc('font', family='serif')
 #MRA observational data
 #The semi-major axis of the 25 most halo like wide binaries
 a_MRA = au*np.array([340309, 54283, 5139, 22320, 685, 2805, 12155, 9135, 213, 537, 55410, 79139, 125073, 2198, 12380, 1176, 140, 468, 33416, 9439, 443, 672, 2986, 19173, 8565])
-a_min = np.min(a_MRA)
+a_min = 10.0*au
 a_max = np.max(a_MRA)
 N_a_bins = 100
 da = (np.log(a_max) - np.log(a_min))/(N_a_bins)
@@ -47,8 +47,7 @@ for i in range(N_a_bins):
     N_binaries_with_r_ini_a_bins_i = np.sum(prob_r[i])
     prob_r[i, np.nonzero(prob_r[i])] /= N_binaries_with_r_ini_a_bins_i
 
-print('Scattering matrix generated with ', N_binaries, ' binaries')
-prob_a = np.transpose(prob_a)
+print('Scattering matrix generated with', N_binaries, 'binaries')
 
 def generate_evolved_binaries_with_a_ini_i(i, N_bins=1):
     random_a_fins = np.zeros(N_bins)
@@ -88,6 +87,7 @@ for i in range(np.size(a_virtual_evolved)):
         print(a_virtual_evolved[i])
 
 plt.loglog(a_bins/au, N_virtual_evolved)
+plt.xlim([10.0**3.0, 3.0*10.0**5.5])
 plt.show()
 
 
