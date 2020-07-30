@@ -436,19 +436,19 @@ int main() {
 
 	long double m1 = 0.5*msol/mass_scale;
 	long double m2 = 0.5*msol/mass_scale;
-	long double M_p = 1000.0L*msol/mass_scale;
-	long double rho = 0.007L * msol/pow(parsec, 3.0L) * (pow(length_scale, 3.0L)/mass_scale);
+	long double M_p = 10.0L*msol/mass_scale;
+	long double rho = 0.009L * msol/pow(parsec, 3.0L) * (pow(length_scale, 3.0L)/mass_scale);
 	long double n_p = rho/M_p;
-	long double v_rel = 200.0L*1000.0L *(time_scale/length_scale);
+	long double v_rel = 220.0L*1000.0L *(time_scale/length_scale);
 	long double T = 10.0L * giga * year /time_scale;
 
 	long double alpha = 1.0L;
 	long double a_min = pow(10.0L, 1.0L) * au/length_scale;
-	long double a_max = 3.0*pow(10.0L, 5.0L) * au/length_scale;
+	long double a_max = pow(10.0L, 5.5L) * au/length_scale;
 
-	int N_bin = pow(10,6);
+	int N_bin = pow(10,3);
 
-	string filename = "final_r_and_a_distributions_MRAparams_Mp1000_Nbin10e6_format_ai_ri_ei_af_rf_ef.csv";
+	string filename = "final_r_and_a_distributions_rho0_009_Mp10_vrel_220_Nbin10e3_format_ai_ri_ei_af_rf_ef.csv";
 
 	//Test evolve
 	//testEvolve();

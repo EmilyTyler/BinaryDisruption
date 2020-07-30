@@ -227,6 +227,17 @@ tuple<vector<long double>, vector<long double>, vector<long double>, vector<long
 		// Initial separation
 		r_inis[i] = a[i]*(1.0 - e[i]*e[i])/(1.0 + e[i]*cos(f));
 
+		if (N_enc == 0){
+			// Randomise mean anomaly
+			M = randomUniformDoubleOpen(0.0L, 2.0L*pi);
+			// Find eccentric anomaly
+			E = eccentricAnomaly(e[i], M, non_converged_binary);
+			//True anomaly
+			f = 2.0*atan(sqrt((1.0+e[i])/(1.0-e[i]))*tan(E/2.0));
+			// Final separation
+			r[i] = a[i]*(1.0 - e[i]*e[i])/(1.0 + e[i]*cos(f));
+		}
+
 		//Implement encounters
 		for (int j=0; j<N_enc; j++){
 
