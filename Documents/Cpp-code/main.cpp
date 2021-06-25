@@ -448,7 +448,7 @@ int main() {
 
 	int N_bin = pow(10,5);
 
-	string filename = "final_r_and_a_distributions_rho0_009_Mp10_vrel_220_Nbin10e5_format_ai_ri_ei_af_rf_ef_always_bound_only.csv";
+	string filename = "final_r_and_a_distributions_rho0_009_Mp10_vrel_220_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv";
 
 	//Test evolve
 	//testEvolve();
