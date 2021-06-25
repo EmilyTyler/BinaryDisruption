@@ -327,7 +327,7 @@ tuple<vector<long double>, vector<long double>, vector<long double>, vector<long
 			notBound = get<3>(result);
 			r[i] = get<4>(result);
 			//Check if separation exceeds cut off radius
-			if(r[i]>=a_T){
+			if((r[i]>=a_T) || (e[i] > 1.0L)){
 				a[i] = -1.0L;
 				e[i] = -1.0L;
 				r[i] = -1.0L;

@@ -41,13 +41,13 @@ def loadData(filename, plot_label, plot_initial, plot_color, plot_linestyle, yof
 		plt.plot(a_bins/au, N_a_ini*yoffset, label = 'Initial distribution', color=plot_color, linestyle=':')
 	plt.plot(a_bins/au, N_a_fin*yoffset, label = plot_label, color=plot_color, linestyle=plot_linestyle)
 
-def loadDataNoInitial(filename, plot_label, plot_color, plot_linestyle, y_offset=1.0):
+def loadDataNoInitial(filename, plot_label, plot_color, plot_linestyle, y_offset=1.0, index=0):
 	a_fin = np.zeros(N_bin)
 	with open(filename) as csvfile:
 	        reader = csv.reader(csvfile, delimiter=',')
 	        i = 0
 	        for row in reader:
-	        	a_fin[i] = float(row[0])
+	        	a_fin[i] = float(row[index])
 	        	i += 1
 	N_a_fin = np.zeros(N_bins)
 	for i in range(N_bin):
@@ -78,18 +78,32 @@ def loadMRAData(filename, plot_label, plot_color, plot_linestyle, y_offset=1720/
 	        	N = np.append(N, y_offset*float(row[1]))
 	plt.plot(a, N, label = plot_label, color=plot_color, linestyle=plot_linestyle)
 
-#loadYCGData('YCGfig2_initial.csv', 'Yoo et al., Initial', plot_color='black', plot_linestyle=':')
-#loadYCGData('YCGfig2_10Msol.csv', r'Yoo et al., $10M_\odot$, fitted', plot_color='black', plot_linestyle='--')
-#loadYCGData('YCGfig2_100Msol.csv', r'Yoo et al., $100M_\odot$, fitted', plot_color='black', plot_linestyle='-.')
-#loadYCGData('YCGfig2_1000Msol.csv', r'Yoo et al., $1000M_\odot$, fitted', plot_color='black', plot_linestyle='-')
+def loadAndPlotFractionUnboundVMass(filenamelist, masseslist):
+	fraction_unbound = np.zeros(np.size(masseslist))
+	for k in range(np.size(masseslist)):
+		with open(filenamelist[k]) as csvfile:
+			reader = csv.reader(csvfile, delimiter=',')
+			for row in reader:
+				a_fin = float(row[0])
+				if (a_fin > a_min) and (a_fin < a_max):
+					fraction_unbound[k] += 1.0
+	fraction_unbound /= 1000000.0
+	plt.scatter(masseslist, fraction_unbound)
+	ax = plt.gca()
+	ax.set_xscale('log')
+	plt.xlabel(r'Perturber Mass, $M_\odot$')
+	plt.ylabel(r'Fraction of binaries unbound after 10Gyr')
+	plt.show()
 
-#loadYCGData('YCGfig2_10Msol_points.csv', r'Yoo et al., $10M_\odot$', plot_color='grey', plot_linestyle='--')
-#loadYCGData('YCGfig2_100Msol_points.csv', r'Yoo et al., $100M_\odot$', plot_color='grey', plot_linestyle='-.')
-#loadYCGData('YCGfig2_1000Msol_points.csv', r'Yoo et al., $1000M_\odot$', plot_color='grey', plot_linestyle='-')
 
-loadMRAData('MRAfig1_10Msol.csv', r'Monroy-Rodr$\mathrm{\'{\i}}$guez & Allen, $10M_\odot$', plot_color='darkorange', plot_linestyle='--')
-loadMRAData('MRAfig1_100Msol.csv', r'Monroy-Rodr$\mathrm{\'{\i}}$guez & Allen, $100M_\odot$', plot_color='darkorange', plot_linestyle='-.')
-loadMRAData('MRAfig1_1000Msol.csv', r'Monroy-Rodr$\mathrm{\'{\i}}$guez & Allen, $1000M_\odot$', plot_color='darkorange', plot_linestyle='-')
+loadYCGData('YCGfig2_initial.csv', 'YCG, Initial', plot_color='dodgerblue', plot_linestyle=':')
+loadYCGData('YCGfig2_10Msol.csv', r'YCG, $10M_\odot$', plot_color='dodgerblue', plot_linestyle='-')
+loadYCGData('YCGfig2_100Msol.csv', r'YCG, $100M_\odot$', plot_color='dodgerblue', plot_linestyle='--')
+loadYCGData('YCGfig2_1000Msol.csv', r'YCG, $1000M_\odot$', plot_color='dodgerblue', plot_linestyle='-.')
+
+loadMRAData('MRAfig1_10Msol.csv', r'MRA $10M_\odot$', plot_color='darkorange', plot_linestyle='-')
+loadMRAData('MRAfig1_100Msol.csv', r'MRA $100M_\odot$', plot_color='darkorange', plot_linestyle='--')
+loadMRAData('MRAfig1_1000Msol.csv', r'MRA $1000M_\odot$', plot_color='darkorange', plot_linestyle='-.')
 
 #loadData('binary_pop_YCG10Msol.csv', r'Our simulation, $10M_\odot$', True, plot_color='dodgerblue', plot_linestyle='--')
 #loadData('binary_pop_YCG100Msol.csv', r'Our simulation, $100M_\odot$', False, plot_color='dodgerblue', plot_linestyle='-.')
@@ -193,18 +207,30 @@ loadData('final_separation_distribution_10Msol_initial_log_dist_rebound_not_incl
 loadData('final_separation_distribution_100Msol_initial_log_dist_rebound_not_included_Nbin10e6.csv', r'Rebound not included, $100M_\odot$', False, plot_color='darkorange', plot_linestyle='-')
 #With J+T params
 loadData('final_separation_distribution_J+Tparams_initial_J+Tlog_dist_rebound_included_Nbin10e6.csv', r'Rebound included, J+T params', False, plot_color='forestgreen', plot_linestyle='-')
+'''
+
+loadDataNoInitial('final_r_and_a_distributions_rho0_009_Mp10_vrel_220_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv', 'Initial', 'forestgreen', 'dotted', y_offset=0.265, index=0)
+loadDataNoInitial('final_r_and_a_distributions_rho0_009_Mp10_vrel_220_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv', r'$M_p=10M_\odot$, $\rho=0.009M_\odot$pc$^{-3}$', 'forestgreen', '-', y_offset=0.265, index=3)
+loadDataNoInitial('final_r_and_a_distributions_rho0_009_Mp100_vrel_220_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv', r'$M_p=100M_\odot$, $\rho=0.009M_\odot$pc$^{-3}$', 'forestgreen', 'dashed', y_offset=0.265, index=3)
+loadDataNoInitial('final_r_and_a_distributions_rho0_009_Mp1000_vrel_220_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv', r'$M_p=1000M_\odot$, $\rho=0.009M_\odot$pc$^{-3}$', 'forestgreen', 'dashdot', y_offset=0.265, index=3)
+
+loadDataNoInitial('final_separation_distribution_10Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always Bound, $M_p=10M_\odot$', plot_color='mediumpurple', plot_linestyle='-', y_offset=0.0275)  
+loadDataNoInitial('final_separation_distribution_100Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always Bound, $M_p=10M_\odot$', plot_color='mediumpurple', plot_linestyle='--', y_offset=0.0275)
+
 ax = plt.gca()
 ax.set_xscale('log')
 ax.set_yscale('log')
 plt.xlabel('Separation, au')
-plt.xlim(a_min/au, a_max/au)
-plt.ylim(6.0*10.0**(-1.0), 3.0*10.0**5.0)
+#plt.xlim(a_min/au, a_max/au)
+plt.xlim(10.0**3.0, 3.0*10.0**5.0)
+#plt.ylim(6.0*10.0**(-1.0), 3.0*10.0**5.0)
+plt.ylim(5.0*10.0**(-1.0), 3.0*10.0**3.0)
 plt.ylabel('Number of binaries')
 plt.legend()
 plt.show()    
+
+
 '''
-
-
 #Plot rebound, always bound and unbound separately
 loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_always_bound_only_Nbin10e6.csv', r'Always Bound, $M_p=1M_\odot$', plot_color='dodgerblue', plot_linestyle='--')  
 loadDataNoInitial('final_separation_distribution_1Msol_initial_log_dist_unbound_only_Nbin10e6.csv', r'Unbound, $M_p=1M_\odot$', plot_color='darkorange', plot_linestyle='--')
@@ -228,5 +254,10 @@ plt.xlabel(r'$r$/au')
 #plt.xlim(a_min/parsec, a_max/parsec)
 #plt.ylim(6.0*10.0**(-1.0), 3.0*10.0**5.0)
 plt.ylabel(r'Number of binaries with separation $r$')
-#plt.legend(ncol=2, loc='upper center', bbox_to_anchor=(0.5, -0.15))
+plt.legend(ncol=2, loc='upper center', bbox_to_anchor=(0.5, -0.15))
 plt.show()    
+
+filenamelist = ['final_separation_distribution_1Msol_initial_log_dist_unbound_only_Nbin10e6.csv', 'final_separation_distribution_10Msol_initial_log_dist_unbound_only_Nbin10e6.csv', 'final_separation_distribution_100Msol_initial_log_dist_unbound_only_Nbin10e6.csv']
+masseslist = [1,10,100]
+loadAndPlotFractionUnboundVMass(filenamelist, masseslist)
+'''
