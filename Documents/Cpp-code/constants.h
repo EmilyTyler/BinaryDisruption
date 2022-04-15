@@ -14,16 +14,11 @@ const long double msol = 2.0L * pow(10.0L, 30.0L);
 
 //Internal units
 const long double time_scale = giga*year;
-//const long double time_scale = 1.0;
 const long double mass_scale = msol;
-//const long double mass_scale = 1.0;
 const long double length_scale = pow((G_SI * mass_scale * time_scale*time_scale), 1.0L/3.0L);
-//const long double length_scale = 1.0;
 const long double G = 1.0L;
-//const long double G = G_SI;
 
 //Random number generator seed
-//const long double seed = 3263214825;
 const long double seed = 2137850808;
 
 

@@ -16,35 +16,18 @@
 using namespace std;
 
 
-//Tested
 // Rate of encounters between impact parameters b0 and b1 and between relative speeds of v0 and v1 in a sea of particles with number density n_p and relative velocity dispersion v_rel
 long double encounterRate(long double n_p, long double v_rel, long double b0, long double b1, long double v0, long double v1)
 {
 	return sqrt(2.0L*pi)*n_p/v_rel*(pow(b1, 2.0L)-pow(b0, 2.0L))*((pow(v0, 2.0L)+2.0L*pow(v_rel, 2.0L))*exp(-pow(v0, 2.0L)/(2.0L*pow(v_rel, 2.0L)))-(pow(v1, 2.0L)+2.0L*pow(v_rel, 2.0L))*exp(-pow(v1, 2.0L)/(2.0L*pow(v_rel, 2.0L))));
 }
 
-//Tested
 // Calculates the impact parameter at which the fractional change in semi-major axis of the binary will be equal to delta, for perturber mass M_p, relative velocity dispersion v_rel, semi-major axis a and binary star masses m1 and m2.
 long double calcBMax(long double M_p, long double v_rel, long double a, long double m1, long double m2, long double delta = pow(10.0L, -3.0L))
 {
 	return pow((64.0L*G*M_p*M_p*pow(a,3.0L)/((m1+m2)*v_rel*v_rel*delta*delta)), 0.25L);
 }
 
-long double BHTBMax(long double M_p, long double v_rel, long double a, long double m1, long double m2, long double e)
-{
-	long double C = 8.0;
-	long double D = 0.6*(1.0 + e);
-	long double v_c = G*m1*m2*(m1 + m2 + M_p)/(M_p*(m1 + m2)*a);
-	return (C*v_c/v_rel + D)/a;
-}
-
-long double YCGBMax(long double a, long double M_p, long double n_p, long double v_rel, long double T)
-{
-	long double b_min = sqrt(1.0/(pi*n_p*v_rel*T));
-	return max(10.0*b_min, 2.0*a);
-}
-
-//Tested magnitude, direction assumed to be correct from testing randomDirection
 // Finds the impact parameter and velocity vectors given the magnitudes of both and that they should be randomly distributed and perpendicular
 tuple<array<long double,3>, array<long double,3>> impactAndVelocityVectors(long double b, long double v)
 {
@@ -63,7 +46,6 @@ tuple<array<long double,3>, array<long double,3>> impactAndVelocityVectors(long 
 return make_tuple(b_vec, v_vec);
 }
 
-//Tested
 //Finds the impact parameter for a star in a binary given the impact parameter b_vec, velocity of perturber v_vec, and star position x
 array<long double,3> calcBStar(array<long double, 3> x, array<long double, 3> v_vec, long double v_norm, array<long double, 3> b_vec)
 {
@@ -74,7 +56,6 @@ array<long double,3> calcBStar(array<long double, 3> x, array<long double, 3> v_
 	return b_star;
 }
 
-//Tested
 // Implements an encounter at impact parameter b and relative speed v
 tuple<long double, long double, bool> impulseEncounter(long double m1, long double m2, long double M_p, long double a, long double e, long double b, long double v)
 {
@@ -111,7 +92,6 @@ tuple<long double, long double, bool> impulseEncounter(long double m1, long doub
 }
 
 
-//Tested
 //Draw an impact parameter from a distribution linear in b up to b_max
 long double drawB(long double b_max, long double b_min=0.0L)
 {
@@ -128,9 +108,7 @@ tuple<long double, long double, long double, bool, long double> impulseEncounter
 	//Find impact parameter and velocity vectors
 	tuple<array<long double,3>, array<long double,3>> bvvectors = impactAndVelocityVectors(b, v);
 	array<long double,3> b_vec = get<0>(bvvectors);
-	//cout << "b = " << b_vec[0] << ", " << b_vec[1] << ", " << b_vec[2] << endl;
 	array<long double,3> v_vec = get<1>(bvvectors);
-	//cout << "v = " << v_vec[0] << ", " << v_vec[1] << ", " << v_vec[2] << endl;
 	//Declare variables
 	long double b_90, b_star_norm, v_perp, v_para;
 	array<long double,3> b_star;
@@ -146,7 +124,6 @@ tuple<long double, long double, long double, bool, long double> impulseEncounter
 		//Calculate speed change in -v_vec direction
 		v_para = 2.0*M_p*v/(m[i]+M_p) * 1.0/(1.0 + b_star_norm*b_star_norm/(b_90*b_90));
 		//Change star velocity
-		//cout << "Velocity change = " << v_perp * b_star[0]/b_star_norm - v_para * v_vec[0]/v << ", " << v_perp * b_star[1]/b_star_norm - v_para * v_vec[1]/v << ", " << v_perp * b_star[2]/b_star_norm - v_para * v_vec[2]/v << endl;
 		for (int j=0; j<3; ++j){
 			X[i+2][j] += v_perp * b_star[j]/b_star_norm - v_para * v_vec[j]/v;
 		}

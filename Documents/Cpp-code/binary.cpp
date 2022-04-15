@@ -8,7 +8,6 @@
 #include "random_numbers.h"
 using namespace std;
 
-//Tested
 // Find the eccentric anomaly of a binary given its eccentricity e and mean anomaly M
 long double eccentricAnomaly(long double e, long double M, bool &non_converged_binary){
 	// Solves Kepler's equation E-esinE=M to find eccentric anomaly E given eccentricity e and mean anomaly M.
@@ -71,7 +70,6 @@ long double eccentricAnomalyIonised(long double e, long double M, bool notBound,
 
 			count += 1;
 			if (count > 100){
-				//cout << '\n' << "eccentricAnomalyIonised did not converge" << ", E = " << E << ", M = " << M << ", e = " << e << endl;
 				non_converged_binary = true;
 				break;
 			}
@@ -82,7 +80,6 @@ long double eccentricAnomalyIonised(long double e, long double M, bool notBound,
 	}
 }
 
-//Tested with setupRandomBinary
 //Return the semi-major axis and eccentricity of a binary and whether or not it is bound from the positions and velocities of the stars
 tuple<long double, long double, bool> orbitalElements(array<array<long double,3>, 4> X, long double m1, long double m2){
 	// Separation vector
@@ -141,10 +138,8 @@ tuple<long double, long double, long double, bool, long double> orbitalElementsI
 	// Magnitudes of the above vectors
 	long double R = norm(r);
 	long double V = norm(v);
-	//cout << "R/au = " << R*length_scale/au << endl;
 	// Total energy
 	long double E = m1*m2*(V*V/(2.0L*(m1+m2)) - G/R);
-	//cout << "Energy = " << E << endl;
 	// Total angular momentum
 	array<long double, 3> L = cross(r, v);
 	L[0] *= m1*m2/(m1+m2);
@@ -185,10 +180,8 @@ tuple<long double, long double, long double, bool, long double> orbitalElementsI
 	// Magnitudes of the above vectors
 	long double R = norm(r);
 	long double V = norm(v);
-	//cout << "R/au = " << R*length_scale/au << endl;
 	// Total energy
 	long double E = m1*m2*(V*V/(2.0L*(m1+m2)) - G/R);
-	//cout << "Energy = " << E << endl;
 	// Total angular momentum
 	array<long double, 3> L = cross(r, v);
 	L[0] *= m1*m2/(m1+m2);
@@ -222,7 +215,6 @@ tuple<long double, long double, long double, bool, long double> orbitalElementsI
 	return make_tuple(a, e, Ecc, notBound, R);
 }
 
-//Tested with orbitalElements
 // Open a binary: find the position and velocity vectors given the semi-major axis and eccentricity
 array<array<long double, 3>, 4> setupRandomBinary(long double a, long double e, long double m1, long double m2){
 	// Randomise mean anomaly
@@ -263,23 +255,12 @@ array<array<long double, 3>, 4> setupRandomBinary(long double a, long double e, 
 vector<array<long double, 3>> setupRandomBinaryVector(long double a, long double e, long double m1, long double m2){
 	// Randomise mean anomaly
 	long double M = randomUniformDoubleOpen(0.0L, 2.0L*pi);
-	//cout << "M_0 = " << M << endl;
 	// Find eccentric anomaly
 	bool arg3 = false;
 	long double E = eccentricAnomaly(e, M, arg3);
-	//cout << "E_0 = " << E << endl;
-	// Find true anomaly
-	//long double f = 2.0*atan(sqrt((1.0+e)/(1.0-e))*tan(E/2.0));
-	// Separation of stars
-	//long double r = a*(1.0 - e*e)/(1.0 + e*cos(f));
 	// Mean motion
 	long double n = sqrt(G*(m1+m2)/(pow(a,3L)));
 	// Position and velocity vectors
-	//vector<array<long double, 3>> X = { {
-		//{0.0, 0.0, 0.0},
-		//{r*cos(f), r*sin(f), 0.0},
-		//{0.0, 0.0, 0.0}, 
-		//{-n*a/(sqrt(1.0-e*e))*sin(f), n*a/(sqrt(1.0-e*e))*(e+cos(f)), 0.0}} };
 	vector<array<long double, 3>> X = { {
 		{0.0L, 0.0L, 0.0L},
 		{a*(cos(E)-e), a*sqrt(1.0L-e*e)*sin(E), 0.0L},

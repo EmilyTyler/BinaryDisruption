@@ -6,7 +6,6 @@
 #include <array>
 using namespace std;
 
-//Tested
 array<long double, 3> randomDirection()
 {
 	long double u = randomUniformDoubleClosed(-1.0L, 1.0L);

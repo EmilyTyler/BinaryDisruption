@@ -217,7 +217,6 @@ long double timestep(int N, long double eta){
 	vector<long double> timesteps;
 	timesteps.resize(N);
 	for (int i=0; i<N; ++i){
-		//cout << sqrt(eta*(norm(acc[i])*norm(snap[i]) + pow(norm(jerk[i]), 2.0))/(norm(jerk[i])*norm(crackle[i]) + pow(norm(snap[i]), 2.0))) << endl;
 		timesteps[i] = sqrt(eta*(norm(acc[i])*norm(snap[i]) + pow(norm(jerk[i]), 2.0L))/(norm(jerk[i])*norm(crackle[i]) + pow(norm(snap[i]), 2.0L)));
 	}
 	long double min_dt = timesteps[0];
@@ -238,7 +237,6 @@ long double acc_jerk_and_timestep(int N, vector<array<long double,3>> X, vector<
 	calc_crackle(N, M);
 	//Find timestep
 	long double dt = timestep(N, eta);
-	//long double dt=0.0000002*giga*year/time_scale;
 	return dt;
 }
 
@@ -286,11 +284,7 @@ long double singleTimestep(int N, vector<array<long double, 3>> &X, vector<long 
 	} 
     //Hermite scheme (Dehnen and Read 2011) with Aarseth criterion timesteps  
     //Find initial acceleration and jerk and timestep
-    //cout << "Total energy1, internal units = " << M[0]*M[1]*(dot(v[1][0], v[1][0])/(2*(M[0]+M[1])) - G/(norm(x[1][0]))) << endl;
     dt = acc_jerk_and_timestep(N, X_0, V_0, M, eta); 
-    //acc_and_jerk(N, X_0, V_0, M);
-    //dt = 7*pow(10.0, -6.0);
-    //cout << "Total energy2, internal units = " << M[0]*M[1]*(dot(v[1][0], v[1][0])/(2*(M[0]+M[1])) - G/(norm(x[1][0]))) << endl;
     A_0 = acc;
     J_0 = jerk;
     if ((dt_max>0.0L) && (dt_max<dt)){
@@ -307,7 +301,6 @@ long double singleTimestep(int N, vector<array<long double, 3>> &X, vector<long 
     for (int k=0; k<n; ++k){   
         //Estimate acceleration and jerk
         acc_and_jerk(N, X_1, V_1, M);
-        //cout << "Total energy3, internal units = " << M[0]*M[1]*(dot(v[1][0], v[1][0])/(2*(M[0]+M[1])) - G/(norm(x[1][0]))) << endl;
         A_1 = acc;
         J_1 = jerk;     
         //Obtain corrected positions and velocities
@@ -324,8 +317,6 @@ long double singleTimestep(int N, vector<array<long double, 3>> &X, vector<long 
 			X[i+N][l] = V_1[i][l];
 		}
 	} 
-	//cout << "Total energy4, internal units = " << M[0]*M[1]*(dot(v[1][0], v[1][0])/(2*(M[0]+M[1])) - G/(norm(x[1][0]))) << endl;
-	//cin.ignore();
     return dt;
 }
 
@@ -414,26 +405,14 @@ vector<array<long double, 3>> evolve(int N, vector<long double> M, vector<array<
 	long double t = 0.0L;
 	long double dt_max, dt;
 	if (ini_arrays){
-		//cout << "Initialising arrays" << endl;
 		initialise_arrays(N);
 	}
 	n=10;
-	//eta = 0.000002;
 	eta = 0.00000002L;
-	//ofstream myfile;
-	//myfile.open("test_nbody.csv");
 	while (t<T){
-		//cout << setprecision(16) << "Current time, Gyr = " << t*time_scale/(giga*year) << endl;
-		//cout << setprecision(16) << "Current time = " << t << endl;
 		dt_max = T - t;
 		dt = singleTimestep(N, X, M, n, eta, dt_max=dt_max);
-		//cout << "Timestep, Gyr = " << dt*time_scale/(giga*year) << endl;
-		//cout << "Timestep = " << dt << endl;
 		t += dt;
-		//cout << "Time after timestep = " << t << endl;
-		//cin.ignore();
-		//myfile << setprecision(16) << X[0][0] << ", " << X[0][1] << ", " << X[0][2] << ", " << X[1][0] << ", " << X[1][1] << ", " << X[1][2] << endl;
 	}
-	//myfile.close();
 	return X;
 }
