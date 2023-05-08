@@ -92,7 +92,7 @@ int main() {
 
 	int N_bin = pow(10,5);
 
-	string filename = "final_r_and_a_distributions_rho0_009_Mp10_vrel_220_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv";
+	string filename = "output/final_r_and_a_distributions_rho0_009_Mp10_vrel_220_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv";
 
 	//Run simulation
 	evolvePopulation(filename, N_bin, a_min, a_max, alpha, v_rel, n_p, T, m1, m2, M_p);

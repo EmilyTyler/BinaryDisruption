@@ -1,8 +1,5 @@
-import csv
 import numpy as np
 import matplotlib.pyplot as plt
-import random
-from scipy import stats
 plt.rc('font', family='serif')
 seed=10
 np.random.seed(seed)

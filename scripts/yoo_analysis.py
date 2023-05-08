@@ -2,11 +2,10 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.constants import au, parsec
-from scipy.stats import powerlaw, chisquare
+from scipy.stats import chisquare
 from scipy import stats
-from scipy.special import factorial
 from scipy.optimize import curve_fit
-from mc_draw_from_dist import draw_from_poly, eval_y, seed
+from mc_draw_from_dist import draw_from_poly, seed
 from numpy.polynomial import Polynomial
 plt.rc('font', family='serif', size=14)
 np.random.seed(seed)
@@ -54,7 +53,7 @@ s_MRA = np.zeros(0)
 a_MRA = np.zeros(0)
 t_dt_MRA = np.zeros(0)
 d_MRA = np.zeros(0)
-with open("AMR_data_s_a_t_dt_d.csv") as csvfile:
+with open("data/AMR_data_s_a_t_dt_d.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
         s_MRA = np.append(s_MRA, float(row[0]))
@@ -67,14 +66,14 @@ with open("AMR_data_s_a_t_dt_d.csv") as csvfile:
 r_projected_MRA = s_MRA*d_MRA/parsec*au
 
 AMR_data_names = np.zeros(0, dtype=str)
-with open("AMR_data_names.csv") as csvfile:
+with open("data/AMR_data_names.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
         AMR_data_names = np.append(AMR_data_names, row[0])
 
 #Import galpy time in disk
 t_dt_galpy = np.full(np.size(t_dt_MRA), -1.0)
-with open("AMR_data_names_galpyt_d.csv") as csvfile:
+with open("data/AMR_data_names_galpyt_d.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
         label = row[0]
@@ -261,7 +260,7 @@ plt.figure(figsize=(7.5,5))
 for k in range(np.size(Fdims)):  
     semimajor_axis = np.zeros(0)
     cumulative_dist = np.zeros(0)
-    with open("DanielGriffithsThesisFig5_13Fdim{}_{}.csv".format(str(Fdims[k])[0], str(Fdims[k])[2])) as csvfile:
+    with open("data/DanielGriffithsThesisFig5_13Fdim{}_{}.csv".format(str(Fdims[k])[0], str(Fdims[k])[2])) as csvfile:
         reader = csv.reader(csvfile, delimiter=',')
         for row in reader:
             semimajor_axis = np.append(semimajor_axis, float(row[0])*au)
@@ -312,7 +311,7 @@ distances = draw_from_poly(coeffs, d_min/parsec, d_max/parsec, size=100000)*pars
 #distances = np.array([100.0*parsec]*100000)
 for k in range(N_Mps):
     for l in range(N_rhos):
-        with open("final_r_and_a_distributions_rho0_{}_Mp{}_vrel_220_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv".format(str(rhos[l])[2:], M_ps[k])) as csvfile:
+        with open("output/final_r_and_a_distributions_rho0_{}_Mp{}_vrel_220_Nbin10e5_format_ai_ri_ei_af_rf_ef.csv".format(str(rhos[l])[2:], M_ps[k])) as csvfile:
             reader = csv.reader(csvfile, delimiter=',')
             row_number = 0
             for row in reader:

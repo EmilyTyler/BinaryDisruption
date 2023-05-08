@@ -1,10 +1,12 @@
+# Calculates and plots the average dark matter density for binaries in the AMR catalog
+
 import csv
 import scipy
 from galpy.potential import MWPotential2014, evaluateDensities
 from galpy.potential.mwpotentials import DehnenBinney98I
 from galpy.orbit import Orbit
-from galpy.util import bovy_conversion
-from galpy.util.bovy_conversion import get_physical
+from galpy.util import conversion
+from galpy.util.conversion import get_physical
 from astropy import units
 from astropy.units import imperial
 imperial.enable()
@@ -20,7 +22,7 @@ N_t = np.size(ts)
 print('Importing data')
 #Import labels
 labels = np.zeros(0)
-with open("AMR_data_names.csv") as csvfile:
+with open("data/AMR_data_names.csv") as csvfile:
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
         labels = np.append(labels, row[0])
@@ -30,7 +32,8 @@ for i in range(np.size(labels)):
     try:
         Orbit.from_name(labels[i], **get_physical(MWPotential2014))
         N_orbits += 1
-    except:
+    except Exception as e:
+        print("The error is: ",e)
         print('No orbit for:', labels[i])
         labels[i] = 'no_orbit'
 labels = np.where(labels=='NLTT 7795', 'no_orbit', labels)
@@ -41,7 +44,7 @@ orbits = [Orbit.from_name(labels[i], **get_physical(MWPotential2014)) for i in r
 print('Number of binaries with orbits =', N_orbits)
 
 #Dark matter density at sol
-dm_density_at_sol = evaluateDensities(MWPotential2014[2], 1.0, 0.0)*bovy_conversion.dens_in_msolpc3(**get_physical(MWPotential2014))
+dm_density_at_sol = evaluateDensities(MWPotential2014[2], 1.0, 0.0)*conversion.dens_in_msolpc3(**get_physical(MWPotential2014))
 print('Dark matter density at solar position =', dm_density_at_sol)
 
 #Integrate orbits
@@ -74,8 +77,8 @@ for orbi,label,j in zip(orbits,labels, range(N_orbits)):
             fraction_of_lifetime_in_disk[j] += 1/N_t
 
     for i in range(N_t):
-        avg_dm_density[j] += evaluateDensities(MWPotential2014[2], orbi.R(ts[i].value), orbi.z(ts[i].value), phi=orbi.phi(ts[i].value), t=ts[i])/N_t*bovy_conversion.dens_in_msolpc3(220.0, 8.0)
-        avg_stellar_density[j] += evaluateDensities(MWPotential2014[0], orbi.R(ts[i].value), orbi.z(ts[i].value), phi=orbi.phi(ts[i].value), t=ts[i])/N_t*bovy_conversion.dens_in_msolpc3(220.0, 8.0) + evaluateDensities(MWPotential2014[1], orbi.R(ts[i].value), orbi.z(ts[i].value), phi=orbi.phi(ts[i].value), t=ts[i])/N_t*bovy_conversion.dens_in_msolpc3(220.0, 8.0)
+        avg_dm_density[j] += evaluateDensities(MWPotential2014[2], orbi.R(ts[i].value), orbi.z(ts[i].value), phi=orbi.phi(ts[i].value), t=ts[i])/N_t*conversion.dens_in_msolpc3(220.0, 8.0)
+        avg_stellar_density[j] += evaluateDensities(MWPotential2014[0], orbi.R(ts[i].value), orbi.z(ts[i].value), phi=orbi.phi(ts[i].value), t=ts[i])/N_t*conversion.dens_in_msolpc3(220.0, 8.0) + evaluateDensities(MWPotential2014[1], orbi.R(ts[i].value), orbi.z(ts[i].value), phi=orbi.phi(ts[i].value), t=ts[i])/N_t*conversion.dens_in_msolpc3(220.0, 8.0)
     
 #Add in Quinn et al. initial conditions NLTT 15501
 orbit15501 = Orbit([85.91593, 49.38367, 0.210, 81, -176, 262.3], radec=True, **get_physical(DehnenBinney98I))
